@@ -11,17 +11,13 @@ public class ColorScanner {
     /**
      * Print file size of a given file (for now)
      */
-    public static void main(String[] args) {
-        if (args.length == 1 && args[0] != null) {
+    public static void main(String[] args) throws IOException {
+        if (args.length == 1 && !args[0].trim().isEmpty()) {
             String fileName = args[0];
             Path filePath = Paths.get(fileName);
             if (Files.exists(filePath)) {
-                try {
-                    long fileSize = Files.size(filePath);
-                    System.out.println("File size: " + fileSize);
-                } catch (Exception e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
+                long fileSize = Files.size(filePath);
+                System.out.println("File size: " + fileSize);
             }
         } else {
             System.out.println("Error: File does not exist.");
