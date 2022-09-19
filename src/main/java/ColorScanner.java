@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 /**
  * @author krwong
@@ -18,9 +17,11 @@ public class ColorScanner {
             if (Files.exists(filePath)) {
                 long fileSize = Files.size(filePath);
                 System.out.println("File size: " + fileSize);
+            } else {
+                System.out.println("Error: File does not exist.");
             }
         } else {
-            System.out.println("Error: File does not exist.");
+            System.out.println("Error: Please input one argument.");
         }
     }
 }

@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -43,7 +42,7 @@ public class ColorScannerTest {
         args[1] = "test";
 
         ColorScanner.main(args);
-        assertEquals("Error: File does not exist.", outputStreamCaptor.toString().trim());
+        assertEquals("Error: Please input one argument.", outputStreamCaptor.toString().trim());
     }
 
     @Test
@@ -52,18 +51,17 @@ public class ColorScannerTest {
         args[0] = " ";
 
         ColorScanner.main(args);
-        assertEquals("Error: File does not exist.", outputStreamCaptor.toString().trim());
+        assertEquals("Error: Please input one argument.", outputStreamCaptor.toString().trim());
     }
 
     @Test
-    public void testFileDoesNotExist() throws Exception {
+    public void testNonexistentFileFail() throws Exception {
         String testFile = "src/test/resources/test.txt";
-        Path testPath = Paths.get(testFile);
         String[] args = new String[1];
         args[0] = testFile;
 
         colorScanner.main(args);
-        assertFalse(Files.exists(testPath));
+        assertEquals("Error: File does not exist.", outputStreamCaptor.toString().trim());
     }
 
 }
