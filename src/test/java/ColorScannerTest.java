@@ -1,7 +1,9 @@
+import com.drew.imaging.ImageProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,6 +64,16 @@ public class ColorScannerTest {
 
         colorScanner.main(args);
         assertEquals("Error: File does not exist.", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testColorFields() throws Exception {
+        String testFile = "src/test/resources/P0024_0066.tif";
+        String[] args = new String[1];
+        args[0] = testFile;
+
+        colorScanner.colorFields(testFile);
+        //System.out.println(outputStreamCaptor.toString().trim());
     }
 
 }
