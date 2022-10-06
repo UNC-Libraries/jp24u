@@ -1,16 +1,15 @@
-import com.thebuzzmedia.exiftool.ExifTool;
-import com.thebuzzmedia.exiftool.ExifToolBuilder;
-import com.thebuzzmedia.exiftool.Tag;
-import com.thebuzzmedia.exiftool.core.StandardTag;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import com.drew.metadata.exif.ExifInteropDirectory;
+import com.drew.metadata.icc.IccDirectory;
+import com.drew.metadata.photoshop.PsdHeaderDirectory;
 
-import java.awt.color.ICC_Profile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * @author krwong
@@ -20,14 +19,53 @@ public class ColorScanner {
      * Print EXIF and ICC Profile fields
      */
     public static void colorFields(String fileName) throws Exception {
+        String iccProfileName = "\t";
+        String colorSpace = "\t";
+        String colorMode = "\t";
+        String interopIndex = "\t";
+        String photometricInterpretation = "\t";
+
         File imageFile = new File(fileName);
-        Map<Tag, String> valueMap;
-        try (ExifTool exifTool = new ExifToolBuilder().build()) {
-            valueMap = exifTool.getImageMeta(imageFile, Arrays.asList(
-                    StandardTag.COLOR_SPACE,
-                    ));
+        Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
+
+        //ICC Profile Tag(s): ICCProfileName, ColorSpace
+        if (metadata.containsDirectoryOfType(IccDirectory.class)) {
+            IccDirectory iccDirectory = metadata.getFirstDirectoryOfType(IccDirectory.class);
+            if (iccDirectory.containsTag(IccDirectory.TAG_TAG_desc)) {
+                iccProfileName = iccDirectory.getDescription(IccDirectory.TAG_TAG_desc);
+            }
+            if (iccDirectory.containsTag(IccDirectory.TAG_COLOR_SPACE)) {
+                colorSpace = iccDirectory.getDescription(IccDirectory.TAG_COLOR_SPACE);
+            }
         }
-        System.out.println(valueMap.entrySet());
+
+        //Photoshop Header Tag(s): ColorMode
+        if (metadata.containsDirectoryOfType(PsdHeaderDirectory.class)) {
+            PsdHeaderDirectory psdHeaderDirectory = metadata.getFirstDirectoryOfType(PsdHeaderDirectory);
+            if (psdHeaderDirectory.containsTag(PsdHeaderDirectory.TAG_COLOR_MODE)) {
+                colorMode = psdHeaderDirectory.getDescription(PsdHeaderDirectory.TAG_COLOR_MODE);
+            }
+        }
+
+        //EXIF InteropIFD Tag(s): InteropIndex
+        if (metadata.containsDirectoryOfType(ExifInteropDirectory.class)) {
+            ExifInteropDirectory exifInteropDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
+            if (exifInteropDirectory.containsTag(ExifInteropDirectory.TAG_INTEROP_INDEX)) {
+                interopIndex = exifInteropDirectory.getDescription(ExifInteropDirectory.TAG_INTEROP_INDEX);
+            }
+        }
+
+        //EXIF IFD0 Tag(s): PhotometricInterpretation
+        if (metadata.containsDirectoryOfType(ExifIFD0Directory.class)) {
+            ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            if (exifIFD0Directory.containsTag(ExifInteropDirectory.TAG_PHOTOMETRIC_INTERPRETATION)) {
+                photometricInterpretation =
+                        exifIFD0Directory.getDescription(ExifIFD0Directory.TAG_PHOTOMETRIC_INTERPRETATION);
+            }
+        }
+
+        System.out.println("ICCProfileName:" + iccProfileName + "ColorSpace:" + colorSpace + "ColorMode:" + colorMode +
+                "InteropIndex:" + interopIndex + "PhotometricInterpretation:" + photometricInterpretation);
     }
 
     /**
