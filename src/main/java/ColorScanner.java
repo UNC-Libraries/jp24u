@@ -21,7 +21,6 @@ public class ColorScanner {
     public static void colorFields(String fileName) throws Exception {
         String iccProfileName = "\t";
         String colorSpace = "\t";
-        String colorMode = "\t";
         String interopIndex = "\t";
         String photometricInterpretation = "\t";
 
@@ -56,7 +55,7 @@ public class ColorScanner {
             }
         }
 
-        System.out.println("ICCProfileName:" + iccProfileName + "ColorSpace:" + colorSpace + "ColorMode:" + colorMode +
+        System.out.println("ICCProfileName:" + iccProfileName + "ColorSpace:" + colorSpace +
                 "InteropIndex:" + interopIndex + "PhotometricInterpretation:" + photometricInterpretation);
     }
 
