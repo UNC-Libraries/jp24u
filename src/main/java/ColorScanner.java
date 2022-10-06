@@ -39,14 +39,6 @@ public class ColorScanner {
             }
         }
 
-        //Photoshop Header Tag(s): ColorMode
-        if (metadata.containsDirectoryOfType(PsdHeaderDirectory.class)) {
-            PsdHeaderDirectory psdHeaderDirectory = metadata.getFirstDirectoryOfType(PsdHeaderDirectory);
-            if (psdHeaderDirectory.containsTag(PsdHeaderDirectory.TAG_COLOR_MODE)) {
-                colorMode = psdHeaderDirectory.getDescription(PsdHeaderDirectory.TAG_COLOR_MODE);
-            }
-        }
-
         //EXIF InteropIFD Tag(s): InteropIndex
         if (metadata.containsDirectoryOfType(ExifInteropDirectory.class)) {
             ExifInteropDirectory exifInteropDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);

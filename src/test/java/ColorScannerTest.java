@@ -73,7 +73,6 @@ public class ColorScannerTest {
         colorScanner.colorFields(testFile);
         assertTrue(outputStreamCaptor.toString().trim().contains("ICCProfileName:Adobe RGB (1998)"));
         assertTrue(outputStreamCaptor.toString().trim().contains("ColorSpace:RGB"));
-        assertTrue(outputStreamCaptor.toString().trim().contains("ColorMode:\t"));
         assertTrue(outputStreamCaptor.toString().trim().contains("InteropIndex:Unknown (R03)"));
         assertTrue(outputStreamCaptor.toString().trim().contains("PhotometricInterpretation:RGB"));
     }
@@ -88,7 +87,6 @@ public class ColorScannerTest {
         //PhotometricInterpretation is never missing
         assertTrue(outputStreamCaptor.toString().trim().contains("ICCProfileName:\t"));
         assertTrue(outputStreamCaptor.toString().trim().contains("ColorSpace:\t"));
-        assertTrue(outputStreamCaptor.toString().trim().contains("ColorMode:\t"));
         assertTrue(outputStreamCaptor.toString().trim().contains("InteropIndex:\t"));
         assertTrue(outputStreamCaptor.toString().trim().contains("PhotometricInterpretation:BlackIsZero"));
     }
