@@ -1,9 +1,7 @@
-import com.drew.imaging.ImageProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,13 +25,13 @@ public class ColorScannerTest {
 
     @Test
     public void testFileSize() throws Exception {
-        String testFile = "src/test/resources/lorem_ipsum.txt";
+        String testFile = "src/test/resources/P0024_0066.tif";
         Path testPath = Paths.get(testFile);
         String[] args = new String[1];
         args[0] = testFile;
 
         colorScanner.main(args);
-        assertEquals("File size: 3278", outputStreamCaptor.toString().trim());
+        assertTrue(outputStreamCaptor.toString().trim().contains("File size: 40736840"));
         assertTrue(Files.exists(testPath));
     }
 
@@ -68,12 +66,31 @@ public class ColorScannerTest {
 
     @Test
     public void testColorFields() throws Exception {
-        String testFile = "src/test/resources/P0024_0066.tif";
+        String testFile = "src/test/resources/E101_F8_0112.tif";
         String[] args = new String[1];
         args[0] = testFile;
 
         colorScanner.colorFields(testFile);
-        //System.out.println(outputStreamCaptor.toString().trim());
+        assertTrue(outputStreamCaptor.toString().trim().contains("ICCProfileName:Adobe RGB (1998)"));
+        assertTrue(outputStreamCaptor.toString().trim().contains("ColorSpace:RGB"));
+        assertTrue(outputStreamCaptor.toString().trim().contains("ColorMode:\t"));
+        assertTrue(outputStreamCaptor.toString().trim().contains("InteropIndex:Unknown (R03)"));
+        assertTrue(outputStreamCaptor.toString().trim().contains("PhotometricInterpretation:RGB"));
+    }
+
+    @Test
+    public void testMissingColorFields() throws Exception {
+        String testFile = "src/test/resources/P0024_0066.tif";
+        String[] args = new String[1];
+        args[0] = testFile;
+
+        colorScanner.main(args);
+        //PhotometricInterpretation is never missing
+        assertTrue(outputStreamCaptor.toString().trim().contains("ICCProfileName:\t"));
+        assertTrue(outputStreamCaptor.toString().trim().contains("ColorSpace:\t"));
+        assertTrue(outputStreamCaptor.toString().trim().contains("ColorMode:\t"));
+        assertTrue(outputStreamCaptor.toString().trim().contains("InteropIndex:\t"));
+        assertTrue(outputStreamCaptor.toString().trim().contains("PhotometricInterpretation:BlackIsZero"));
     }
 
 }
