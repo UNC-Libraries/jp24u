@@ -3,6 +3,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -89,6 +90,18 @@ public class ColorScannerTest {
         assertTrue(outputStreamCaptor.toString().trim().contains("ColorSpace:\t"));
         assertTrue(outputStreamCaptor.toString().trim().contains("InteropIndex:\t"));
         assertTrue(outputStreamCaptor.toString().trim().contains("PhotometricInterpretation:BlackIsZero"));
+    }
+
+    @Test
+    public void testIdentifyCmd() throws Exception {
+        String testFile = "src/test/resources/P0024_0066.tif";
+        String[] args = new String[1];
+        args[0] = testFile;
+
+        colorScanner.main(args);
+        System.out.println(outputStreamCaptor.toString().trim());
+        //E101_F8_0112.tif Dimensions: 2600x3650;Channels: srgb;Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Color Mode: ;Profiles: icc,xmp;ICC Profile: Adobe RGB (1998);ICM Profile: ;Dimensions: 114x160;Channels: srgb;Bit-depth: 8;Alpha channel: False;Color Space: sRGB;Color Mode: ;Profiles: ;ICC Profile: ;ICM Profile: ;
+        //P0024_0066.tif Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;Alpha channel: False;Color Space: Gray;Color Mode: ;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;
     }
 
 }

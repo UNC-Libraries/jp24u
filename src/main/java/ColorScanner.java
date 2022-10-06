@@ -3,10 +3,14 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifInteropDirectory;
 import com.drew.metadata.icc.IccDirectory;
-import com.drew.metadata.photoshop.PsdHeaderDirectory;
 
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,9 +64,34 @@ public class ColorScanner {
     }
 
     /**
+     * Run identify command and print output
+     */
+    public static void identify(String fileName) {
+        String command = "identify -quiet -format \"Dimensions: %wx%h;Channels: %[channels];Bit-depth: %[bit-depth];" +
+                "Alpha channel: %A;Color Space: %[colorspace];Color Mode: %[colormode];Profiles: %[profiles];" +
+                "ICC Profile: %[profile:icc];ICM Profile: %[profile:icm];\" " + fileName;
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            InputStream is = process.getInputStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
      * Print file size of a given file (for now)
      */
-    public static void main(String[] args) throws Exception, IOException {
+    public static void main(String[] args) throws Exception {
+//        String filename = "src/test/resources/P0024_0066.tif";
+//        identify(filename);
         if (args.length == 1 && !args[0].trim().isEmpty()) {
             String fileName = args[0];
             Path filePath = Paths.get(fileName);
@@ -70,6 +99,7 @@ public class ColorScanner {
                 long fileSize = Files.size(filePath);
                 System.out.println("File size: " + fileSize);
                 colorFields(fileName);
+                identify(fileName);
             } else {
                 System.out.println("Error: File does not exist.");
             }
