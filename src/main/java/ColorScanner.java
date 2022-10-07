@@ -14,6 +14,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author krwong
@@ -59,39 +61,36 @@ public class ColorScanner {
             }
         }
 
-        System.out.println("ICCProfileName:" + iccProfileName + "ColorSpace:" + colorSpace +
-                "InteropIndex:" + interopIndex + "PhotometricInterpretation:" + photometricInterpretation);
+        System.out.print("ICCProfileName:" + iccProfileName + "ColorSpace:" + colorSpace +
+                "InteropIndex:" + interopIndex + "PhotometricInterpretation:" + photometricInterpretation + "\t");
     }
 
     /**
      * Run identify command and print output
      */
-    public static void identify(String fileName) {
-        String command = "identify -quiet -format \"Dimensions: %wx%h;Channels: %[channels];Bit-depth: %[bit-depth];" +
-                "Alpha channel: %A;Color Space: %[colorspace];Color Mode: %[colormode];Profiles: %[profiles];" +
-                "ICC Profile: %[profile:icc];ICM Profile: %[profile:icm];\" " + fileName;
-        try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            InputStream is = process.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static void identify(String fileName) throws IOException {
+        String identify = "identify" ;
+        String quiet = "-quiet";
+        String format = "-format";
+        String options = "Dimensions: %wx%h;Channels: %[channels];Bit-depth: %[bit-depth];" +
+                "Alpha channel: %A;Color Space: %[colorspace];Profiles: %[profiles];" +
+                "ICC Profile: %[profile:icc];ICM Profile: %[profile:icm];";
+        String[] command = {identify, quiet, format, options, fileName};
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+        InputStream is = process.getInputStream();
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String line;
+        while ((line = br.readLine()) != null) {
+            System.out.println(line);
         }
-
     }
 
     /**
      * Print file size of a given file (for now)
      */
     public static void main(String[] args) throws Exception {
-//        String filename = "src/test/resources/P0024_0066.tif";
-//        identify(filename);
         if (args.length == 1 && !args[0].trim().isEmpty()) {
             String fileName = args[0];
             Path filePath = Paths.get(fileName);

@@ -2,14 +2,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author krwong
@@ -99,9 +100,9 @@ public class ColorScannerTest {
         args[0] = testFile;
 
         colorScanner.main(args);
-        System.out.println(outputStreamCaptor.toString().trim());
-        //E101_F8_0112.tif Dimensions: 2600x3650;Channels: srgb;Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Color Mode: ;Profiles: icc,xmp;ICC Profile: Adobe RGB (1998);ICM Profile: ;Dimensions: 114x160;Channels: srgb;Bit-depth: 8;Alpha channel: False;Color Space: sRGB;Color Mode: ;Profiles: ;ICC Profile: ;ICM Profile: ;
-        //P0024_0066.tif Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;Alpha channel: False;Color Space: Gray;Color Mode: ;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;
+        assertTrue(outputStreamCaptor.toString().trim().contains("ICCProfileName:\tColorSpace:\tInteropIndex:\t" +
+                "PhotometricInterpretation:BlackIsZero\tDimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
+                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;"));
     }
 
 }
