@@ -4,18 +4,14 @@ import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifInteropDirectory;
 import com.drew.metadata.icc.IccDirectory;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author krwong
@@ -76,6 +72,7 @@ public class ColorScanner {
                 "Alpha channel: %A;Color Space: %[colorspace];Profiles: %[profiles];" +
                 "ICC Profile: %[profile:icc];ICM Profile: %[profile:icm];";
         String[] command = {identify, quiet, format, options, fileName};
+
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.redirectErrorStream(true);
         Process process = builder.start();
