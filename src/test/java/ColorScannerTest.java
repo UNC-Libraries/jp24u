@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -67,32 +69,44 @@ public class ColorScannerTest {
     @Test
     public void testColorFields() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
-        String[] args = new String[1];
-        args[0] = testFile;
 
-        colorScanner.colorFields(testFile);
-        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:Adobe RGB (1998)\t"));
-        assertTrue(outputStreamCaptor.toString().contains("ColorSpace:RGB \t"));
-        assertTrue(outputStreamCaptor.toString().contains("InteropIndex:Unknown (R03)\t"));
-        assertTrue(outputStreamCaptor.toString().contains("PhotometricInterpretation:RGB\t"));
+        List<String> testFields = new ArrayList<>();
+        testFields.add("ICCProfileName:Adobe RGB (1998)");
+        testFields.add("ColorSpace:RGB ");
+        testFields.add("InteropIndex:Unknown (R03)");
+        testFields.add("PhotometricInterpretation:RGB");
+
+        List<String> fields = colorScanner.colorFields(testFile);
+        assertEquals(testFields, fields);
     }
 
     @Test
     public void testMissingColorFields() throws Exception {
         String testFile = "src/test/resources/P0024_0066.tif";
-        String[] args = new String[1];
-        args[0] = testFile;
 
-        colorScanner.main(args);
         //PhotometricInterpretation is never missing
-        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:\t\t"));
-        assertTrue(outputStreamCaptor.toString().contains("ColorSpace:\t\t"));
-        assertTrue(outputStreamCaptor.toString().contains("InteropIndex:\t\t"));
-        assertTrue(outputStreamCaptor.toString().contains("PhotometricInterpretation:BlackIsZero\t"));
+        List<String> testFields = new ArrayList<>();
+        testFields.add("ICCProfileName:\t");
+        testFields.add("ColorSpace:\t");
+        testFields.add("InteropIndex:\t");
+        testFields.add("PhotometricInterpretation:BlackIsZero");
+
+        List<String> fields = colorScanner.colorFields(testFile);
+        assertEquals(testFields, fields);
     }
 
     @Test
-    public void testIdentifyCmd() throws Exception {
+    public void testIdentify() throws Exception {
+        String testFile = "src/test/resources/P0024_0066.tif";
+
+        String testAttributes = "\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;Alpha channel: False;" +
+                "Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\"";
+        String attributes = colorScanner.identify(testFile);
+        assertEquals(testAttributes, attributes);
+    }
+
+    @Test
+    public void testAllFields() throws Exception {
         String testFile = "src/test/resources/P0024_0066.tif";
         String[] args = new String[1];
         args[0] = testFile;

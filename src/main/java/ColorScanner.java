@@ -21,8 +21,9 @@ import java.util.List;
 public class ColorScanner {
     /**
      * Print EXIF and ICC Profile fields
+     * @return
      */
-    public static void colorFields(String fileName) throws Exception {
+    public static List<String> colorFields(String fileName) throws Exception {
         String iccProfileName = "\t";
         String colorSpace = "\t";
         String interopIndex = "\t";
@@ -64,14 +65,13 @@ public class ColorScanner {
         fields.add("ColorSpace:" + colorSpace);
         fields.add("InteropIndex:" + interopIndex);
         fields.add("PhotometricInterpretation:" + photometricInterpretation);
-        String allFields = String.join("\t", fields);
-        System.out.print(allFields + "\t");
+        return fields;
     }
 
     /**
      * Run identify command and print output
      */
-    public static void identify(String fileName) throws IOException {
+    public static String identify(String fileName) throws IOException {
         String identify = "identify" ;
         String quiet = "-quiet";
         String format = "-format";
@@ -86,11 +86,19 @@ public class ColorScanner {
         InputStream is = process.getInputStream();
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String line;
-        System.out.print("\"");
+        String attributes = "\"";
         while ((line = br.readLine()) != null) {
-            System.out.print(line);
+            attributes = attributes + line;
         }
-        System.out.println("\"");
+        return attributes + "\"";
+    }
+
+    public static void allFields(String fileName) throws Exception {
+        List fields = colorFields(fileName);
+        String attributes = identify(fileName);
+        fields.add(attributes);
+        String allFields = String.join("\t", fields);
+        System.out.println(allFields);
     }
 
     /**
@@ -103,8 +111,7 @@ public class ColorScanner {
             if (Files.exists(filePath)) {
                 long fileSize = Files.size(filePath);
                 System.out.println("File size: " + fileSize);
-                colorFields(fileName);
-                identify(fileName);
+                allFields(fileName);
             } else {
                 System.out.println("Error: File does not exist.");
             }
