@@ -86,9 +86,9 @@ public class ColorScannerTest {
 
         //PhotometricInterpretation is never missing
         List<String> testFields = new ArrayList<>();
-        testFields.add("ICCProfileName:\t");
-        testFields.add("ColorSpace:\t");
-        testFields.add("InteropIndex:\t");
+        testFields.add("ICCProfileName:null");
+        testFields.add("ColorSpace:null");
+        testFields.add("InteropIndex:null");
         testFields.add("PhotometricInterpretation:BlackIsZero");
 
         List<String> fields = colorScanner.colorFields(testFile);
@@ -112,7 +112,7 @@ public class ColorScannerTest {
         args[0] = testFile;
 
         colorScanner.main(args);
-        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:\t\tColorSpace:\t\tInteropIndex:\t\t" +
+        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:null\tColorSpace:null\tInteropIndex:null\t" +
                 "PhotometricInterpretation:BlackIsZero\t\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
                 "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\""));
     }

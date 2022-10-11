@@ -24,10 +24,10 @@ public class ColorScanner {
      * @return
      */
     public static List<String> colorFields(String fileName) throws Exception {
-        String iccProfileName = "\t";
-        String colorSpace = "\t";
-        String interopIndex = "\t";
-        String photometricInterpretation = "\t";
+        String iccProfileName = null;
+        String colorSpace = null;
+        String interopIndex = null;
+        String photometricInterpretation = null;
 
         File imageFile = new File(fileName);
         Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
