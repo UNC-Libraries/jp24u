@@ -86,9 +86,11 @@ public class ColorScanner {
         InputStream is = process.getInputStream();
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String line;
+        System.out.print("\"");
         while ((line = br.readLine()) != null) {
-            System.out.println("\"" + line + "\"");
+            System.out.print(line);
         }
+        System.out.println("\"");
     }
 
     /**
