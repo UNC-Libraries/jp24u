@@ -71,10 +71,10 @@ public class ColorScannerTest {
         args[0] = testFile;
 
         colorScanner.colorFields(testFile);
-        assertTrue(outputStreamCaptor.toString().trim().contains("ICCProfileName:Adobe RGB (1998)"));
-        assertTrue(outputStreamCaptor.toString().trim().contains("ColorSpace:RGB"));
-        assertTrue(outputStreamCaptor.toString().trim().contains("InteropIndex:Unknown (R03)"));
-        assertTrue(outputStreamCaptor.toString().trim().contains("PhotometricInterpretation:RGB"));
+        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:Adobe RGB (1998)\t"));
+        assertTrue(outputStreamCaptor.toString().contains("ColorSpace:RGB \t"));
+        assertTrue(outputStreamCaptor.toString().contains("InteropIndex:Unknown (R03)\t"));
+        assertTrue(outputStreamCaptor.toString().contains("PhotometricInterpretation:RGB\t"));
     }
 
     @Test
@@ -85,10 +85,10 @@ public class ColorScannerTest {
 
         colorScanner.main(args);
         //PhotometricInterpretation is never missing
-        assertTrue(outputStreamCaptor.toString().trim().contains("ICCProfileName:\t"));
-        assertTrue(outputStreamCaptor.toString().trim().contains("ColorSpace:\t"));
-        assertTrue(outputStreamCaptor.toString().trim().contains("InteropIndex:\t"));
-        assertTrue(outputStreamCaptor.toString().trim().contains("PhotometricInterpretation:BlackIsZero"));
+        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:\t\t"));
+        assertTrue(outputStreamCaptor.toString().contains("ColorSpace:\t\t"));
+        assertTrue(outputStreamCaptor.toString().contains("InteropIndex:\t\t"));
+        assertTrue(outputStreamCaptor.toString().contains("PhotometricInterpretation:BlackIsZero\t"));
     }
 
     @Test
@@ -98,9 +98,9 @@ public class ColorScannerTest {
         args[0] = testFile;
 
         colorScanner.main(args);
-        assertTrue(outputStreamCaptor.toString().trim().contains("ICCProfileName:\tColorSpace:\tInteropIndex:\t" +
-                "PhotometricInterpretation:BlackIsZero\tDimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
-                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;"));
+        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:\t\tColorSpace:\t\tInteropIndex:\t\t" +
+                "PhotometricInterpretation:BlackIsZero\t\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
+                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\""));
     }
 
 }
