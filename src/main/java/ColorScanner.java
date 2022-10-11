@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author krwong
@@ -57,8 +59,13 @@ public class ColorScanner {
             }
         }
 
-        System.out.print("ICCProfileName:" + iccProfileName + "ColorSpace:" + colorSpace +
-                "InteropIndex:" + interopIndex + "PhotometricInterpretation:" + photometricInterpretation + "\t");
+        List<String> fields = new LinkedList<>();
+        fields.add("ICCProfileName:" + iccProfileName);
+        fields.add("ColorSpace:" + colorSpace);
+        fields.add("InteropIndex:" + interopIndex);
+        fields.add("PhotometricInterpretation:" + photometricInterpretation);
+        String allFields = String.join("\t", fields);
+        System.out.print(allFields + "\t");
     }
 
     /**
@@ -80,7 +87,7 @@ public class ColorScanner {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String line;
         while ((line = br.readLine()) != null) {
-            System.out.println(line);
+            System.out.println("\"" + line + "\"");
         }
     }
 
