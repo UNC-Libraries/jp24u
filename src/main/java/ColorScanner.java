@@ -9,9 +9,12 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,7 +23,7 @@ import java.util.List;
  */
 public class ColorScanner {
     /**
-     * Print EXIF and ICC Profile fields
+     * Return list of EXIF and ICC Profile fields
      * @return
      */
     public static List<String> colorFields(String fileName) throws Exception {
@@ -69,7 +72,7 @@ public class ColorScanner {
     }
 
     /**
-     * Run identify command and print output
+     * Run identify command and return attributes
      */
     public static String identify(String fileName) throws IOException {
         String identify = "identify" ;
@@ -93,6 +96,9 @@ public class ColorScanner {
         return attributes + "\"";
     }
 
+    /**
+     * Combine then print fields and attributes
+     */
     public static void allFields(String fileName) throws Exception {
         List fields = colorFields(fileName);
         String attributes = identify(fileName);
@@ -101,8 +107,19 @@ public class ColorScanner {
         System.out.println(allFields);
     }
 
+    public static List<String> readFileInList(String fileName)
+    {
+        List<String> lines = Collections.emptyList();
+        try {
+            lines = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lines;
+    }
+
     /**
-     * Print file size of a given file (for now)
+     * Print image-related fields and attributes of a given file
      */
     public static void main(String[] args) throws Exception {
         if (args.length == 1 && !args[0].trim().isEmpty()) {
@@ -112,6 +129,18 @@ public class ColorScanner {
                 long fileSize = Files.size(filePath);
                 System.out.println("File size: " + fileSize);
                 allFields(fileName);
+            } else {
+                System.out.println("Error: File does not exist.");
+            }
+        } else if (args[0].contains("-list")) {
+            String fileName = args[1];
+            Path filePath = Paths.get(fileName);
+            if (Files.exists(filePath)) {
+                List l = readFileInList(fileName);
+                Iterator<String> itr = l.iterator();
+                while (itr.hasNext()) {
+                    allFields(itr.next());
+                }
             } else {
                 System.out.println("Error: File does not exist.");
             }

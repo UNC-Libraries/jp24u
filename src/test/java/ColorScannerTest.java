@@ -117,4 +117,20 @@ public class ColorScannerTest {
                 "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\""));
     }
 
+    @Test
+    public void testMultipleArguments() throws Exception {
+        String[] args = new String[2];
+        args[0] = "-list";
+        args[1] = "src/test/resources/test_input.txt";
+
+        ColorScanner.main(args);
+        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB \t" +
+                "InteropIndex:Unknown (R03)\tPhotometricInterpretation:RGB\t\"Dimensions: 2600x3650;Channels: srgb;" +
+                "Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Profiles: icc,xmp;" +
+                "ICC Profile: Adobe RGB (1998);ICM Profile: ;Dimensions: 114x160;Channels: srgb;Bit-depth: 8;" +
+                "Alpha channel: False;Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\""));
+        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:null\tColorSpace:null\tInteropIndex:null\t" +
+                "PhotometricInterpretation:BlackIsZero\t\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
+                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\""));
+    }
 }
