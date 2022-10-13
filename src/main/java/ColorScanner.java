@@ -11,8 +11,8 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -64,6 +64,7 @@ public class ColorScanner {
         }
 
         List<String> fields = new LinkedList<>();
+        fields.add(fileName);
         fields.add("ICCProfileName:" + iccProfileName);
         fields.add("ColorSpace:" + colorSpace);
         fields.add("InteropIndex:" + interopIndex);
@@ -107,8 +108,7 @@ public class ColorScanner {
         System.out.println(allFields);
     }
 
-    public static List<String> readFileInList(String fileName)
-    {
+    public static List<String> readFileInList(String fileName) {
         List<String> lines = Collections.emptyList();
         try {
             lines = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
@@ -122,30 +122,32 @@ public class ColorScanner {
      * Print image-related fields and attributes of a given file
      */
     public static void main(String[] args) throws Exception {
+        List<String> listOfFiles = new ArrayList<>();
+
         if (args.length == 1 && !args[0].trim().isEmpty()) {
             String fileName = args[0];
-            Path filePath = Paths.get(fileName);
-            if (Files.exists(filePath)) {
-                long fileSize = Files.size(filePath);
-                System.out.println("File size: " + fileSize);
-                allFields(fileName);
-            } else {
-                System.out.println("Error: File does not exist.");
-            }
-        } else if (args[0].contains("-list")) {
+            listOfFiles.add(fileName);
+        } else if (args.length == 2 && args[0].startsWith("-list")) {
             String fileName = args[1];
-            Path filePath = Paths.get(fileName);
-            if (Files.exists(filePath)) {
-                List l = readFileInList(fileName);
-                Iterator<String> itr = l.iterator();
-                while (itr.hasNext()) {
-                    allFields(itr.next());
-                }
+            if (Files.exists(Paths.get(fileName))) {
+                listOfFiles = readFileInList(fileName);
             } else {
                 System.out.println("Error: File does not exist.");
+                return;
             }
         } else {
-            System.out.println("Error: Please input one argument.");
+            System.out.println("Error: Please input an argument.");
+            return;
+        }
+
+        Iterator<String> itr = listOfFiles.iterator();
+        while (itr.hasNext()) {
+            String imageFileName = itr.next();
+            if (Files.exists(Paths.get(imageFileName))) {
+                allFields(imageFileName);
+            } else {
+                System.out.println("Error: " + imageFileName + " does not exist.");
+            }
         }
     }
 }
