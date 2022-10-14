@@ -118,7 +118,7 @@ public class ColorScannerTest {
     }
 
     @Test
-    public void testListOfImportFiles() {
+    public void testListOfImportFiles() throws IOException {
         String testFile = "src/test/resources/test_input.txt";
 
         List<String> testListOfImportFiles = new ArrayList<>();
