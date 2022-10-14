@@ -109,13 +109,13 @@ public class ColorScanner {
     }
 
     public static List<String> readFileInList(String fileName) {
-        List<String> lines = Collections.emptyList();
+        List<String> listOfImageFiles = Collections.emptyList();
         try {
-            lines = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
+            listOfImageFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return lines;
+        return listOfImageFiles;
     }
 
     /**

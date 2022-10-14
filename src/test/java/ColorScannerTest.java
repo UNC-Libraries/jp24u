@@ -4,9 +4,6 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class ColorScannerTest {
         args[1] = "test";
 
         ColorScanner.main(args);
-        assertEquals("Error: Please input one argument.", outputStreamCaptor.toString().trim());
+        assertEquals("Error: Please input an argument.", outputStreamCaptor.toString().trim());
     }
 
     @Test
@@ -43,7 +40,7 @@ public class ColorScannerTest {
         args[0] = " ";
 
         ColorScanner.main(args);
-        assertEquals("Error: Please input one argument.", outputStreamCaptor.toString().trim());
+        assertEquals("Error: Please input an argument.", outputStreamCaptor.toString().trim());
     }
 
     @Test
@@ -51,6 +48,18 @@ public class ColorScannerTest {
         String testFile = "src/test/resources/test.txt";
         String[] args = new String[1];
         args[0] = testFile;
+
+        colorScanner.main(args);
+        assertEquals("Error: src/test/resources/test.txt does not exist.",
+                outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    public void testListInputNonexistentFileFail() throws Exception {
+        String testFile = "src/test/resources/test.txt";
+        String[] args = new String[2];
+        args[0] = "-list";
+        args[1] = testFile;
 
         colorScanner.main(args);
         assertEquals("Error: File does not exist.", outputStreamCaptor.toString().trim());
@@ -110,10 +119,23 @@ public class ColorScannerTest {
     }
 
     @Test
-    public void testListOfImportFiles() throws Exception {
+    public void testListOfImportFiles() {
+        String testFile = "src/test/resources/test_input.txt";
+
+        List<String> testListOfImportFiles = new ArrayList<>();
+        testListOfImportFiles.add("src/test/resources/E101_F8_0112.tif");
+        testListOfImportFiles.add("src/test/resources/P0024_0066.tif");
+
+        List<String> listOfImportFiles = colorScanner.readFileInList(testFile);
+        assertEquals(testListOfImportFiles, listOfImportFiles);
+    }
+
+    @Test
+    public void testListOfImportFilesWithNonexistentFile() throws Exception {
+        String testFile = "src/test/resources/test_input_fail.txt";
         String[] args = new String[2];
         args[0] = "-list";
-        args[1] = "src/test/resources/test_input.txt";
+        args[1] = testFile;
 
         ColorScanner.main(args);
         assertTrue(outputStreamCaptor.toString().contains("src/test/resources/E101_F8_0112.tif\tICCProfileName:Adobe RGB (1998)\tColorSpace:RGB \t" +
@@ -124,5 +146,6 @@ public class ColorScannerTest {
         assertTrue(outputStreamCaptor.toString().contains("src/test/resources/P0024_0066.tif\tICCProfileName:null\tColorSpace:null\tInteropIndex:null\t" +
                 "PhotometricInterpretation:BlackIsZero\t\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
                 "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\""));
+        assertTrue(outputStreamCaptor.toString().contains("Error: src/test/resources/test.tif does not exist"));
     }
 }
