@@ -108,6 +108,9 @@ public class ColorScanner {
         System.out.println(allFields);
     }
 
+    /**
+     * Read file in list
+     */
     public static List<String> readFileInList(String fileName) {
         List<String> listOfImageFiles = Collections.emptyList();
         try {
