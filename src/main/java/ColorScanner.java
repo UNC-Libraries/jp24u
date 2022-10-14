@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -120,7 +119,7 @@ public class ColorScanner {
      * Print image-related fields and attributes of a given file
      */
     public static void main(String[] args) throws Exception {
-        List<String> listOfFiles = new ArrayList<>();
+        List<String> listOfFiles = Collections.emptyList();
 
         if (args.length == 1 && !args[0].trim().isEmpty()) {
             String fileName = args[0];
@@ -130,12 +129,12 @@ public class ColorScanner {
             if (Files.exists(Paths.get(fileName))) {
                 listOfFiles = readFileInList(fileName);
             } else {
-                System.out.println("Error: File does not exist.");
-                return;
+                System.out.println("Error: " + fileName + " does not exist.");
+                System.exit(1);
             }
         } else {
             System.out.println("Error: Please input an argument.");
-            return;
+            System.exit(1);
         }
 
         Iterator<String> itr = listOfFiles.iterator();
