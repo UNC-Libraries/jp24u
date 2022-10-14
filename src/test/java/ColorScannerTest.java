@@ -61,7 +61,7 @@ public class ColorScannerTest {
         args[1] = testFile;
 
         colorScanner.main(args);
-        assertEquals("Error: File does not exist.", outputStreamCaptor.toString().trim());
+        assertEquals("Error: src/test/resources/test.txt does not exist.", outputStreamCaptor.toString().trim());
     }
 
     @Test

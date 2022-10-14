@@ -12,10 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author krwong
@@ -119,7 +116,7 @@ public class ColorScanner {
      * Print image-related fields and attributes of a given file
      */
     public static void main(String[] args) throws Exception {
-        List<String> listOfFiles = Collections.emptyList();
+        List<String> listOfFiles = new ArrayList<>();
 
         if (args.length == 1 && !args[0].trim().isEmpty()) {
             String fileName = args[0];
