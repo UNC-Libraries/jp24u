@@ -29,7 +29,7 @@ public class ColorScannerTest {
         args[0] = "src/test/resources/lorem_ipsum.txt";
         args[1] = "test";
 
-        ColorScanner.main(args);
+        ColorScanner.executeCommand(args);
         assertEquals("Error: Please input an argument.", outputStreamCaptor.toString().trim());
     }
 
@@ -38,7 +38,7 @@ public class ColorScannerTest {
         String[] args = new String[1];
         args[0] = " ";
 
-        ColorScanner.main(args);
+        ColorScanner.executeCommand(args);
         assertEquals("Error: Please input an argument.", outputStreamCaptor.toString().trim());
     }
 
@@ -48,7 +48,7 @@ public class ColorScannerTest {
         String[] args = new String[1];
         args[0] = testFile;
 
-        colorScanner.main(args);
+        colorScanner.executeCommand(args);
         assertEquals("Error: src/test/resources/test.txt does not exist.",
                 outputStreamCaptor.toString().trim());
     }
@@ -60,7 +60,7 @@ public class ColorScannerTest {
         args[0] = "-list";
         args[1] = testFile;
 
-        colorScanner.main(args);
+        colorScanner.executeCommand(args);
         assertEquals("Error: src/test/resources/test.txt does not exist.", outputStreamCaptor.toString().trim());
     }
 
@@ -111,7 +111,7 @@ public class ColorScannerTest {
         String[] args = new String[1];
         args[0] = testFile;
 
-        colorScanner.main(args);
+        colorScanner.executeCommand(args);
         assertTrue(outputStreamCaptor.toString().contains("src/test/resources/P0024_0066.tif\tICCProfileName:null\tColorSpace:null\tInteropIndex:null\t" +
                 "PhotometricInterpretation:BlackIsZero\t\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
                 "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\""));
@@ -136,7 +136,7 @@ public class ColorScannerTest {
         args[0] = "-list";
         args[1] = testFile;
 
-        ColorScanner.main(args);
+        ColorScanner.executeCommand(args);
         assertTrue(outputStreamCaptor.toString().contains("src/test/resources/E101_F8_0112.tif\tICCProfileName:Adobe RGB (1998)\tColorSpace:RGB \t" +
                 "InteropIndex:Unknown (R03)\tPhotometricInterpretation:RGB\t\"Dimensions: 2600x3650;Channels: srgb;" +
                 "Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Profiles: icc,xmp;" +

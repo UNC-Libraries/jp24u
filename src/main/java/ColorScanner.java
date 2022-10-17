@@ -113,9 +113,9 @@ public class ColorScanner {
     }
 
     /**
-     * Print image-related fields and attributes of a given file
+     * Print image-related fields and attributes of a given file (workaround until picocli)
      */
-    public static void main(String[] args) throws Exception {
+    public static int executeCommand(String[] args) throws Exception {
         List<String> listOfFiles = new ArrayList<>();
 
         if (args.length == 1 && !args[0].trim().isEmpty()) {
@@ -127,11 +127,11 @@ public class ColorScanner {
                 listOfFiles = readFileInList(fileName);
             } else {
                 System.out.println("Error: " + fileName + " does not exist.");
-                System.exit(1);
+                return 1;
             }
         } else {
             System.out.println("Error: Please input an argument.");
-            System.exit(1);
+            return 1;
         }
 
         Iterator<String> itr = listOfFiles.iterator();
@@ -143,5 +143,13 @@ public class ColorScanner {
                 System.out.println("Error: " + imageFileName + " does not exist.");
             }
         }
+        return 0;
+    }
+
+    /**
+     * Print image-related fields and attributes of a given file
+     */
+    public static void main(String[] args) throws Exception {
+        System.exit(executeCommand(args));
     }
 }
