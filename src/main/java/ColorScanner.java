@@ -9,18 +9,17 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author krwong
  */
 public class ColorScanner {
     /**
-     * Print EXIF and ICC Profile fields
+     * Return list of EXIF and ICC Profile fields
      * @return
      */
     public static List<String> colorFields(String fileName) throws Exception {
@@ -61,6 +60,7 @@ public class ColorScanner {
         }
 
         List<String> fields = new LinkedList<>();
+        fields.add(fileName);
         fields.add("ICCProfileName:" + iccProfileName);
         fields.add("ColorSpace:" + colorSpace);
         fields.add("InteropIndex:" + interopIndex);
@@ -69,7 +69,7 @@ public class ColorScanner {
     }
 
     /**
-     * Run identify command and print output
+     * Run identify command and return attributes
      */
     public static String identify(String fileName) throws IOException {
         String identify = "identify" ;
@@ -93,6 +93,9 @@ public class ColorScanner {
         return attributes + "\"";
     }
 
+    /**
+     * Combine then print fields and attributes
+     */
     public static void allFields(String fileName) throws Exception {
         List fields = colorFields(fileName);
         String attributes = identify(fileName);
@@ -102,21 +105,52 @@ public class ColorScanner {
     }
 
     /**
-     * Print file size of a given file (for now)
+     * Read file in list
      */
-    public static void main(String[] args) throws Exception {
+    public static List<String> readFileInList(String fileName) throws IOException {
+        List<String> listOfImageFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
+        return listOfImageFiles;
+    }
+
+    /**
+     * Print image-related fields and attributes of a given file (workaround until picocli)
+     */
+    public static int executeCommand(String[] args) throws Exception {
+        List<String> listOfFiles = new ArrayList<>();
+
         if (args.length == 1 && !args[0].trim().isEmpty()) {
             String fileName = args[0];
-            Path filePath = Paths.get(fileName);
-            if (Files.exists(filePath)) {
-                long fileSize = Files.size(filePath);
-                System.out.println("File size: " + fileSize);
-                allFields(fileName);
+            listOfFiles.add(fileName);
+        } else if (args.length == 2 && args[0].startsWith("-list")) {
+            String fileName = args[1];
+            if (Files.exists(Paths.get(fileName))) {
+                listOfFiles = readFileInList(fileName);
             } else {
-                System.out.println("Error: File does not exist.");
+                System.out.println("Error: " + fileName + " does not exist.");
+                return 1;
             }
         } else {
-            System.out.println("Error: Please input one argument.");
+            System.out.println("Error: Please input an argument.");
+            return 1;
         }
+
+        Iterator<String> itr = listOfFiles.iterator();
+        while (itr.hasNext()) {
+            String imageFileName = itr.next();
+            if (Files.exists(Paths.get(imageFileName))) {
+                allFields(imageFileName);
+            } else {
+                System.out.println("Error: " + imageFileName + " does not exist. Not processing file list further.");
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Print image-related fields and attributes of a given file
+     */
+    public static void main(String[] args) throws Exception {
+        System.exit(executeCommand(args));
     }
 }

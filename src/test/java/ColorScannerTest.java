@@ -2,10 +2,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,25 +24,14 @@ public class ColorScannerTest {
     }
 
     @Test
-    public void testFileSize() throws Exception {
-        String testFile = "src/test/resources/P0024_0066.tif";
-        Path testPath = Paths.get(testFile);
-        String[] args = new String[1];
-        args[0] = testFile;
-
-        colorScanner.main(args);
-        assertTrue(outputStreamCaptor.toString().trim().contains("File size: 40736840"));
-        assertTrue(Files.exists(testPath));
-    }
-
-    @Test
     public void testMultipleArgumentsFail() throws Exception {
         String[] args = new String[2];
         args[0] = "src/test/resources/lorem_ipsum.txt";
         args[1] = "test";
 
-        ColorScanner.main(args);
-        assertEquals("Error: Please input one argument.", outputStreamCaptor.toString().trim());
+        int fail = ColorScanner.executeCommand(args);
+        assertEquals("Error: Please input an argument.", outputStreamCaptor.toString().trim());
+        assertEquals(1, fail);
     }
 
     @Test
@@ -52,8 +39,9 @@ public class ColorScannerTest {
         String[] args = new String[1];
         args[0] = " ";
 
-        ColorScanner.main(args);
-        assertEquals("Error: Please input one argument.", outputStreamCaptor.toString().trim());
+        int fail = ColorScanner.executeCommand(args);
+        assertEquals("Error: Please input an argument.", outputStreamCaptor.toString().trim());
+        assertEquals(1, fail);
     }
 
     @Test
@@ -62,8 +50,22 @@ public class ColorScannerTest {
         String[] args = new String[1];
         args[0] = testFile;
 
-        colorScanner.main(args);
-        assertEquals("Error: File does not exist.", outputStreamCaptor.toString().trim());
+        int fail = colorScanner.executeCommand(args);
+        assertEquals("Error: src/test/resources/test.txt does not exist. Not processing file list further.",
+                outputStreamCaptor.toString().trim());
+        assertEquals(1, fail);
+    }
+
+    @Test
+    public void testListInputNonexistentFileFail() throws Exception {
+        String testFile = "src/test/resources/test.txt";
+        String[] args = new String[2];
+        args[0] = "-list";
+        args[1] = testFile;
+
+        int fail = colorScanner.executeCommand(args);
+        assertEquals("Error: src/test/resources/test.txt does not exist.", outputStreamCaptor.toString().trim());
+        assertEquals(1, fail);
     }
 
     @Test
@@ -71,6 +73,7 @@ public class ColorScannerTest {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
         List<String> testFields = new ArrayList<>();
+        testFields.add("src/test/resources/E101_F8_0112.tif");
         testFields.add("ICCProfileName:Adobe RGB (1998)");
         testFields.add("ColorSpace:RGB ");
         testFields.add("InteropIndex:Unknown (R03)");
@@ -86,6 +89,7 @@ public class ColorScannerTest {
 
         //PhotometricInterpretation is never missing
         List<String> testFields = new ArrayList<>();
+        testFields.add("src/test/resources/P0024_0066.tif");
         testFields.add("ICCProfileName:null");
         testFields.add("ColorSpace:null");
         testFields.add("InteropIndex:null");
@@ -111,10 +115,46 @@ public class ColorScannerTest {
         String[] args = new String[1];
         args[0] = testFile;
 
-        colorScanner.main(args);
-        assertTrue(outputStreamCaptor.toString().contains("ICCProfileName:null\tColorSpace:null\tInteropIndex:null\t" +
-                "PhotometricInterpretation:BlackIsZero\t\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
-                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\""));
+        int success = colorScanner.executeCommand(args);
+        assertTrue(outputStreamCaptor.toString().contains("src/test/resources/P0024_0066.tif\tICCProfileName:null\t" +
+                "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t\"Dimensions: 5300x3841;" +
+                "Channels: gray;Bit-depth: 16;Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;" +
+                "ICC Profile: ;ICM Profile: ;\""));
+        assertEquals(0, success);
     }
 
+    @Test
+    public void testListOfImportFiles() throws IOException {
+        String testFile = "src/test/resources/test_input.txt";
+
+        List<String> testListOfImportFiles = new ArrayList<>();
+        testListOfImportFiles.add("src/test/resources/E101_F8_0112.tif");
+        testListOfImportFiles.add("src/test/resources/P0024_0066.tif");
+
+        List<String> listOfImportFiles = colorScanner.readFileInList(testFile);
+        assertEquals(testListOfImportFiles, listOfImportFiles);
+    }
+
+    @Test
+    public void testListOfImportFilesWithNonexistentFileFail() throws Exception {
+        String testFile = "src/test/resources/test_input_fail.txt";
+        String[] args = new String[2];
+        args[0] = "-list";
+        args[1] = testFile;
+
+        int fail = ColorScanner.executeCommand(args);
+        assertTrue(outputStreamCaptor.toString().contains("src/test/resources/E101_F8_0112.tif\t" +
+                "ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB \tInteropIndex:Unknown (R03)\t" +
+                "PhotometricInterpretation:RGB\t\"Dimensions: 2600x3650;Channels: srgb;" +
+                "Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Profiles: icc,xmp;" +
+                "ICC Profile: Adobe RGB (1998);ICM Profile: ;Dimensions: 114x160;Channels: srgb;Bit-depth: 8;" +
+                "Alpha channel: False;Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\""));
+        assertTrue(outputStreamCaptor.toString().contains("src/test/resources/P0024_0066.tif\tICCProfileName:null\t" +
+                "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
+                "\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
+                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\""));
+        assertTrue(outputStreamCaptor.toString().contains("Error: src/test/resources/test.tif does not exist. " +
+                "Not processing file list further."));
+        assertEquals(1, fail);
+    }
 }
