@@ -134,18 +134,14 @@ public class ColorScanner {
             return 1;
         }
 
-        if (listOfFiles.size() == 1 && !Files.exists(Paths.get(listOfFiles.get(0)))) {
-            System.out.println("Error: " + listOfFiles.get(0) + " does not exist.");
-            return 1;
-        }
-
         Iterator<String> itr = listOfFiles.iterator();
         while (itr.hasNext()) {
             String imageFileName = itr.next();
             if (Files.exists(Paths.get(imageFileName))) {
                 allFields(imageFileName);
             } else {
-                System.out.println("Error: " + imageFileName + " does not exist.");
+                System.out.println("Error: " + imageFileName + " does not exist. Not processing file list further.");
+                return 1;
             }
         }
         return 0;
