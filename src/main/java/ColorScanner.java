@@ -113,6 +113,46 @@ public class ColorScanner {
     }
 
     /**
+     * Run kdu_compress
+     */
+    public static void kduCompress(String fileName) throws Exception {
+        String kduCompress = "kdu_compress" ;
+        String input = "-i";
+        String output = "-o";
+        String outputFile = fileName.split("\\.")[0] + ".jp2";
+        String clevels = "Clevels=6";
+        String clayers = "Clayers=6";
+        String cprecincts = "\"Cprecincts={256,256},{256,256},{128,128}\"";
+        String stiles = "\"Stiles={512,512}\"";
+        String corder = "Corder=RPCL";
+        String orggenplt = "ORGgen_plt=yes";
+        String orgtparts = "ORGtparts=R";
+        String cblk = "\"Cblk={64,64}\"";
+        String cusesop = "Cuse_sop=yes";
+        String cuseeph = "Cuse_eph=yes";
+        String flushPeriod = "-flush_period";
+        String flushPeriodOptions = "1024";
+        String rate = "-rate";
+        String rateOptions = "3";
+        String jp2Space = "";
+        String jp2SpaceOptions = "";
+
+        List<String> fields = colorFields(fileName);
+        String colorSpace = fields.get(2).split(":")[1];
+        // for grayscale images: add jp2Space to command
+        if (colorSpace.toLowerCase().contains("gray")) {
+            jp2Space = "-jp2_space";
+            jp2SpaceOptions = "sLUM";
+        }
+
+        String[] command = {kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
+                corder, orggenplt, orgtparts, cblk, cusesop, cuseeph, flushPeriod, flushPeriodOptions,
+                rate, rateOptions, jp2Space, jp2SpaceOptions};
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.command();
+    }
+
+    /**
      * Print image-related fields and attributes of a given file (workaround until picocli)
      */
     public static int executeCommand(String[] args) throws Exception {
