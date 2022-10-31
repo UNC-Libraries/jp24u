@@ -69,25 +69,13 @@ public class ColorFieldsServiceTest {
     public void testAllFields() throws Exception {
         String testFile = "src/test/resources/P0024_0066.tif";
 
-        service.allFields(testFile);
+        service.listFields(testFile);
         String testOutput = "src/test/resources/P0024_0066.tif\tICCProfileName:null\tColorSpace:null\t" +
                 "InteropIndex:null\tPhotometricInterpretation:BlackIsZero\t\"Dimensions: 5300x3841;" +
                 "Channels: gray;Bit-depth: 16;Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;" +
                 "ICC Profile: ;ICM Profile: ;\"\n";
         assertTrue(outputStreamCaptor.toString().contains(testOutput));
     }
-
-//    @Test
-//    public void testReadFileInList() throws Exception {
-//        String testFile = "src/test/resources/test_input.txt";
-//
-//        List<String> testListOfImportFiles = new ArrayList<>();
-//        testListOfImportFiles.add("src/test/resources/E101_F8_0112.tif");
-//        testListOfImportFiles.add("src/test/resources/P0024_0066.tif");
-//
-//        List<String> listOfImportFiles = service.readFileInList(testFile);
-//        assertEquals(testListOfImportFiles, listOfImportFiles);
-//    }
 
     @Test
     public void testListOfImportFiles() throws Exception {

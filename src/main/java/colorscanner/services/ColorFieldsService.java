@@ -109,7 +109,7 @@ public class ColorFieldsService {
      * Combine then print fields and attributes
      * @param fileName
      */
-    public void allFields(String fileName) throws Exception {
+    public void listFields(String fileName) throws Exception {
         List fields = colorFields(fileName);
         String attributes = identify(fileName);
         fields.add(attributes);
@@ -128,7 +128,7 @@ public class ColorFieldsService {
         while (itr.hasNext()) {
             String imageFileName = itr.next();
             if (Files.exists(Paths.get(imageFileName))) {
-                allFields(imageFileName);
+                listFields(imageFileName);
             } else {
                 throw new Exception(imageFileName + " does not exist. Not processing file list further.");
             }
