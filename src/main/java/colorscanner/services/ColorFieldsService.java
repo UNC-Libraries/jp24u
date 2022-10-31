@@ -5,6 +5,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifInteropDirectory;
 import com.drew.metadata.icc.IccDirectory;
+import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,16 +15,18 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Service for retrieving image color fields and attributes
  * @author krwong
  */
 public class ColorFieldsService {
+    private static final Logger log = getLogger(ColorFieldsService.class);
 
     /**
      * Return list of EXIF and ICC Profile fields

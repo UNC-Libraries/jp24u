@@ -1,6 +1,6 @@
 package colorscanner.services;
 
-import com.drew.imaging.ImageProcessingException;
+import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -11,11 +11,14 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 /**
  * Service for kakadu
  * @author krwong
  */
 public class KakaduService {
+    private static final Logger log = getLogger(KakaduService.class);
 
     private ColorFieldsService colorFieldsService;
 
