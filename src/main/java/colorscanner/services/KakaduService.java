@@ -27,7 +27,7 @@ public class KakaduService {
      */
     public String getColorSpace(String fileName) throws Exception {
         List<String> fields = colorFieldsService.colorFields(fileName);
-        String colorSpace = fields.get(2).split(":")[1];
+        String colorSpace = fields.get(2).split(":")[1].trim();
         return colorSpace;
     }
 
@@ -84,8 +84,8 @@ public class KakaduService {
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jp2 file.", e);
         }
-
     }
+
     /**
      * Iterate through list of image files and run kdu_compress to convert all tifs to jp2s
      * @param fileName
