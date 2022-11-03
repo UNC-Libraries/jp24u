@@ -24,6 +24,7 @@ public class KakaduService {
 
     /**
      * Get ColorSpace from color fields service
+     * @param fileName an image file
      */
     public String getColorSpace(String fileName) throws Exception {
         List<String> fields = colorFieldsService.colorFields(fileName);
@@ -33,7 +34,7 @@ public class KakaduService {
 
     /**
      * Run kdu_compress and convert tif to jp2
-     * @param fileName
+     * @param fileName an image file
      */
     public void kduCompress(String fileName) throws Exception {
         String kduCompress = "kdu_compress";
@@ -88,7 +89,7 @@ public class KakaduService {
 
     /**
      * Iterate through list of image files and run kdu_compress to convert all tifs to jp2s
-     * @param fileName
+     * @param fileName a list of image files
      */
     public void fileListKduCompress(String fileName) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);

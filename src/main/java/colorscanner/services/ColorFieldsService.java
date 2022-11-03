@@ -30,8 +30,8 @@ public class ColorFieldsService {
 
     /**
      * Return list of EXIF and ICC Profile fields
-     * @param fileName
-     * @return List
+     * @param fileName an image file
+     * @return list of color fields
      */
     public List<String> colorFields(String fileName) throws Exception {
         String iccProfileName = null;
@@ -81,7 +81,8 @@ public class ColorFieldsService {
 
     /**
      * Run identify command and return attributes
-     * @param fileName
+     * @param fileName an image file
+     * @return list of color attributes
      */
     public String identify(String fileName) throws IOException {
         String identify = "identify";
@@ -107,7 +108,8 @@ public class ColorFieldsService {
 
     /**
      * Combine then print fields and attributes
-     * @param fileName
+     * @param fileName an image file
+     * @return list of all color fields and attributes
      */
     public void listFields(String fileName) throws Exception {
         List fields = colorFields(fileName);
@@ -119,7 +121,7 @@ public class ColorFieldsService {
 
     /**
      * Iterate through list of image files and return all color fields
-     * @param fileName
+     * @param fileName a list of image files
      */
     public void fileListAllFields(String fileName) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
