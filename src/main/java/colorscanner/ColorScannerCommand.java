@@ -44,8 +44,8 @@ public class ColorScannerCommand {
             colorFieldsService.fileListAllFields(options.getFileName());
             return 0;
         } catch (Exception e) {
-            outputLogger.info("{}", e.getMessage());
-            log.error("Failed to list color fields", e);
+            outputLogger.info("FAIL: {}", e.getMessage());
+            log.error("Failed to list color fields. Not processing file list further.", e);
             return 1;
         }
     }
@@ -72,8 +72,8 @@ public class ColorScannerCommand {
             kakaduService.fileListKduCompress(options.getFileName());
             return 0;
         } catch (Exception e) {
-            outputLogger.info("{}", e.getMessage());
-            log.error("Failed to generate jp2 file", e);
+            outputLogger.info("FAIL: {}", e.getMessage());
+            log.error("Failed to generate jp2 file. Not processing file list further.", e);
             return 1;
         }
     }
