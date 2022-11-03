@@ -29,12 +29,12 @@ public class KakaduService {
     public String getColorSpace(String fileName) throws Exception {
         // we may check more than one field for color space information
         // may also switch to identify command to retrieve color space info if image metadata is lacking
-        String colorSpace = null;
+        String colorSpace = "null";
         List<String> fields = colorFieldsService.colorFields(fileName);
         if (!fields.get(2).split(":")[1].contains("null")) {
             colorSpace = fields.get(2).split(":")[1].trim();
         } else {
-            log.info("ColorSpace information not found.");
+            log.info(fileName + ": colorSpace information not found.");
         }
 
         return colorSpace;
