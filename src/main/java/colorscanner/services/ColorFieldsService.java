@@ -15,9 +15,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -28,12 +31,19 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ColorFieldsService {
     private static final Logger log = getLogger(ColorFieldsService.class);
 
+    public static final String IMAGE_FILE_NAME = "ImageFileName";
+    public static final String ICC_PROFILE_NAME = "ICCProfileName";
+    public static final String COLOR_SPACE = "ColorSpace";
+    public static final String INTEROP_INDEX = "InteropIndex";
+    public static final String PHOTOMETRIC_INTERPRETATION = "PhotometricInterpretation";
+    public static final String MAGICK_IDENTIFY = "MagickIdentify";
+
     /**
      * Return list of EXIF and ICC Profile fields
      * @param fileName an image file
-     * @return list of color fields
+     * @return map of color fields
      */
-    public List<String> colorFields(String fileName) throws Exception {
+    public Map<String,String> colorFields(String fileName) throws Exception {
         String iccProfileName = null;
         String colorSpace = null;
         String interopIndex = null;
@@ -70,13 +80,15 @@ public class ColorFieldsService {
             }
         }
 
-        List<String> fields = new LinkedList<>();
-        fields.add(fileName);
-        fields.add("ICCProfileName:" + iccProfileName);
-        fields.add("ColorSpace:" + colorSpace);
-        fields.add("InteropIndex:" + interopIndex);
-        fields.add("PhotometricInterpretation:" + photometricInterpretation);
-        return fields;
+        //image metadata: ImageFileName, ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
+        Map<String, String> imageMetadata = new LinkedHashMap<>();
+        imageMetadata.put(IMAGE_FILE_NAME, fileName);
+        imageMetadata.put(ICC_PROFILE_NAME, iccProfileName);
+        imageMetadata.put(COLOR_SPACE, colorSpace);
+        imageMetadata.put(INTEROP_INDEX, interopIndex);
+        imageMetadata.put(PHOTOMETRIC_INTERPRETATION, photometricInterpretation);
+
+        return imageMetadata;
     }
 
     /**
@@ -109,14 +121,17 @@ public class ColorFieldsService {
     /**
      * Combine then print fields and attributes
      * @param fileName an image file
-     * @return list of all color fields and attributes
+     * @return map of all color fields and attributes
      */
     public void listFields(String fileName) throws Exception {
-        List fields = colorFields(fileName);
+        Map<String, String> imageMetadata = colorFields(fileName);
         String attributes = identify(fileName);
-        fields.add(attributes);
-        String allFields = String.join("\t", fields);
-        System.out.println(allFields);
+        imageMetadata.put(MAGICK_IDENTIFY, attributes);
+
+        for (Map.Entry<String, String> entry : imageMetadata.entrySet()) {
+            System.out.print(entry.getKey() + ":" + entry.getValue() + "\t");
+        }
+        System.out.println();
     }
 
     /**

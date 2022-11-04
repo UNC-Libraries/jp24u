@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -25,14 +26,16 @@ public class KakaduService {
     /**
      * Get ColorSpace from color fields service
      * @param fileName an image file
+     * @return colorSpace
      */
     public String getColorSpace(String fileName) throws Exception {
         // we may check more than one field for color space information
         // may also switch to identify command to retrieve color space info if image metadata is lacking
         String colorSpace = "null";
-        List<String> fields = colorFieldsService.colorFields(fileName);
-        if (!fields.get(2).split(":")[1].contains("null")) {
-            colorSpace = fields.get(2).split(":")[1].trim();
+        Map<String,String> imageMetadata = colorFieldsService.colorFields(fileName);
+
+        if (imageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
+            colorSpace = imageMetadata.get(ColorFieldsService.COLOR_SPACE);
         } else {
             log.info(fileName + ": colorSpace information not found.");
         }
