@@ -40,6 +40,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile);
 
         assertTrue(Files.exists(Paths.get("src/test/resources/E101_F8_0112.jp2")));
+        //TODO: delete new file after test
     }
 
     @Test
@@ -48,6 +49,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile);
 
         assertTrue(Files.exists(Paths.get("src/test/resources/P0024_0103_01.jp2")));
+        //TODO: delete new file after test
     }
 
     @Test
@@ -69,6 +71,7 @@ public class KakaduServiceTest {
 
         assertTrue(Files.exists(Paths.get("src/test/resources/E101_F8_0112.jp2")));
         assertTrue(Files.exists(Paths.get("src/test/resources/P0024_0066.jp2")));
+        //TODO: delete new files after test
     }
 
     @Test

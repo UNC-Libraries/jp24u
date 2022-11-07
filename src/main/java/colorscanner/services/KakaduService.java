@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,20 +56,24 @@ public class KakaduService {
         String outputFile = fileName.split("\\.")[0] + ".jp2";
         String clevels = "Clevels=6";
         String clayers = "Clayers=6";
-        String cprecincts = "\"Cprecincts={256,256},{256,256},{128,128}\"";
-        String stiles = "\"Stiles={512,512}\"";
+        String cprecincts = "Cprecincts={256,256},{256,256},{128,128}";
+        String stiles = "Stiles={512,512}";
         String corder = "Corder=RPCL";
         String orggenplt = "ORGgen_plt=yes";
         String orgtparts = "ORGtparts=R";
-        String cblk = "\"Cblk={64,64}\"";
+        String cblk = "Cblk={64,64}";
         String cusesop = "Cuse_sop=yes";
         String cuseeph = "Cuse_eph=yes";
         String flushPeriod = "-flush_period";
         String flushPeriodOptions = "1024";
         String rate = "-rate";
         String rateOptions = "3";
-        String jp2Space = "";
-        String jp2SpaceOptions = "";
+        String jp2Space;
+        String jp2SpaceOptions;
+
+        List<String> command = Arrays.asList(kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
+                corder, orggenplt, orgtparts, cblk, cusesop, cuseeph, flushPeriod, flushPeriodOptions,
+                rate, rateOptions);
 
         // get color space from colorFields
         String colorSpace = getColorSpace(fileName);
@@ -75,24 +81,16 @@ public class KakaduService {
         if (colorSpace.toLowerCase().contains("gray")) {
             jp2Space = "-jp2_space";
             jp2SpaceOptions = "sLUM";
+            command.add(jp2Space);
+            command.add(jp2SpaceOptions);
         }
-
-        String[] command = {kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
-                corder, orggenplt, orgtparts, cblk, cusesop, cuseeph, flushPeriod, flushPeriodOptions,
-                rate, rateOptions, jp2Space, jp2SpaceOptions};
 
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
             builder.redirectErrorStream(true);
             Process process = builder.start();
-            InputStream is = process.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String line;
-            String cmdOutput = "";
-            while ((line = br.readLine()) != null) {
-                cmdOutput = cmdOutput + line;
-            }
-            System.out.println(cmdOutput);
+            String cmdOutput = new String(process.getInputStream().readAllBytes());
+            log.info(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jp2 file.", e);
         }
