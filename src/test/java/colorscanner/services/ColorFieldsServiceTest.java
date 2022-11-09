@@ -30,6 +30,9 @@ public class ColorFieldsServiceTest {
 
         Map<String, String> testFields = new LinkedHashMap<>();
         testFields.put(ColorFieldsService.IMAGE_FILE_NAME, "src/test/resources/E101_F8_0112.tif");
+        testFields.put(ColorFieldsService.FILE_SIZE, "57001526 bytes");
+        testFields.put(ColorFieldsService.DATE_TIME_ORIGINAL, "2021:08:30 19:56:48");
+        testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2021:08:30 19:56:48");
         testFields.put(ColorFieldsService.ICC_PROFILE_NAME, "Adobe RGB (1998)");
         testFields.put(ColorFieldsService.COLOR_SPACE, "RGB");
         testFields.put(ColorFieldsService.INTEROP_INDEX, "Unknown (R03)");
@@ -46,6 +49,9 @@ public class ColorFieldsServiceTest {
         //PhotometricInterpretation is never missing
         Map<String,String> testFields = new LinkedHashMap<>();
         testFields.put(ColorFieldsService.IMAGE_FILE_NAME, testFile);
+        testFields.put(ColorFieldsService.FILE_SIZE, "40736840 bytes");
+        testFields.put(ColorFieldsService.DATE_TIME_ORIGINAL, null);
+        testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2013:06:25 14:51:58");
         testFields.put(ColorFieldsService.ICC_PROFILE_NAME, null);
         testFields.put(ColorFieldsService.COLOR_SPACE, null);
         testFields.put(ColorFieldsService.INTEROP_INDEX, null);
@@ -70,7 +76,8 @@ public class ColorFieldsServiceTest {
         String testFile = "src/test/resources/P0024_0066.tif";
 
         service.listFields(testFile);
-        String testOutput = "ImageFileName:src/test/resources/P0024_0066.tif\tICCProfileName:null\tColorSpace:null\t" +
+        String testOutput = "ImageFileName:src/test/resources/P0024_0066.tif\tFileSize:40736840 bytes\t" +
+                "DateTimeOriginal:null\tDateTimeDigitized:2013:06:25 14:51:58\tICCProfileName:null\tColorSpace:null\t" +
                 "InteropIndex:null\tPhotometricInterpretation:BlackIsZero\tMagickIdentify:\"Dimensions: 5300x3841;" +
                 "Channels: gray;Bit-depth: 16;Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;" +
                 "ICC Profile: ;ICM Profile: ;\"\t\n";
@@ -83,13 +90,15 @@ public class ColorFieldsServiceTest {
 
         service.fileListAllFields(testFile);
         assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/E101_F8_0112.tif\t" +
-                "ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB \tInteropIndex:Unknown (R03)\t" +
+                "FileSize:57001526 bytes\tDateTimeOriginal:2021:08:30 19:56:48\tDateTimeDigitized:2021:08:30 19:56:48\t" +
+                "ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB\tInteropIndex:Unknown (R03)\t" +
                 "PhotometricInterpretation:RGB\tMagickIdentify:\"Dimensions: 2600x3650;Channels: srgb;" +
                 "Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Profiles: icc,xmp;" +
                 "ICC Profile: Adobe RGB (1998);ICM Profile: ;Dimensions: 114x160;Channels: srgb;Bit-depth: 8;" +
                 "Alpha channel: False;Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"\t\n"));
-        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/P0024_0066.tif\tICCProfileName:null\t" +
-                "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
+        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/P0024_0066.tif\t" +
+                "FileSize:40736840 bytes\tDateTimeOriginal:null\tDateTimeDigitized:2013:06:25 14:51:58\t" +
+                "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
                 "MagickIdentify:\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
                 "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\"\t\n"));
     }
