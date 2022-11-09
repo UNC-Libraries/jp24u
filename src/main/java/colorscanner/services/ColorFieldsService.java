@@ -1,0 +1,154 @@
+package colorscanner.services;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import com.drew.metadata.exif.ExifInteropDirectory;
+import com.drew.metadata.icc.IccDirectory;
+import org.slf4j.Logger;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+/**
+ * Service for retrieving image color fields and attributes
+ * @author krwong
+ */
+public class ColorFieldsService {
+    private static final Logger log = getLogger(ColorFieldsService.class);
+
+    public static final String IMAGE_FILE_NAME = "ImageFileName";
+    public static final String ICC_PROFILE_NAME = "ICCProfileName";
+    public static final String COLOR_SPACE = "ColorSpace";
+    public static final String INTEROP_INDEX = "InteropIndex";
+    public static final String PHOTOMETRIC_INTERPRETATION = "PhotometricInterpretation";
+    public static final String MAGICK_IDENTIFY = "MagickIdentify";
+
+    /**
+     * Return list of EXIF and ICC Profile fields
+     * @param fileName an image file
+     * @return map of color fields
+     */
+    public Map<String,String> colorFields(String fileName) throws Exception {
+        String iccProfileName = null;
+        String colorSpace = null;
+        String interopIndex = null;
+        String photometricInterpretation = null;
+
+        File imageFile = new File(fileName);
+        Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
+
+        //ICC Profile Tag(s): ICCProfileName, ColorSpace
+        if (metadata.containsDirectoryOfType(IccDirectory.class)) {
+            IccDirectory iccDirectory = metadata.getFirstDirectoryOfType(IccDirectory.class);
+            if (iccDirectory.containsTag(IccDirectory.TAG_TAG_desc)) {
+                iccProfileName = iccDirectory.getDescription(IccDirectory.TAG_TAG_desc);
+            }
+            if (iccDirectory.containsTag(IccDirectory.TAG_COLOR_SPACE)) {
+                colorSpace = iccDirectory.getDescription(IccDirectory.TAG_COLOR_SPACE);
+            }
+        }
+
+        //EXIF InteropIFD Tag(s): InteropIndex
+        if (metadata.containsDirectoryOfType(ExifInteropDirectory.class)) {
+            ExifInteropDirectory exifInteropDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
+            if (exifInteropDirectory.containsTag(ExifInteropDirectory.TAG_INTEROP_INDEX)) {
+                interopIndex = exifInteropDirectory.getDescription(ExifInteropDirectory.TAG_INTEROP_INDEX);
+            }
+        }
+
+        //EXIF IFD0 Tag(s): PhotometricInterpretation
+        if (metadata.containsDirectoryOfType(ExifIFD0Directory.class)) {
+            ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            if (exifIFD0Directory.containsTag(ExifInteropDirectory.TAG_PHOTOMETRIC_INTERPRETATION)) {
+                photometricInterpretation =
+                        exifIFD0Directory.getDescription(ExifIFD0Directory.TAG_PHOTOMETRIC_INTERPRETATION);
+            }
+        }
+
+        //image metadata: ImageFileName, ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
+        Map<String, String> imageMetadata = new LinkedHashMap<>();
+        imageMetadata.put(IMAGE_FILE_NAME, fileName);
+        imageMetadata.put(ICC_PROFILE_NAME, iccProfileName);
+        imageMetadata.put(COLOR_SPACE, colorSpace);
+        imageMetadata.put(INTEROP_INDEX, interopIndex);
+        imageMetadata.put(PHOTOMETRIC_INTERPRETATION, photometricInterpretation);
+
+        return imageMetadata;
+    }
+
+    /**
+     * Run identify command and return attributes
+     * @param fileName an image file
+     * @return list of color attributes
+     */
+    public String identify(String fileName) throws IOException {
+        String identify = "identify";
+        String quiet = "-quiet";
+        String format = "-format";
+        String options = "Dimensions: %wx%h;Channels: %[channels];Bit-depth: %[bit-depth];" +
+                "Alpha channel: %A;Color Space: %[colorspace];Profiles: %[profiles];" +
+                "ICC Profile: %[profile:icc];ICM Profile: %[profile:icm];";
+        String[] command = {identify, quiet, format, options, fileName};
+
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+        InputStream is = process.getInputStream();
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String line;
+        String attributes = "\"";
+        while ((line = br.readLine()) != null) {
+            attributes = attributes + line;
+        }
+        return attributes + "\"";
+    }
+
+    /**
+     * Combine then print fields and attributes
+     * @param fileName an image file
+     * @return map of all color fields and attributes
+     */
+    public void listFields(String fileName) throws Exception {
+        Map<String, String> imageMetadata = colorFields(fileName);
+        String attributes = identify(fileName);
+        imageMetadata.put(MAGICK_IDENTIFY, attributes);
+
+        for (Map.Entry<String, String> entry : imageMetadata.entrySet()) {
+            System.out.print(entry.getKey() + ":" + entry.getValue() + "\t");
+        }
+        System.out.println();
+    }
+
+    /**
+     * Iterate through list of image files and return all color fields
+     * @param fileName a list of image files
+     */
+    public void fileListAllFields(String fileName) throws Exception {
+        List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
+
+        Iterator<String> itr = listOfFiles.iterator();
+        while (itr.hasNext()) {
+            String imageFileName = itr.next();
+            if (Files.exists(Paths.get(imageFileName))) {
+                listFields(imageFileName);
+            } else {
+                throw new Exception(imageFileName + " does not exist. Not processing file list further.");
+            }
+        }
+    }
+}
