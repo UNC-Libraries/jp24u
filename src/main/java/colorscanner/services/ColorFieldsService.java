@@ -35,6 +35,7 @@ public class ColorFieldsService {
 
     public static final String IMAGE_FILE_NAME = "ImageFileName";
     public static final String FILE_SIZE = "FileSize";
+    public static final String FILE_MODIFIED_DATE = "FileModifiedDate";
     public static final String DATE_TIME_ORIGINAL = "DateTimeOriginal";
     public static final String DATE_TIME_DIGITIZED = "DateTimeDigitized";
     public static final String ICC_PROFILE_NAME = "ICCProfileName";
@@ -50,6 +51,7 @@ public class ColorFieldsService {
      */
     public Map<String,String> colorFields(String fileName) throws Exception {
         String fileSize = null;
+        String fileModifiedDate = null;
         String dateTimeOriginal = null;
         String dateTimeDigitized = null;
         String iccProfileName = null;
@@ -76,6 +78,9 @@ public class ColorFieldsService {
             FileSystemDirectory fileSystemDirectory = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
             if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_SIZE)) {
                 fileSize = fileSystemDirectory.getDescription(FileSystemDirectory.TAG_FILE_SIZE).trim();
+            }
+            if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_MODIFIED_DATE)) {
+                fileModifiedDate = fileSystemDirectory.getDescription(FileSystemDirectory.TAG_FILE_MODIFIED_DATE).trim();
             }
         }
 
@@ -107,10 +112,12 @@ public class ColorFieldsService {
             }
         }
 
-        //image metadata: ImageFileName, ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
+        //image metadata: ImageFileName, FileSize, FileModifiedDate, DateTimeOriginal, DateTimeDigitized,
+        //ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
         Map<String, String> imageMetadata = new LinkedHashMap<>();
         imageMetadata.put(IMAGE_FILE_NAME, fileName);
         imageMetadata.put(FILE_SIZE, fileSize);
+        imageMetadata.put(FILE_MODIFIED_DATE, fileModifiedDate);
         imageMetadata.put(DATE_TIME_ORIGINAL, dateTimeOriginal);
         imageMetadata.put(DATE_TIME_DIGITIZED, dateTimeDigitized);
         imageMetadata.put(ICC_PROFILE_NAME, iccProfileName);
