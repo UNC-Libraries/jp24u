@@ -4,6 +4,8 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifInteropDirectory;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.file.FileSystemDirectory;
 import com.drew.metadata.icc.IccDirectory;
 import org.slf4j.Logger;
 
@@ -32,6 +34,10 @@ public class ColorFieldsService {
     private static final Logger log = getLogger(ColorFieldsService.class);
 
     public static final String IMAGE_FILE_NAME = "ImageFileName";
+    public static final String FILE_SIZE = "FileSize";
+    public static final String FILE_MODIFIED_DATE = "FileModifiedDate";
+    public static final String DATE_TIME_ORIGINAL = "DateTimeOriginal";
+    public static final String DATE_TIME_DIGITIZED = "DateTimeDigitized";
     public static final String ICC_PROFILE_NAME = "ICCProfileName";
     public static final String COLOR_SPACE = "ColorSpace";
     public static final String INTEROP_INDEX = "InteropIndex";
@@ -44,6 +50,10 @@ public class ColorFieldsService {
      * @return map of color fields
      */
     public Map<String,String> colorFields(String fileName) throws Exception {
+        String fileSize = null;
+        String fileModifiedDate = null;
+        String dateTimeOriginal = null;
+        String dateTimeDigitized = null;
         String iccProfileName = null;
         String colorSpace = null;
         String interopIndex = null;
@@ -56,10 +66,32 @@ public class ColorFieldsService {
         if (metadata.containsDirectoryOfType(IccDirectory.class)) {
             IccDirectory iccDirectory = metadata.getFirstDirectoryOfType(IccDirectory.class);
             if (iccDirectory.containsTag(IccDirectory.TAG_TAG_desc)) {
-                iccProfileName = iccDirectory.getDescription(IccDirectory.TAG_TAG_desc);
+                iccProfileName = iccDirectory.getDescription(IccDirectory.TAG_TAG_desc).trim();
             }
             if (iccDirectory.containsTag(IccDirectory.TAG_COLOR_SPACE)) {
-                colorSpace = iccDirectory.getDescription(IccDirectory.TAG_COLOR_SPACE);
+                colorSpace = iccDirectory.getDescription(IccDirectory.TAG_COLOR_SPACE).trim();
+            }
+        }
+
+        //File System Tag(s): FileSize
+        if (metadata.containsDirectoryOfType(FileSystemDirectory.class)) {
+            FileSystemDirectory fileSystemDirectory = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
+            if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_SIZE)) {
+                fileSize = fileSystemDirectory.getDescription(FileSystemDirectory.TAG_FILE_SIZE).trim();
+            }
+            if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_MODIFIED_DATE)) {
+                fileModifiedDate = fileSystemDirectory.getDescription(FileSystemDirectory.TAG_FILE_MODIFIED_DATE).trim();
+            }
+        }
+
+        //EXIF SubIFD Tag(s): DateTimeOriginal, DateTimeDigitized
+        if (metadata.containsDirectoryOfType(ExifSubIFDDirectory.class)) {
+            ExifSubIFDDirectory exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+            if (exifSubIFDDirectory.containsTag(ExifInteropDirectory.TAG_DATETIME_ORIGINAL)) {
+                dateTimeOriginal = exifSubIFDDirectory.getDescription(ExifIFD0Directory.TAG_DATETIME_ORIGINAL).trim();
+            }
+            if (exifSubIFDDirectory.containsTag(ExifInteropDirectory.TAG_DATETIME_DIGITIZED)) {
+                dateTimeDigitized = exifSubIFDDirectory.getDescription(ExifIFD0Directory.TAG_DATETIME_DIGITIZED).trim();
             }
         }
 
@@ -67,7 +99,7 @@ public class ColorFieldsService {
         if (metadata.containsDirectoryOfType(ExifInteropDirectory.class)) {
             ExifInteropDirectory exifInteropDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
             if (exifInteropDirectory.containsTag(ExifInteropDirectory.TAG_INTEROP_INDEX)) {
-                interopIndex = exifInteropDirectory.getDescription(ExifInteropDirectory.TAG_INTEROP_INDEX);
+                interopIndex = exifInteropDirectory.getDescription(ExifInteropDirectory.TAG_INTEROP_INDEX).trim();
             }
         }
 
@@ -76,13 +108,18 @@ public class ColorFieldsService {
             ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
             if (exifIFD0Directory.containsTag(ExifInteropDirectory.TAG_PHOTOMETRIC_INTERPRETATION)) {
                 photometricInterpretation =
-                        exifIFD0Directory.getDescription(ExifIFD0Directory.TAG_PHOTOMETRIC_INTERPRETATION);
+                        exifIFD0Directory.getDescription(ExifIFD0Directory.TAG_PHOTOMETRIC_INTERPRETATION).trim();
             }
         }
 
-        //image metadata: ImageFileName, ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
+        //image metadata: ImageFileName, FileSize, FileModifiedDate, DateTimeOriginal, DateTimeDigitized,
+        //ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
         Map<String, String> imageMetadata = new LinkedHashMap<>();
         imageMetadata.put(IMAGE_FILE_NAME, fileName);
+        imageMetadata.put(FILE_SIZE, fileSize);
+        imageMetadata.put(FILE_MODIFIED_DATE, fileModifiedDate);
+        imageMetadata.put(DATE_TIME_ORIGINAL, dateTimeOriginal);
+        imageMetadata.put(DATE_TIME_DIGITIZED, dateTimeDigitized);
         imageMetadata.put(ICC_PROFILE_NAME, iccProfileName);
         imageMetadata.put(COLOR_SPACE, colorSpace);
         imageMetadata.put(INTEROP_INDEX, interopIndex);
