@@ -37,7 +37,7 @@ public class ColorScannerCommand {
         }
     }
 
-    @Command(name = "list all",
+    @Command(name = "list_all",
             description = "Retrieve image color fields and attributes for a list of files.")
     public int listAll(@Mixin ColorScannerOptions options) throws Exception {
         try {
@@ -64,7 +64,7 @@ public class ColorScannerCommand {
         }
     }
 
-    @Command(name = "kdu_compress all",
+    @Command(name = "kdu_compress_all",
             description = "Run kakadu kdu_compress on a list of image files.")
     public int kduCompressAll(@Mixin ColorScannerOptions options) throws Exception {
         try {

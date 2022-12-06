@@ -63,7 +63,7 @@ public class ColorScannerCommandIT {
         String testFile = "src/test/resources/test_input.txt";
         String[] args = new String[] {
                 "colorscanner",
-                "list all", "-f", testFile
+                "list_all", "-f", testFile
                 };
 
         executeExpectSuccess(args);
@@ -75,10 +75,10 @@ public class ColorScannerCommandIT {
 
         String[] args = new String[] {
                 "colorscanner",
-                "list all", "-f", testFile
+                "list_all", "-f", testFile
         };
 
-        executeExpectFailure(args);
+        executeExpectSuccess(args);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class ColorScannerCommandIT {
 
         String[] args = new String[] {
                 "colorscanner",
-                "kdu_compress all", "-f", testFile,
+                "kdu_compress_all", "-f", testFile,
         };
 
         executeExpectSuccess(args);
@@ -123,7 +123,7 @@ public class ColorScannerCommandIT {
 
         String[] args = new String[] {
                 "colorscanner",
-                "kdu_compress all", "-f", testFile,
+                "kdu_compress_all", "-f", testFile,
         };
 
         executeExpectFailure(args);
