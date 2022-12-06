@@ -1,3 +1,3 @@
 src/test/resources/E101_F8_0112.tif
-src/test/resources/P0024_0066.tif
 src/test/resources/test.tif
+src/test/resources/P0024_0066.tif
