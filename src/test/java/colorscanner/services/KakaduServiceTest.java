@@ -55,7 +55,7 @@ public class KakaduServiceTest {
     }
 
     @Test
-    public void testKakaduKduCompressCymk() throws Exception {
+    public void testKakaduKduCompressCmyk() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
         service.kduCompress(testFile);
 

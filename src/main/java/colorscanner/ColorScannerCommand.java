@@ -3,6 +3,7 @@ package colorscanner;
 import colorscanner.options.ColorScannerOptions;
 import colorscanner.services.ColorFieldsService;
 import colorscanner.services.KakaduService;
+import colorscanner.services.TemporaryImageService;
 import org.slf4j.Logger;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -22,6 +23,7 @@ public class ColorScannerCommand {
     private CLIMain parentCommand;
 
     private ColorFieldsService colorFieldsService = new ColorFieldsService();
+    private TemporaryImageService temporaryImageService = new TemporaryImageService();
     private KakaduService kakaduService = new KakaduService();
 
     @Command(name = "list",
@@ -54,7 +56,7 @@ public class ColorScannerCommand {
             description = "Run kakadu kdu_compress on an image file.")
     public int kduCompress(@Mixin ColorScannerOptions options) throws Exception {
         try {
-            kakaduService.setColorFieldsService(colorFieldsService);
+            kakaduService.setTemporaryImageService(temporaryImageService);
             kakaduService.kduCompress(options.getFileName());
             return 0;
         } catch (Exception e) {
@@ -68,7 +70,7 @@ public class ColorScannerCommand {
             description = "Run kakadu kdu_compress on a list of image files.")
     public int kduCompressAll(@Mixin ColorScannerOptions options) throws Exception {
         try {
-            kakaduService.setColorFieldsService(colorFieldsService);
+            kakaduService.setTemporaryImageService(temporaryImageService);
             kakaduService.fileListKduCompress(options.getFileName());
             return 0;
         } catch (Exception e) {

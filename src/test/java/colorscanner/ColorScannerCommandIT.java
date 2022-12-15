@@ -2,6 +2,7 @@ package colorscanner;
 
 import colorscanner.services.ColorFieldsService;
 import colorscanner.services.KakaduService;
+import colorscanner.services.TemporaryImageService;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ public class ColorScannerCommandIT {
 
     private ColorFieldsService colorFieldsService;
     private KakaduService kakaduService;
+    private TemporaryImageService temporaryImageService;
 
     @Before
     public void setup() throws Exception {
@@ -33,7 +35,8 @@ public class ColorScannerCommandIT {
 
         colorFieldsService = new ColorFieldsService();
         kakaduService = new KakaduService();
-        kakaduService.setColorFieldsService(colorFieldsService);
+        temporaryImageService = new TemporaryImageService();
+        kakaduService.setTemporaryImageService(temporaryImageService);
     }
 
     @Test
