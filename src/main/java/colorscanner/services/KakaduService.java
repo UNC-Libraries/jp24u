@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -23,23 +22,31 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class KakaduService {
     private static final Logger log = getLogger(KakaduService.class);
 
-    private ColorFieldsService colorFieldsService;
+    private TemporaryImageService temporaryImageService;
 
     /**
-     * Get ColorSpace from color fields service
+     * Get ColorSpace from ImageMagick
      * @param fileName an image file
      * @return colorSpace
      */
     public String getColorSpace(String fileName) throws Exception {
         // we may check more than one field for color space information
-        // may also switch to identify command to retrieve color space info if image metadata is lacking
-        String colorSpace = "null";
-        Map<String,String> imageMetadata = colorFieldsService.colorFields(fileName);
+        // Switched to identify command to retrieve color space info. Image metadata is lacking.
+        String identify = "identify";
+        String quiet = "-quiet";
+        String format = "-format";
+        String options = "%[colorspace]";
+        String[] command = {identify, quiet, format, options, fileName};
 
-        if (imageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
-            colorSpace = imageMetadata.get(ColorFieldsService.COLOR_SPACE);
-        } else {
-            log.info(fileName + ": colorSpace information not found.");
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+        InputStream is = process.getInputStream();
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String line;
+        String colorSpace = "";
+        while ((line = br.readLine()) != null) {
+            colorSpace = colorSpace + line;
         }
 
         return colorSpace;
@@ -84,6 +91,10 @@ public class KakaduService {
             command.add(jp2Space);
             command.add(jp2SpaceOptions);
         }
+        //for CMYK images: convert to temporary jpg image before kduCompress
+        if (colorSpace.toLowerCase().contains("cmyk")) {
+            fileName = temporaryImageService.convertImage(fileName);
+        }
 
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
@@ -114,7 +125,7 @@ public class KakaduService {
         }
     }
 
-    public void setColorFieldsService(ColorFieldsService colorFieldsService) {
-        this.colorFieldsService = colorFieldsService;
+    public void setTemporaryImageService (TemporaryImageService temporaryImageService) {
+        this.temporaryImageService = temporaryImageService;
     }
 }

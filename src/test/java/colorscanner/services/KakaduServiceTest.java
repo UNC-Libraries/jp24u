@@ -16,22 +16,22 @@ public class KakaduServiceTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
     private KakaduService service;
-    private ColorFieldsService colorFieldsService;
+    private TemporaryImageService temporaryImageService;
 
     @Before
     public void setup() throws Exception {
         System.setOut(new PrintStream(outputStreamCaptor));
 
-        colorFieldsService = new ColorFieldsService();
+        temporaryImageService = new TemporaryImageService();
         service = new KakaduService();
-        service.setColorFieldsService(colorFieldsService);
+        service.setTemporaryImageService(temporaryImageService);
     }
 
     @Test
     public void testRetrieveColorSpace() throws Exception {
         String testFile = "src/test/resources/P0024_0066.tif";
         String colorSpace = service.getColorSpace(testFile);
-        assertEquals("null", colorSpace);
+        assertEquals("Gray", colorSpace);
     }
 
     @Test
@@ -52,6 +52,18 @@ public class KakaduServiceTest {
         assertTrue(Files.exists(Paths.get("src/test/resources/P0024_0103_01.jp2")));
 
         Files.deleteIfExists(Paths.get("src/test/resources/P0024_0103_01.jp2"));
+    }
+
+    @Test
+    public void testKakaduKduCompressCymk() throws Exception {
+        String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
+        service.kduCompress(testFile);
+
+        assertTrue(Files.exists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg")));
+        assertTrue(Files.exists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2")));
+
+        Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg"));
+        Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
     }
 
     @Test
