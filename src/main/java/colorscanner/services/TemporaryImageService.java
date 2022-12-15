@@ -17,7 +17,7 @@ public class TemporaryImageService {
     //TODO: we will need to test different CMYK conversion options
     //It seems like only using Color Space creates a more color accurate temporary image.
     //Using Color Space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
-    public void convertImage(String fileName) throws Exception {
+    public String convertImage(String fileName) throws Exception {
         String convert = "convert";
         //String profile = "-profile";
         //String profileOptions = "src/main/resources/AdobeRGB1998.icc";
@@ -37,5 +37,7 @@ public class TemporaryImageService {
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jpg file.", e);
         }
+
+        return temporaryFile;
     }
 }

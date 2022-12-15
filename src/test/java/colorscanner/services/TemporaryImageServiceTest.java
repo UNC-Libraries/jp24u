@@ -24,14 +24,16 @@ public class TemporaryImageServiceTest {
 
     @Test
     public void testConvertImageWithIccProfile() throws Exception {
-        String testFile1 = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        service.convertImage(testFile1);
+        String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
+        service.convertImage(testFile);
 
         assertTrue(Files.exists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg")));
     }
 
     @Test
     public void testConvertImageWithoutIccProfile() throws Exception {
+        //this tif is 155.6MB and the other example is about the same size
+        //might need to delete this test?
         String testFile = "src/test/resources/Surgery.tif";
         service.convertImage(testFile);
 
