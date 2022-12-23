@@ -1,23 +1,23 @@
 package colorscanner.services;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TemporaryImageServiceTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
     private TemporaryImageService service;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         System.setOut(new PrintStream(outputStreamCaptor));
 
@@ -29,10 +29,10 @@ public class TemporaryImageServiceTest {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
         service.convertImage(testFile);
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg")));
+        assertTrue(Files.exists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg")));
     }
 
-    @Ignore("testFile is 155.6MB, too big to add to github") //@Disable
+    @Disabled("testFile is 155.6MB, too big to add to github")
     @Test
     public void testConvertImageWithoutIccProfile() throws Exception {
         String testFile = "src/test/resources/Surgery.tif";

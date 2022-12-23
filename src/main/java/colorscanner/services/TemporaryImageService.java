@@ -30,14 +30,14 @@ public class TemporaryImageService {
     //It seems like only using Color Space creates a more color accurate temporary image.
     //Using Color Space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
     public String convertImage(String fileName) throws Exception {
-        var tempImageFilesPath = initializeTempImageFilesDir();
+        initializeTempImageFilesDir();
 
         String convert = "convert";
         //String profile = "-profile";
         //String profileOptions = "src/main/resources/AdobeRGB1998.icc";
         String colorSpace = "-colorspace";
         String colorSpaceOptions = "srgb";
-        String temporaryFile = tempImageFilesPath + "/" + Paths.get(fileName).getFileName().toString() + ".jpg";
+        String temporaryFile = TMP_FILES_DIR + "/" + Paths.get(fileName).getFileName().toString() + ".jpg";
 
         List<String> command = Arrays.asList(convert, fileName, colorSpace, colorSpaceOptions,
                 temporaryFile);
@@ -60,7 +60,7 @@ public class TemporaryImageService {
      * @return tmpImageFilesDirectoryPath
      */
     public Path initializeTempImageFilesDir() throws IOException {
-        var path = Paths.get("").resolve(TMP_FILES_DIR);
+        Path path = Paths.get("").resolve(TMP_FILES_DIR);
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }

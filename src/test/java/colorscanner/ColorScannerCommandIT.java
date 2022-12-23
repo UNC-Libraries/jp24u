@@ -3,16 +3,16 @@ package colorscanner;
 import colorscanner.services.ColorFieldsService;
 import colorscanner.services.KakaduService;
 import colorscanner.services.TemporaryImageService;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -29,7 +29,7 @@ public class ColorScannerCommandIT {
     private KakaduService kakaduService;
     private TemporaryImageService temporaryImageService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         command = new CommandLine(new CLIMain());
         System.setOut(new PrintStream(outputStreamCaptor));
@@ -97,7 +97,7 @@ public class ColorScannerCommandIT {
         executeExpectSuccess(args);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void kakaduKduCompressFail() throws Exception {
         String testFile = "src/test/resources/test.tif";
