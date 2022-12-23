@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class TemporaryImageServiceTest {
@@ -47,6 +48,15 @@ public class TemporaryImageServiceTest {
 
         assertTrue(Files.exists(Paths.get("tmp/SAAACAM-HopeHouse_transparency_with-title_merged.tif-0.jpg")));
         assertTrue(Files.exists(Paths.get("tmp/SAAACAM-HopeHouse_transparency_with-title_merged.tif-1.jpg")));
+    }
+
+    @Test
+    public void testTmpImageFileDirDeleted() throws Exception {
+        String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
+        service.convertImage(testFile);
+        service.deleteTmpImageFilesDir();
+
+        assertFalse(Files.exists(Paths.get("tmp")));
     }
 
 }
