@@ -8,10 +8,10 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -78,9 +78,9 @@ public class KakaduService {
         String jp2Space;
         String jp2SpaceOptions;
 
-        List<String> command = Arrays.asList(kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
+        List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
                 corder, orggenplt, orgtparts, cblk, cusesop, cuseeph, flushPeriod, flushPeriodOptions,
-                rate, rateOptions);
+                rate, rateOptions));
 
         // get color space from colorFields
         String colorSpace = getColorSpace(fileName);
