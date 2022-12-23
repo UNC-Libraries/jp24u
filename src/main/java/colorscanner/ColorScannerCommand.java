@@ -58,6 +58,7 @@ public class ColorScannerCommand {
         try {
             kakaduService.setTemporaryImageService(temporaryImageService);
             kakaduService.kduCompress(options.getFileName());
+            temporaryImageService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
             outputLogger.info("{}", e.getMessage());
@@ -72,6 +73,7 @@ public class ColorScannerCommand {
         try {
             kakaduService.setTemporaryImageService(temporaryImageService);
             kakaduService.fileListKduCompress(options.getFileName());
+            temporaryImageService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
             outputLogger.info("FAIL: {}", e.getMessage());

@@ -4,6 +4,7 @@ import colorscanner.services.ColorFieldsService;
 import colorscanner.services.KakaduService;
 import colorscanner.services.TemporaryImageService;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import picocli.CommandLine;
@@ -51,14 +52,14 @@ public class ColorScannerCommandIT {
     }
 
     @Test
-    public void listColorFieldsFail() throws Exception {
+    public void listColorFieldsLogEfforWithNonexistentFile() throws Exception {
         String testFile = "src/test/resources/test.tif";
         String[] args = new String[] {
                 "colorscanner",
                 "list", "-f", testFile
         };
 
-        executeExpectFailure(args);
+        executeExpectSuccess(args);
     }
 
     @Test
@@ -96,6 +97,7 @@ public class ColorScannerCommandIT {
         executeExpectSuccess(args);
     }
 
+    @Ignore
     @Test
     public void kakaduKduCompressFail() throws Exception {
         String testFile = "src/test/resources/test.tif";
