@@ -2,9 +2,6 @@ package colorscanner.services;
 
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -12,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -22,31 +20,30 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class KakaduService {
     private static final Logger log = getLogger(KakaduService.class);
 
+    private ColorFieldsService colorFieldsService;
     private TemporaryImageService temporaryImageService;
 
     /**
-     * Get ColorSpace from ImageMagick
+     * Get ColorSpace from exif fields
      * @param fileName an image file
      * @return colorSpace
      */
     public String getColorSpace(String fileName) throws Exception {
-        // we may check more than one field for color space information
-        // Switched to identify command to retrieve color space info. Image metadata is lacking.
-        String identify = "identify";
-        String quiet = "-quiet";
-        String format = "-format";
-        String options = "%[colorspace]";
-        String[] command = {identify, quiet, format, options, fileName};
+        // we will check 2 exif fields (ColorSpace and PhotometricInterpretation) for color space information
+        String colorSpace = "null";
+        Map<String,String> imageMetadata = colorFieldsService.colorFields(fileName);
 
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-        InputStream is = process.getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String line;
-        String colorSpace = "";
-        while ((line = br.readLine()) != null) {
-            colorSpace = colorSpace + line;
+        if (imageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
+            colorSpace = imageMetadata.get(ColorFieldsService.COLOR_SPACE);
+        } if (imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
+            colorSpace = imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
+        } else {
+            log.info(fileName + ": colorSpace information not found.");
+        }
+
+        if (colorSpace.toLowerCase().matches("blackiszero") ||
+                colorSpace.toLowerCase().matches("whiteiszero")) {
+            colorSpace = "Gray";
         }
 
         return colorSpace;
@@ -123,6 +120,10 @@ public class KakaduService {
                 throw new Exception(imageFileName + " does not exist. Not processing file list further.");
             }
         }
+    }
+
+    public void setColorFieldsService (ColorFieldsService colorFieldsService) {
+        this.colorFieldsService = colorFieldsService;
     }
 
     public void setTemporaryImageService (TemporaryImageService temporaryImageService) {

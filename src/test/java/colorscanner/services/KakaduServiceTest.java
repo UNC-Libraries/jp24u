@@ -17,14 +17,17 @@ public class KakaduServiceTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
     private KakaduService service;
+    private ColorFieldsService colorFieldsService;
     private TemporaryImageService temporaryImageService;
 
     @BeforeEach
     public void setup() throws Exception {
         System.setOut(new PrintStream(outputStreamCaptor));
 
+        colorFieldsService = new ColorFieldsService();
         temporaryImageService = new TemporaryImageService();
         service = new KakaduService();
+        service.setColorFieldsService(colorFieldsService);
         service.setTemporaryImageService(temporaryImageService);
     }
 
