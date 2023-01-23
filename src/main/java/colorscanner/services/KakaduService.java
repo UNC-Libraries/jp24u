@@ -35,7 +35,7 @@ public class KakaduService {
 
         if (imageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = imageMetadata.get(ColorFieldsService.COLOR_SPACE);
-        } if (imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
+        } else if (imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
             colorSpace = imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else {
             log.info(fileName + ": colorSpace information not found.");
@@ -122,11 +122,11 @@ public class KakaduService {
         }
     }
 
-    public void setColorFieldsService (ColorFieldsService colorFieldsService) {
+    public void setColorFieldsService(ColorFieldsService colorFieldsService) {
         this.colorFieldsService = colorFieldsService;
     }
 
-    public void setTemporaryImageService (TemporaryImageService temporaryImageService) {
+    public void setTemporaryImageService(TemporaryImageService temporaryImageService) {
         this.temporaryImageService = temporaryImageService;
     }
 }
