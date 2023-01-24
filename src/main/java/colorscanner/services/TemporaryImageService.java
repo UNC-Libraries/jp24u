@@ -20,11 +20,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class TemporaryImageService {
     private static final Logger log = getLogger(TemporaryImageService.class);
 
-    public static final String TMP_FILES_DIR = "tmp";
+    public static final Path TMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
+    public static final Path TMP_FILES_DIR = TMP_DIR.resolve("colorscanner");
 
     /**
      * Run ImageMagick convert and convert tif to jpg
      * @param fileName an image file
+     * @return temporaryFile a temporary jpg file
      */
     //TODO: we will need to test different CMYK conversion options
     //It seems like only using Color Space creates a more color accurate temporary image.
@@ -37,7 +39,8 @@ public class TemporaryImageService {
         //String profileOptions = "src/main/resources/AdobeRGB1998.icc";
         String colorSpace = "-colorspace";
         String colorSpaceOptions = "srgb";
-        String temporaryFile = TMP_FILES_DIR + "/" + Paths.get(fileName).getFileName().toString() + ".jpg";
+        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+                + ".jpg").toAbsolutePath().toString();
 
         List<String> command = Arrays.asList(convert, fileName, colorSpace, colorSpaceOptions,
                 temporaryFile);
@@ -60,7 +63,7 @@ public class TemporaryImageService {
      * @return tmpImageFilesDirectoryPath
      */
     public Path initializeTempImageFilesDir() throws IOException {
-        Path path = Paths.get("").resolve(TMP_FILES_DIR);
+        Path path = TMP_FILES_DIR;
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }
@@ -71,7 +74,7 @@ public class TemporaryImageService {
      * Delete tmp image files directory
      */
     public void deleteTmpImageFilesDir() throws Exception {
-        File tmpDir = new File(TMP_FILES_DIR);
+        File tmpDir = new File(TMP_FILES_DIR.toString());
         FileUtils.deleteDirectory(tmpDir);
         tmpDir.delete();
     }
