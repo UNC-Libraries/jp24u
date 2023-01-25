@@ -1,23 +1,22 @@
 package colorscanner.services;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ColorFieldsServiceTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
     private ColorFieldsService service;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         System.setOut(new PrintStream(outputStreamCaptor));
 
@@ -112,12 +111,21 @@ public class ColorFieldsServiceTest {
     public void testListOfImportFilesWithNonexistentFileFail() throws Exception {
         String testFile = "src/test/resources/test_input_fail.txt";
 
-        try {
-            service.fileListAllFields(testFile);
-            fail();
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("src/test/resources/test.tif does not exist. " +
-                    "Not processing file list further."));
-        }
+        service.fileListAllFields(testFile);
+        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/E101_F8_0112.tif\t" +
+                "FileSize:57001526 bytes\tFileModifiedDate:Wed Oct 12 12:31:30 -04:00 2022\t" +
+                "DateTimeOriginal:2021:08:30 19:56:48\tDateTimeDigitized:2021:08:30 19:56:48\t" +
+                "ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB\tInteropIndex:Unknown (R03)\t" +
+                "PhotometricInterpretation:RGB\tMagickIdentify:\"Dimensions: 2600x3650;Channels: srgb;" +
+                "Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Profiles: icc,xmp;" +
+                "ICC Profile: Adobe RGB (1998);ICM Profile: ;Dimensions: 114x160;Channels: srgb;Bit-depth: 8;" +
+                "Alpha channel: False;Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"\t\n"));
+        assertTrue(outputStreamCaptor.toString().contains("src/test/resources/test.tif does not exist."));
+        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/P0024_0066.tif\t" +
+                "FileSize:40736840 bytes\tFileModifiedDate:Wed Oct 12 12:31:30 -04:00 2022\t" +
+                "DateTimeOriginal:null\tDateTimeDigitized:2013:06:25 14:51:58\t" +
+                "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
+                "MagickIdentify:\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
+                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;\"\t\n"));
     }
 }

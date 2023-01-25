@@ -2,9 +2,6 @@ package colorscanner.services;
 
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,22 +21,29 @@ public class KakaduService {
     private static final Logger log = getLogger(KakaduService.class);
 
     private ColorFieldsService colorFieldsService;
+    private TemporaryImageService temporaryImageService;
 
     /**
-     * Get ColorSpace from color fields service
+     * Get ColorSpace from exif fields
      * @param fileName an image file
      * @return colorSpace
      */
     public String getColorSpace(String fileName) throws Exception {
-        // we may check more than one field for color space information
-        // may also switch to identify command to retrieve color space info if image metadata is lacking
+        // we will check 2 exif fields (ColorSpace and PhotometricInterpretation) for color space information
         String colorSpace = "null";
         Map<String,String> imageMetadata = colorFieldsService.colorFields(fileName);
 
         if (imageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = imageMetadata.get(ColorFieldsService.COLOR_SPACE);
+        } else if (imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
+            colorSpace = imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else {
             log.info(fileName + ": colorSpace information not found.");
+        }
+
+        if (colorSpace.toLowerCase().matches("blackiszero") ||
+                colorSpace.toLowerCase().matches("whiteiszero")) {
+            colorSpace = "Gray";
         }
 
         return colorSpace;
@@ -71,9 +75,9 @@ public class KakaduService {
         String jp2Space;
         String jp2SpaceOptions;
 
-        List<String> command = Arrays.asList(kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
+        List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
                 corder, orggenplt, orgtparts, cblk, cusesop, cuseeph, flushPeriod, flushPeriodOptions,
-                rate, rateOptions);
+                rate, rateOptions));
 
         // get color space from colorFields
         String colorSpace = getColorSpace(fileName);
@@ -83,6 +87,10 @@ public class KakaduService {
             jp2SpaceOptions = "sLUM";
             command.add(jp2Space);
             command.add(jp2SpaceOptions);
+        }
+        //for CMYK images: convert to temporary jpg image before kduCompress
+        if (colorSpace.toLowerCase().contains("cmyk")) {
+            fileName = temporaryImageService.convertImage(fileName);
         }
 
         try {
@@ -116,5 +124,9 @@ public class KakaduService {
 
     public void setColorFieldsService(ColorFieldsService colorFieldsService) {
         this.colorFieldsService = colorFieldsService;
+    }
+
+    public void setTemporaryImageService(TemporaryImageService temporaryImageService) {
+        this.temporaryImageService = temporaryImageService;
     }
 }

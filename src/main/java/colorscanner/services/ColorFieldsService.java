@@ -1,6 +1,7 @@
 package colorscanner.services;
 
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifInteropDirectory;
@@ -17,10 +18,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,56 +59,61 @@ public class ColorFieldsService {
         String photometricInterpretation = null;
 
         File imageFile = new File(fileName);
-        Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
 
-        //ICC Profile Tag(s): ICCProfileName, ColorSpace
-        if (metadata.containsDirectoryOfType(IccDirectory.class)) {
-            IccDirectory iccDirectory = metadata.getFirstDirectoryOfType(IccDirectory.class);
-            if (iccDirectory.containsTag(IccDirectory.TAG_TAG_desc)) {
-                iccProfileName = iccDirectory.getDescription(IccDirectory.TAG_TAG_desc).trim();
+            //ICC Profile Tag(s): ICCProfileName, ColorSpace
+            if (metadata.containsDirectoryOfType(IccDirectory.class)) {
+                IccDirectory iccDirectory = metadata.getFirstDirectoryOfType(IccDirectory.class);
+                if (iccDirectory.containsTag(IccDirectory.TAG_TAG_desc)) {
+                    iccProfileName = iccDirectory.getDescription(IccDirectory.TAG_TAG_desc).trim();
+                }
+                if (iccDirectory.containsTag(IccDirectory.TAG_COLOR_SPACE)) {
+                    colorSpace = iccDirectory.getDescription(IccDirectory.TAG_COLOR_SPACE).trim();
+                }
             }
-            if (iccDirectory.containsTag(IccDirectory.TAG_COLOR_SPACE)) {
-                colorSpace = iccDirectory.getDescription(IccDirectory.TAG_COLOR_SPACE).trim();
-            }
-        }
 
-        //File System Tag(s): FileSize
-        if (metadata.containsDirectoryOfType(FileSystemDirectory.class)) {
-            FileSystemDirectory fileSystemDirectory = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
-            if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_SIZE)) {
-                fileSize = fileSystemDirectory.getDescription(FileSystemDirectory.TAG_FILE_SIZE).trim();
+            //File System Tag(s): FileSize
+            if (metadata.containsDirectoryOfType(FileSystemDirectory.class)) {
+                FileSystemDirectory fileSystemDirectory = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
+                if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_SIZE)) {
+                    fileSize = fileSystemDirectory.getDescription(FileSystemDirectory.TAG_FILE_SIZE).trim();
+                }
+                if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_MODIFIED_DATE)) {
+                    fileModifiedDate = fileSystemDirectory.getDescription(FileSystemDirectory.TAG_FILE_MODIFIED_DATE).trim();
+                }
             }
-            if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_MODIFIED_DATE)) {
-                fileModifiedDate = fileSystemDirectory.getDescription(FileSystemDirectory.TAG_FILE_MODIFIED_DATE).trim();
-            }
-        }
 
-        //EXIF SubIFD Tag(s): DateTimeOriginal, DateTimeDigitized
-        if (metadata.containsDirectoryOfType(ExifSubIFDDirectory.class)) {
-            ExifSubIFDDirectory exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-            if (exifSubIFDDirectory.containsTag(ExifInteropDirectory.TAG_DATETIME_ORIGINAL)) {
-                dateTimeOriginal = exifSubIFDDirectory.getDescription(ExifIFD0Directory.TAG_DATETIME_ORIGINAL).trim();
+            //EXIF SubIFD Tag(s): DateTimeOriginal, DateTimeDigitized
+            if (metadata.containsDirectoryOfType(ExifSubIFDDirectory.class)) {
+                ExifSubIFDDirectory exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+                if (exifSubIFDDirectory.containsTag(ExifInteropDirectory.TAG_DATETIME_ORIGINAL)) {
+                    dateTimeOriginal = exifSubIFDDirectory.getDescription(ExifIFD0Directory.TAG_DATETIME_ORIGINAL).trim();
+                }
+                if (exifSubIFDDirectory.containsTag(ExifInteropDirectory.TAG_DATETIME_DIGITIZED)) {
+                    dateTimeDigitized = exifSubIFDDirectory.getDescription(ExifIFD0Directory.TAG_DATETIME_DIGITIZED).trim();
+                }
             }
-            if (exifSubIFDDirectory.containsTag(ExifInteropDirectory.TAG_DATETIME_DIGITIZED)) {
-                dateTimeDigitized = exifSubIFDDirectory.getDescription(ExifIFD0Directory.TAG_DATETIME_DIGITIZED).trim();
-            }
-        }
 
-        //EXIF InteropIFD Tag(s): InteropIndex
-        if (metadata.containsDirectoryOfType(ExifInteropDirectory.class)) {
-            ExifInteropDirectory exifInteropDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
-            if (exifInteropDirectory.containsTag(ExifInteropDirectory.TAG_INTEROP_INDEX)) {
-                interopIndex = exifInteropDirectory.getDescription(ExifInteropDirectory.TAG_INTEROP_INDEX).trim();
+            //EXIF InteropIFD Tag(s): InteropIndex
+            if (metadata.containsDirectoryOfType(ExifInteropDirectory.class)) {
+                ExifInteropDirectory exifInteropDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
+                if (exifInteropDirectory.containsTag(ExifInteropDirectory.TAG_INTEROP_INDEX)) {
+                    interopIndex = exifInteropDirectory.getDescription(ExifInteropDirectory.TAG_INTEROP_INDEX).trim();
+                }
             }
-        }
 
-        //EXIF IFD0 Tag(s): PhotometricInterpretation
-        if (metadata.containsDirectoryOfType(ExifIFD0Directory.class)) {
-            ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-            if (exifIFD0Directory.containsTag(ExifInteropDirectory.TAG_PHOTOMETRIC_INTERPRETATION)) {
-                photometricInterpretation =
-                        exifIFD0Directory.getDescription(ExifIFD0Directory.TAG_PHOTOMETRIC_INTERPRETATION).trim();
+            //EXIF IFD0 Tag(s): PhotometricInterpretation
+            if (metadata.containsDirectoryOfType(ExifIFD0Directory.class)) {
+                ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+                if (exifIFD0Directory.containsTag(ExifInteropDirectory.TAG_PHOTOMETRIC_INTERPRETATION)) {
+                    photometricInterpretation =
+                            exifIFD0Directory.getDescription(ExifIFD0Directory.TAG_PHOTOMETRIC_INTERPRETATION).trim();
+                }
             }
+        } catch (ImageProcessingException | IOException e) {
+            log.error("Error reading image metadata for file {}", fileName, e);
+            System.out.println("Error reading image metadata for file " + fileName);
         }
 
         //image metadata: ImageFileName, FileSize, FileModifiedDate, DateTimeOriginal, DateTimeDigitized,
@@ -184,7 +188,8 @@ public class ColorFieldsService {
             if (Files.exists(Paths.get(imageFileName))) {
                 listFields(imageFileName);
             } else {
-                throw new Exception(imageFileName + " does not exist. Not processing file list further.");
+                log.info(imageFileName + " does not exist.");
+                System.out.println(imageFileName + " does not exist.");
             }
         }
     }

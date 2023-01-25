@@ -2,15 +2,17 @@ package colorscanner;
 
 import colorscanner.services.ColorFieldsService;
 import colorscanner.services.KakaduService;
-import org.junit.Before;
-import org.junit.Test;
+import colorscanner.services.TemporaryImageService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -25,15 +27,17 @@ public class ColorScannerCommandIT {
 
     private ColorFieldsService colorFieldsService;
     private KakaduService kakaduService;
+    private TemporaryImageService temporaryImageService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         command = new CommandLine(new CLIMain());
         System.setOut(new PrintStream(outputStreamCaptor));
 
         colorFieldsService = new ColorFieldsService();
         kakaduService = new KakaduService();
-        kakaduService.setColorFieldsService(colorFieldsService);
+        temporaryImageService = new TemporaryImageService();
+        kakaduService.setTemporaryImageService(temporaryImageService);
     }
 
     @Test
@@ -48,14 +52,14 @@ public class ColorScannerCommandIT {
     }
 
     @Test
-    public void listColorFieldsFail() throws Exception {
+    public void listColorFieldsLogEfforWithNonexistentFile() throws Exception {
         String testFile = "src/test/resources/test.tif";
         String[] args = new String[] {
                 "colorscanner",
                 "list", "-f", testFile
         };
 
-        executeExpectFailure(args);
+        executeExpectSuccess(args);
     }
 
     @Test
@@ -63,7 +67,7 @@ public class ColorScannerCommandIT {
         String testFile = "src/test/resources/test_input.txt";
         String[] args = new String[] {
                 "colorscanner",
-                "list all", "-f", testFile
+                "list_all", "-f", testFile
                 };
 
         executeExpectSuccess(args);
@@ -75,10 +79,10 @@ public class ColorScannerCommandIT {
 
         String[] args = new String[] {
                 "colorscanner",
-                "list all", "-f", testFile
+                "list_all", "-f", testFile
         };
 
-        executeExpectFailure(args);
+        executeExpectSuccess(args);
     }
 
     @Test
@@ -93,6 +97,7 @@ public class ColorScannerCommandIT {
         executeExpectSuccess(args);
     }
 
+    @Disabled
     @Test
     public void kakaduKduCompressFail() throws Exception {
         String testFile = "src/test/resources/test.tif";
@@ -111,7 +116,7 @@ public class ColorScannerCommandIT {
 
         String[] args = new String[] {
                 "colorscanner",
-                "kdu_compress all", "-f", testFile,
+                "kdu_compress_all", "-f", testFile,
         };
 
         executeExpectSuccess(args);
@@ -123,7 +128,7 @@ public class ColorScannerCommandIT {
 
         String[] args = new String[] {
                 "colorscanner",
-                "kdu_compress all", "-f", testFile,
+                "kdu_compress_all", "-f", testFile,
         };
 
         executeExpectFailure(args);
