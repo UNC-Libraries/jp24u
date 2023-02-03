@@ -18,9 +18,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,7 +136,7 @@ public class ColorFieldsService {
     }
 
     /**
-     * Run identify command and return attributes
+     * Run ImageMagick identify command and return attributes
      * @param fileName an image file
      * @return list of color attributes
      */
@@ -163,19 +163,38 @@ public class ColorFieldsService {
     }
 
     /**
-     * Combine then print fields and attributes
+     * Combine then print exif fields and ImageMagick attributes
      * @param fileName an image file
-     * @return map of all color fields and attributes
+     * @return list with exif and ImageMagick runtimes
      */
-    public void listFields(String fileName) throws Exception {
+    public List<Long> listFields(String fileName) throws Exception {
+        //get exif fields and ImageMagick attributes
+        Instant exifStart = Instant.now();
         Map<String, String> imageMetadata = colorFields(fileName);
+        Instant exifEnd = Instant.now();
+
+        Instant imageMagickStart = Instant.now();
         String attributes = identify(fileName);
+        Instant imageMagickEnd = Instant.now();
+
+        //add ImageMagick attributes to map with exif fields
         imageMetadata.put(MAGICK_IDENTIFY, attributes);
 
+        //print all image metadata
         for (Map.Entry<String, String> entry : imageMetadata.entrySet()) {
             System.out.print(entry.getKey() + ":" + entry.getValue() + "\t");
         }
         System.out.println();
+
+        //return list with exif and ImageMagick runtimes
+        //for calculating total exif runtime and total ImageMagick runtime
+        List<Long> runtimes = new ArrayList<>();
+        Long exifRuntime = Duration.between(exifStart, exifEnd).toMillis();
+        Long imageMagickRuntime = Duration.between(imageMagickStart, imageMagickEnd).toMillis();
+        runtimes.add(exifRuntime);
+        runtimes.add(imageMagickRuntime);
+
+        return runtimes;
     }
 
     /**
@@ -183,16 +202,21 @@ public class ColorFieldsService {
      * @param fileName a list of image files
      */
     public void fileListAllFields(String fileName) throws Exception {
+        int filesProcessed = 0;
+        int totalExifRuntime = 0;
+        int totalImageMagickRuntime = 0;
+
         Instant start = Instant.now();
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
 
-        int filesProcessed = 0;
         Iterator<String> itr = listOfFiles.iterator();
         while (itr.hasNext()) {
             String imageFileName = itr.next();
             if (Files.exists(Paths.get(imageFileName))) {
-                listFields(imageFileName);
                 filesProcessed++;
+                List<Long> runtimes = listFields(imageFileName);
+                totalExifRuntime = totalExifRuntime + runtimes.get(0).intValue();
+                totalImageMagickRuntime = totalImageMagickRuntime + runtimes.get(1).intValue();
             } else {
                 log.info(imageFileName + " does not exist.");
                 System.out.println(imageFileName + " does not exist.");
@@ -202,12 +226,12 @@ public class ColorFieldsService {
         Instant end = Instant.now();
         Long overallRuntime = Duration.between(start, end).toMillis();
         Long runtimePerFile = overallRuntime / filesProcessed;
+
+        //after run completed, print runtime data
         System.out.println("Number of Files Processed: " + filesProcessed);
         System.out.println("Total Overall Runtime: " + overallRuntime + " milliseconds");
         System.out.println("Average Runtime per File: " + runtimePerFile + " milliseconds/file");
-
-//        log.info("Number of Files Processed: " + filesProcessed);
-//        log.info("Total Overall Runtime: " + overallRuntime + " seconds");
-//        log.info("Average Runtime per File: " + runtimePerFile + " seconds/file");
+        System.out.println("Total Exif Runtime: " + totalExifRuntime + " milliseconds");
+        System.out.println("Total ImageMagick Identify Runtime: " + totalImageMagickRuntime + " milliseconds");
     }
 }

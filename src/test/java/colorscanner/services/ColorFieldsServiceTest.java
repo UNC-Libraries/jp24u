@@ -108,6 +108,8 @@ public class ColorFieldsServiceTest {
         assertTrue(outputStreamCaptor.toString().contains("Number of Files Processed: 2"));
         assertTrue(outputStreamCaptor.toString().contains("Total Overall Runtime: "));
         assertTrue(outputStreamCaptor.toString().contains("Average Runtime per File: "));
+        assertTrue(outputStreamCaptor.toString().contains("Total Exif Runtime: "));
+        assertTrue(outputStreamCaptor.toString().contains("Total ImageMagick Identify Runtime: "));
     }
 
     @Test
@@ -133,5 +135,7 @@ public class ColorFieldsServiceTest {
         assertTrue(outputStreamCaptor.toString().contains("Number of Files Processed: 2"));
         assertTrue(outputStreamCaptor.toString().contains("Total Overall Runtime: "));
         assertTrue(outputStreamCaptor.toString().contains("Average Runtime per File: "));
+        assertTrue(outputStreamCaptor.toString().contains("Total Exif Runtime: "));
+        assertTrue(outputStreamCaptor.toString().contains("Total ImageMagick Identify Runtime: "));
     }
 }
