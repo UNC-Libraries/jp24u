@@ -18,6 +18,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLOutput;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -180,17 +183,31 @@ public class ColorFieldsService {
      * @param fileName a list of image files
      */
     public void fileListAllFields(String fileName) throws Exception {
+        Instant start = Instant.now();
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
 
+        int filesProcessed = 0;
         Iterator<String> itr = listOfFiles.iterator();
         while (itr.hasNext()) {
             String imageFileName = itr.next();
             if (Files.exists(Paths.get(imageFileName))) {
                 listFields(imageFileName);
+                filesProcessed++;
             } else {
                 log.info(imageFileName + " does not exist.");
                 System.out.println(imageFileName + " does not exist.");
             }
         }
+
+        Instant end = Instant.now();
+        Long overallRuntime = Duration.between(start, end).toMillis();
+        Long runtimePerFile = overallRuntime / filesProcessed;
+        System.out.println("Number of Files Processed: " + filesProcessed);
+        System.out.println("Total Overall Runtime: " + overallRuntime + " milliseconds");
+        System.out.println("Average Runtime per File: " + runtimePerFile + " milliseconds/file");
+
+//        log.info("Number of Files Processed: " + filesProcessed);
+//        log.info("Total Overall Runtime: " + overallRuntime + " seconds");
+//        log.info("Average Runtime per File: " + runtimePerFile + " seconds/file");
     }
 }
