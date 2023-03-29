@@ -31,7 +31,7 @@ public class TemporaryImageService {
     //TODO: we will need to test different CMYK conversion options
     //It seems like only using Color Space creates a more color accurate temporary image.
     //Using Color Space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
-    public String convertImage(String fileName) throws Exception {
+    public String convertCmykColorSpace(String fileName) throws Exception {
         initializeTempImageFilesDir();
 
         String convert = "convert";
@@ -53,6 +53,37 @@ public class TemporaryImageService {
             log.info(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jpg file.", e);
+        }
+
+        return temporaryFile;
+    }
+
+    /**
+     * Run ImageMagick convert and convert other image formats to tiff
+     * Other image formats: JPEG, PNG, GIF, PICT, BMP
+     * @param fileName an image file
+     * @return temporaryFile a temporary tiff file
+     */
+    //formats accepted by kakadu: TIFF (including BigTIFF), RAW (big-endian), RAWL (little-endian), BMP, PBM, PGM and PPM
+    //formats accepted by metadata-extractor: JPEG, TIFF, WebP, WAV, AVI, PSD, PNG, BMP, GIF, ICO, PCX, QuickTime, MP4, Camera Raw
+    public String convertImageFormats(String fileName) throws Exception {
+        initializeTempImageFilesDir();
+
+        String convert = "convert";
+        //String temporaryFile = fileName + ".tif";
+        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+                + ".tif").toAbsolutePath().toString();
+
+        List<String> command = Arrays.asList(convert, fileName, temporaryFile);
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            String cmdOutput = new String(process.getInputStream().readAllBytes());
+            log.info(cmdOutput);
+        } catch (Exception e) {
+            throw new Exception(fileName + " failed to generate tiff file.", e);
         }
 
         return temporaryFile;

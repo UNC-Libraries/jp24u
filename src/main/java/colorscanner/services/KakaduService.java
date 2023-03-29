@@ -90,7 +90,7 @@ public class KakaduService {
         }
         //for CMYK images: convert to temporary jpg image before kduCompress
         if (colorSpace.toLowerCase().contains("cmyk")) {
-            fileName = temporaryImageService.convertImage(fileName);
+            fileName = temporaryImageService.convertCmykColorSpace(fileName);
         }
 
         try {
