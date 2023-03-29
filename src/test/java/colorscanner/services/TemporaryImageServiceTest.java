@@ -92,31 +92,21 @@ public class TemporaryImageServiceTest {
         assertTrue(outputStreamCaptor.toString().contains(tifExifData));
     }
 
-//    @Test
-//    public void testConvertPictToTiff() throws Exception {
-//        String testFile = "src/test/resources/.pict";
-//        String tempTif = service.TMP_FILES_DIR + "/.pict.tif";
-//        String tifExifData = "";
-//
-//        service.convertImageFormats(testFile);
-//        colorFieldsService.listFields(tempTif);
-//
-//        assertTrue(Files.exists(Paths.get(tempTif)));
-//        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
-//    }
-//
-//    @Test
-//    public void testConvertPctToTiff() throws Exception {
-//        String testFile = "src/test/resources/IMG_3444.pct";
-//        String tempTif = service.TMP_FILES_DIR + "/IMG_3444.pct.tif";
-//        String tifExifData = "";
-//
-//        service.convertImageFormats(testFile);
-//        colorFieldsService.listFields(tempTif);
-//
-//        assertTrue(Files.exists(Paths.get(tempTif)));
-//        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
-//    }
+    @Test
+    public void testConvertPictToTiff() throws Exception {
+        String testFile = "src/test/resources/IMG_3444.pct";
+        String tempTif = service.TMP_FILES_DIR + "/IMG_3444.pct.tif";
+        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
+                "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
+                "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: icc,iptc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+
+        service.convertImageFormats(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
+    }
 
     @Test
     public void testConvertBmpToTiff() throws Exception {
