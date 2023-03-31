@@ -30,6 +30,8 @@ public class TemporaryImageServiceTest {
     public void testConvertCmykImageWithIccProfile() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
         service.convertCmykColorSpace(testFile);
+        //colorFieldsService.listFields(testFile);
+        //colorFieldsService.listFields("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg");
 
         assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR +
                 "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
@@ -40,6 +42,8 @@ public class TemporaryImageServiceTest {
     public void testConvertCmykImageWithoutIccProfile() throws Exception {
         String testFile = "src/test/resources/Surgery.tif";
         service.convertCmykColorSpace(testFile);
+        colorFieldsService.listFields(testFile);
+        colorFieldsService.listFields("src/test/resources/Surgery.tif.tif");
 
         assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR + "/Surgery.tif.tif")));
     }
@@ -49,7 +53,7 @@ public class TemporaryImageServiceTest {
         String testFile = "src/test/resources/IMG_2377.jpeg";
         String tempTif = service.TMP_FILES_DIR + "/IMG_2377.jpeg.tif";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:Display P3\t" +
-                "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
+                "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:YCbCr\t" +
                 "MagickIdentify:\"Dimensions: 4032x3024;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
                 "Color Space: sRGB;Profiles: 8bim,icc,iptc;ICC Profile: Display P3;ICM Profile: ;\"";
 
@@ -81,9 +85,9 @@ public class TemporaryImageServiceTest {
         String testFile = "src/test/resources/CARTEZOO.GIF";
         String tempTif = service.TMP_FILES_DIR + "/CARTEZOO.GIF.tif";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:null\t" +
-                "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
-                "MagickIdentify:\"Dimensions: 295x353;Channels: gray;Bit-depth: 8;Alpha channel: False;" +
-                "Color Space: Gray;Profiles: ;ICC Profile: ;ICM Profile: ;\"";
+                "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:RGB Palette\t" +
+                "MagickIdentify:\"Dimensions: 295x353;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"";
 
         service.convertImageFormats(testFile);
         colorFieldsService.listFields(tempTif);
@@ -99,7 +103,7 @@ public class TemporaryImageServiceTest {
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
                 "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: icc,iptc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+                "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
 
         service.convertImageFormats(testFile);
         colorFieldsService.listFields(tempTif);

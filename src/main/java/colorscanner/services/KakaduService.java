@@ -56,6 +56,7 @@ public class KakaduService {
     public void kduCompress(String fileName) throws Exception {
         String kduCompress = "kdu_compress";
         String input = "-i";
+        String inputFile;
         String output = "-o";
         String outputFile = fileName.split("\\.")[0] + ".jp2";
         String clevels = "Clevels=6";
@@ -74,10 +75,27 @@ public class KakaduService {
         String rateOptions = "3";
         String jp2Space;
         String jp2SpaceOptions;
+        String noPalette;
 
-        List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
-                corder, orggenplt, orgtparts, cblk, cusesop, cuseeph, flushPeriod, flushPeriodOptions,
-                rate, rateOptions));
+        // for non-TIFF image formats: convert to temp tiff before kdu_compress
+        // currently supported image formats: JPEG, PNG, GIF, PICT, BMP
+        if (fileName.toLowerCase().endsWith("jpeg") || fileName.toLowerCase().endsWith("png") ||
+                fileName.toLowerCase().endsWith("gif") || fileName.toLowerCase().endsWith("pct") ||
+                fileName.toLowerCase().endsWith("bmp")) {
+            inputFile = temporaryImageService.convertImageFormats(fileName);
+        } else {
+            inputFile = fileName;
+        }
+
+        List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
+                clevels, clayers, cprecincts, stiles, corder, orggenplt, orgtparts, cblk, cusesop, cuseeph,
+                flushPeriod, flushPeriodOptions, rate, rateOptions));
+
+        // for GIF images: add no_palette to command
+        if(fileName.toLowerCase().endsWith("gif")) {
+            noPalette = "-no_palette";
+            command.add(noPalette);
+        }
 
         // get color space from colorFields
         String colorSpace = getColorSpace(fileName);

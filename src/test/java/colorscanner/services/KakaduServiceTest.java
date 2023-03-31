@@ -40,7 +40,7 @@ public class KakaduServiceTest {
     }
 
     @Test
-    public void testKakaduKduCompress() throws Exception {
+    public void testKduCompressTiff() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
         service.kduCompress(testFile);
 
@@ -50,7 +50,7 @@ public class KakaduServiceTest {
     }
 
     @Test
-    public void testKakaduKduCompressGrayscale() throws Exception {
+    public void testKduCompressGrayscaleTiff() throws Exception {
         String testFile = "src/test/resources/P0024_0103_01.tif";
         service.kduCompress(testFile);
 
@@ -60,20 +60,90 @@ public class KakaduServiceTest {
     }
 
     @Test
-    public void testKakaduKduCompressCmyk() throws Exception {
+    public void testKduCompressCmykTiff() throws Exception {
+        //TODO
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
+        //String testFile = "src/test/resources/Surgery.tif";
         service.kduCompress(testFile);
 
-        assertTrue(Files.exists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg")));
+        colorFieldsService.listFields(testFile);
+
+        assertTrue(Files.exists(Paths.get(temporaryImageService.TMP_FILES_DIR +
+                "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
         assertTrue(Files.exists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2")));
 
-        Files.deleteIfExists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg"));
-        Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
+        //Files.deleteIfExists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.tif"));
+        //Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
+    }
+
+    @Test
+    public void testKduCompressCmykTiff2() throws Exception {
+        //TODO
+        String testFile = "src/test/resources/Surgery.tif";
+        service.kduCompress(testFile);
+
+        colorFieldsService.listFields(testFile);
+
+        assertTrue(Files.exists(Paths.get(temporaryImageService.TMP_FILES_DIR + "/Surgery.tif.tif")));
+        assertTrue(Files.exists(Paths.get("src/test/resources/Surgery.jp2")));
+
+        //Files.deleteIfExists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.tif"));
+        //Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
+    }
+
+    @Test
+    public void testKduCompressJpeg() throws Exception {
+        String testFile = "src/test/resources/IMG_2377.jpeg";
+        service.kduCompress(testFile);
+
+        assertTrue(Files.exists(Paths.get("src/test/resources/IMG_2377.jp2")));
+
+        Files.deleteIfExists(Paths.get("src/test/resources/IMG_2377.jp2"));
+    }
+
+    @Test
+    public void testKduCompressPng() throws Exception {
+        String testFile = "src/test/resources/schoolphotos1.png";
+        service.kduCompress(testFile);
+
+        assertTrue(Files.exists(Paths.get("src/test/resources/schoolphotos1.jp2")));
+
+        Files.deleteIfExists(Paths.get("src/test/resources/schoolphotos1.jp2"));
+    }
+
+    @Test
+    public void testKduCompressGif() throws Exception {
+        String testFile = "src/test/resources/CARTEZOO.GIF";
+        service.kduCompress(testFile);
+
+        assertTrue(Files.exists(Paths.get("src/test/resources/CARTEZOO.jp2")));
+
+        Files.deleteIfExists(Paths.get("src/test/resources/CARTEZOO.jp2"));
+    }
+
+    @Test
+    public void testKduCompressPict() throws Exception {
+        String testFile = "src/test/resources/IMG_3444.pct";
+        service.kduCompress(testFile);
+
+        assertTrue(Files.exists(Paths.get("src/test/resources/IMG_3444.jp2")));
+
+        Files.deleteIfExists(Paths.get("src/test/resources/IMG_3444.jp2"));
+    }
+
+    @Test
+    public void testKduCompressBmp() throws Exception {
+        String testFile = "src/test/resources/Wagoner_BW.bmp";
+        service.kduCompress(testFile);
+
+        assertTrue(Files.exists(Paths.get("src/test/resources/Wagoner_BW.jp2")));
+
+        Files.deleteIfExists(Paths.get("src/test/resources/Wagoner_BW.jp2"));
     }
 
     @Disabled
     @Test
-    public void testKakaduKduCompressFail() throws Exception {
+    public void testKduCompressFail() throws Exception {
         String testFile = "src/test/resources/test_input.txt";
 
         try {

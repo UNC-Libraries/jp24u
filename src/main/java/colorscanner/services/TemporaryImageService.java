@@ -36,15 +36,28 @@ public class TemporaryImageService {
     public String convertCmykColorSpace(String fileName) throws Exception {
         initializeTempImageFilesDir();
 
+        //ImageMagick convert
+//        String convert = "convert";
+////        String profile = "-profile";
+////        String profileOptions = "src/main/resources/AdobeRGB1998.icc";
+//        String colorSpace = "-colorspace";
+//        String colorSpaceOptions = "srgb";
+//        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+//                + ".tif").toAbsolutePath().toString();
+//
+//        List<String> command = Arrays.asList(convert, fileName, colorSpace, colorSpaceOptions,
+//                temporaryFile);
+
+        //GraphicsMagick convert
+        String gm = "gm";
         String convert = "convert";
-//        String profile = "-profile";
-//        String profileOptions = "src/main/resources/AdobeRGB1998.icc";
         String colorSpace = "-colorspace";
         String colorSpaceOptions = "srgb";
+        //String temporaryFile = fileName + ".jpg";
         String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
                 + ".tif").toAbsolutePath().toString();
 
-        List<String> command = Arrays.asList(convert, fileName, colorSpace, colorSpaceOptions,
+        List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
                 temporaryFile);
 
         try {
@@ -61,7 +74,7 @@ public class TemporaryImageService {
     }
 
     /**
-     * Run ImageMagick convert and convert other image formats to tiff
+     * Run GraphicsMagick convert and convert other image formats to tiff
      * Other image formats: JPEG, PNG, GIF, PICT, BMP
      * @param fileName an image file
      * @return temporaryFile a temporary tiff file
@@ -71,12 +84,12 @@ public class TemporaryImageService {
     public String convertImageFormats(String fileName) throws Exception {
         initializeTempImageFilesDir();
 
+        String gm = "gm";
         String convert = "convert";
-        //String temporaryFile = fileName + ".tif";
         String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
                 + ".tif").toAbsolutePath().toString();
 
-        List<String> command = Arrays.asList(convert, fileName, temporaryFile);
+        List<String> command = Arrays.asList(gm, convert, fileName, temporaryFile);
 
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
