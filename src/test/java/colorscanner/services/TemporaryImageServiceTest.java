@@ -30,11 +30,13 @@ public class TemporaryImageServiceTest {
     public void testConvertCmykImageWithIccProfile() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
         service.convertCmykColorSpace(testFile);
-        //colorFieldsService.listFields(testFile);
-        //colorFieldsService.listFields("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg");
+        colorFieldsService.listFields(service.TMP_FILES_DIR +
+                "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif");
 
         assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR +
                 "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
+        assertTrue(outputStreamCaptor.toString().contains("RGB"));
+        assertFalse(outputStreamCaptor.toString().contains("CMYK"));
     }
 
     @Disabled("testFile is 155.6MB, too big to add to github")
@@ -42,10 +44,11 @@ public class TemporaryImageServiceTest {
     public void testConvertCmykImageWithoutIccProfile() throws Exception {
         String testFile = "src/test/resources/Surgery.tif";
         service.convertCmykColorSpace(testFile);
-        colorFieldsService.listFields(testFile);
-        colorFieldsService.listFields("src/test/resources/Surgery.tif.tif");
+        colorFieldsService.listFields(service.TMP_FILES_DIR + "/Surgery.tif.tif");
 
         assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR + "/Surgery.tif.tif")));
+        assertTrue(outputStreamCaptor.toString().contains("RGB"));
+        assertFalse(outputStreamCaptor.toString().contains("CMYK"));
     }
 
     @Test

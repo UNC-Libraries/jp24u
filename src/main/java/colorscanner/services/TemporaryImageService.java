@@ -26,7 +26,7 @@ public class TemporaryImageService {
 
     /**
      * For images with CMYK colorspace
-     * Run ImageMagick convert and convert tif to temp tif
+     * Run GraphicsMagick convert and convert tif to temp tif
      * @param fileName an image file
      * @return temporaryFile a temporary tif file
      */
@@ -36,29 +36,17 @@ public class TemporaryImageService {
     public String convertCmykColorSpace(String fileName) throws Exception {
         initializeTempImageFilesDir();
 
-        //ImageMagick convert
-//        String convert = "convert";
-////        String profile = "-profile";
-////        String profileOptions = "src/main/resources/AdobeRGB1998.icc";
-//        String colorSpace = "-colorspace";
-//        String colorSpaceOptions = "srgb";
-//        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
-//                + ".tif").toAbsolutePath().toString();
-//
-//        List<String> command = Arrays.asList(convert, fileName, colorSpace, colorSpaceOptions,
-//                temporaryFile);
-
-        //GraphicsMagick convert
         String gm = "gm";
         String convert = "convert";
         String colorSpace = "-colorspace";
-        String colorSpaceOptions = "srgb";
-        //String temporaryFile = fileName + ".jpg";
+        String colorSpaceOptions = "rgb";
+        String profile = "+profile";
+        String profileOptions = "\"*\"";
         String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
                 + ".tif").toAbsolutePath().toString();
 
         List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
-                temporaryFile);
+                profile, profileOptions, temporaryFile);
 
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
@@ -79,7 +67,7 @@ public class TemporaryImageService {
      * @param fileName an image file
      * @return temporaryFile a temporary tiff file
      */
-    //formats accepted by kakadu: TIFF (including BigTIFF), RAW (big-endian), RAWL (little-endian), BMP, PBM, PGM and PPM
+    //formats accepted by kakadu: TIFF (including BigTIFF), RAW (big-endian), RAWL (little-endian), BMP (they lied), PBM, PGM and PPM
     //formats accepted by metadata-extractor: JPEG, TIFF, WebP, WAV, AVI, PSD, PNG, BMP, GIF, ICO, PCX, QuickTime, MP4, Camera Raw
     public String convertImageFormats(String fileName) throws Exception {
         initializeTempImageFilesDir();

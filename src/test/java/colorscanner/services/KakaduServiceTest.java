@@ -61,34 +61,15 @@ public class KakaduServiceTest {
 
     @Test
     public void testKduCompressCmykTiff() throws Exception {
-        //TODO
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        //String testFile = "src/test/resources/Surgery.tif";
         service.kduCompress(testFile);
-
-        colorFieldsService.listFields(testFile);
 
         assertTrue(Files.exists(Paths.get(temporaryImageService.TMP_FILES_DIR +
                 "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
         assertTrue(Files.exists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2")));
 
-        //Files.deleteIfExists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.tif"));
-        //Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
-    }
-
-    @Test
-    public void testKduCompressCmykTiff2() throws Exception {
-        //TODO
-        String testFile = "src/test/resources/Surgery.tif";
-        service.kduCompress(testFile);
-
-        colorFieldsService.listFields(testFile);
-
-        assertTrue(Files.exists(Paths.get(temporaryImageService.TMP_FILES_DIR + "/Surgery.tif.tif")));
-        assertTrue(Files.exists(Paths.get("src/test/resources/Surgery.jp2")));
-
-        //Files.deleteIfExists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.tif"));
-        //Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
+        Files.deleteIfExists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.tif"));
+        Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
     }
 
     @Test

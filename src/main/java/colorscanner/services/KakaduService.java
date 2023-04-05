@@ -14,7 +14,8 @@ import java.util.Map;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * Service for kakadu
+ * Service for kakadu kduCompress
+ * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP
  * @author krwong
  */
 public class KakaduService {
@@ -50,7 +51,7 @@ public class KakaduService {
     }
 
     /**
-     * Run kdu_compress and convert tif to jp2
+     * Run kdu_compress and convert image to jp2
      * @param fileName an image file
      */
     public void kduCompress(String fileName) throws Exception {
@@ -76,6 +77,7 @@ public class KakaduService {
         String jp2Space;
         String jp2SpaceOptions;
         String noPalette;
+        String weights;
 
         // for non-TIFF image formats: convert to temp tiff before kdu_compress
         // currently supported image formats: JPEG, PNG, GIF, PICT, BMP
@@ -85,6 +87,13 @@ public class KakaduService {
             inputFile = temporaryImageService.convertImageFormats(fileName);
         } else {
             inputFile = fileName;
+        }
+
+        // get color space from colorFields
+        String colorSpace = getColorSpace(fileName);
+        //for CMYK images: convert to temporary tiff before kduCompress
+        if (colorSpace.toLowerCase().contains("cmyk")) {
+            inputFile = temporaryImageService.convertCmykColorSpace(fileName);
         }
 
         List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
@@ -97,8 +106,6 @@ public class KakaduService {
             command.add(noPalette);
         }
 
-        // get color space from colorFields
-        String colorSpace = getColorSpace(fileName);
         // for grayscale images: add jp2Space to command
         if (colorSpace.toLowerCase().contains("gray")) {
             jp2Space = "-jp2_space";
@@ -106,9 +113,11 @@ public class KakaduService {
             command.add(jp2Space);
             command.add(jp2SpaceOptions);
         }
-        //for CMYK images: convert to temporary jpg image before kduCompress
+
+        // for CMYK images: add no_weights to command
         if (colorSpace.toLowerCase().contains("cmyk")) {
-            fileName = temporaryImageService.convertCmykColorSpace(fileName);
+            weights = "-no_weights";
+            command.add(weights);
         }
 
         try {
