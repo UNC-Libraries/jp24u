@@ -1,5 +1,6 @@
 package colorscanner.services;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
@@ -7,9 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -81,16 +84,16 @@ public class KakaduService {
 
         // for non-TIFF image formats: convert to temp tiff before kdu_compress
         // currently supported image formats: JPEG, PNG, GIF, PICT, BMP
-        if (fileName.toLowerCase().endsWith("jpeg") || fileName.toLowerCase().endsWith("png") ||
-                fileName.toLowerCase().endsWith("gif") || fileName.toLowerCase().endsWith("pct") ||
-                fileName.toLowerCase().endsWith("bmp")) {
+        String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "gif", "pct", "bmp"));
+        if (imageFormats.contains(fileNameExtension)) {
             inputFile = temporaryImageService.convertImageFormats(fileName);
         } else {
             inputFile = fileName;
         }
 
         // get color space from colorFields
-        String colorSpace = getColorSpace(fileName);
+        String colorSpace = getColorSpace(inputFile);
         //for CMYK images: convert to temporary tiff before kduCompress
         if (colorSpace.toLowerCase().contains("cmyk")) {
             inputFile = temporaryImageService.convertCmykColorSpace(fileName);
@@ -101,7 +104,7 @@ public class KakaduService {
                 flushPeriod, flushPeriodOptions, rate, rateOptions));
 
         // for GIF images: add no_palette to command
-        if(fileName.toLowerCase().endsWith("gif")) {
+        if (fileName.toLowerCase().endsWith("gif")) {
             noPalette = "-no_palette";
             command.add(noPalette);
         }
