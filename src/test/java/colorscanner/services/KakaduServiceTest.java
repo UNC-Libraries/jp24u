@@ -3,10 +3,12 @@ package colorscanner.services;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class KakaduServiceTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+
+    @TempDir
+    public Path tmpFolder;
 
     private KakaduService service;
     private ColorFieldsService colorFieldsService;
@@ -42,84 +47,68 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressTiff() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
-        service.kduCompress(testFile);
+        service.kduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/E101_F8_0112.jp2")));
-
-        Files.deleteIfExists(Paths.get("src/test/resources/E101_F8_0112.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/E101_F8_0112.jp2")));
     }
 
     @Test
     public void testKduCompressGrayscaleTiff() throws Exception {
         String testFile = "src/test/resources/P0024_0103_01.tif";
-        service.kduCompress(testFile);
+        service.kduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/P0024_0103_01.jp2")));
-
-        Files.deleteIfExists(Paths.get("src/test/resources/P0024_0103_01.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/P0024_0103_01.jp2")));
     }
 
     @Test
     public void testKduCompressCmykTiff() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        service.kduCompress(testFile);
+        service.kduCompress(testFile, tmpFolder.toString());
 
         assertTrue(Files.exists(Paths.get(temporaryImageService.TMP_FILES_DIR +
                 "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
-        assertTrue(Files.exists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2")));
-
-        Files.deleteIfExists(Paths.get("tmp/OP20459_1_TremorsKelleyandtheCowboys.tif.tif"));
-        Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/OP20459_1_TremorsKelleyandtheCowboys.jp2")));
     }
 
     @Test
     public void testKduCompressJpeg() throws Exception {
         String testFile = "src/test/resources/IMG_2377.jpeg";
-        service.kduCompress(testFile);
+        //String testFile = "src/test/resources/IMG_3247.jpg";
+        service.kduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/IMG_2377.jp2")));
-
-        Files.deleteIfExists(Paths.get("src/test/resources/IMG_2377.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_2377.jp2")));
     }
 
     @Test
     public void testKduCompressPng() throws Exception {
         String testFile = "src/test/resources/schoolphotos1.png";
-        service.kduCompress(testFile);
+        service.kduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/schoolphotos1.jp2")));
-
-        Files.deleteIfExists(Paths.get("src/test/resources/schoolphotos1.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/schoolphotos1.jp2")));
     }
 
     @Test
     public void testKduCompressGif() throws Exception {
         String testFile = "src/test/resources/CARTEZOO.GIF";
-        service.kduCompress(testFile);
+        service.kduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/CARTEZOO.jp2")));
-
-        Files.deleteIfExists(Paths.get("src/test/resources/CARTEZOO.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/CARTEZOO.jp2")));
     }
 
     @Test
     public void testKduCompressPict() throws Exception {
         String testFile = "src/test/resources/IMG_3444.pct";
-        service.kduCompress(testFile);
+        service.kduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/IMG_3444.jp2")));
-
-        Files.deleteIfExists(Paths.get("src/test/resources/IMG_3444.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_3444.jp2")));
     }
 
     @Test
     public void testKduCompressBmp() throws Exception {
         String testFile = "src/test/resources/Wagoner_BW.bmp";
-        service.kduCompress(testFile);
+        service.kduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/Wagoner_BW.jp2")));
-
-        Files.deleteIfExists(Paths.get("src/test/resources/Wagoner_BW.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/Wagoner_BW.jp2")));
     }
 
     @Disabled
@@ -128,7 +117,7 @@ public class KakaduServiceTest {
         String testFile = "src/test/resources/test_input.txt";
 
         try {
-            service.kduCompress(testFile);
+            service.kduCompress(testFile, tmpFolder.toString());
             fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("File format could not be determined"));
@@ -138,13 +127,10 @@ public class KakaduServiceTest {
     @Test
     public void testListOfFilesKduCompress() throws Exception {
         String testFile = "src/test/resources/test_input.txt";
-        service.fileListKduCompress(testFile);
+        service.fileListKduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get("src/test/resources/E101_F8_0112.jp2")));
-        assertTrue(Files.exists(Paths.get("src/test/resources/P0024_0066.jp2")));
-
-        Files.deleteIfExists(Paths.get("src/test/resources/E101_F8_0112.jp2"));
-        Files.deleteIfExists(Paths.get("src/test/resources/P0024_0066.jp2"));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/E101_F8_0112.jp2")));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/P0024_0066.jp2")));
     }
 
     @Test
@@ -152,7 +138,7 @@ public class KakaduServiceTest {
         String testFile = "src/test/resources/test_input_fail.txt";
 
         try {
-            service.fileListKduCompress(testFile);
+            service.fileListKduCompress(testFile, tmpFolder.toString());
             fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("src/test/resources/test.tif does not exist. " +

@@ -57,12 +57,12 @@ public class KakaduService {
      * Run kdu_compress and convert image to jp2
      * @param fileName an image file
      */
-    public void kduCompress(String fileName) throws Exception {
+    public void kduCompress(String fileName, String outputPath) throws Exception {
         String kduCompress = "kdu_compress";
         String input = "-i";
         String inputFile;
         String output = "-o";
-        String outputFile = fileName.split("\\.")[0] + ".jp2";
+        String outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
         String clevels = "Clevels=6";
         String clayers = "Clayers=6";
         String cprecincts = "Cprecincts={256,256},{256,256},{128,128}";
@@ -77,10 +77,10 @@ public class KakaduService {
         String flushPeriodOptions = "1024";
         String rate = "-rate";
         String rateOptions = "3";
+        String weights = "-no_weights";
         String jp2Space;
         String jp2SpaceOptions;
         String noPalette;
-        String weights;
 
         // for non-TIFF image formats: convert to temp tiff before kdu_compress
         // currently supported image formats: JPEG, PNG, GIF, PICT, BMP
@@ -101,7 +101,7 @@ public class KakaduService {
 
         List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
                 clevels, clayers, cprecincts, stiles, corder, orggenplt, orgtparts, cblk, cusesop, cuseeph,
-                flushPeriod, flushPeriodOptions, rate, rateOptions));
+                flushPeriod, flushPeriodOptions, rate, rateOptions, weights));
 
         // for GIF images: add no_palette to command
         if (fileName.toLowerCase().endsWith("gif")) {
@@ -115,12 +115,6 @@ public class KakaduService {
             jp2SpaceOptions = "sLUM";
             command.add(jp2Space);
             command.add(jp2SpaceOptions);
-        }
-
-        // for CMYK images: add no_weights to command
-        if (colorSpace.toLowerCase().contains("cmyk")) {
-            weights = "-no_weights";
-            command.add(weights);
         }
 
         try {
@@ -138,14 +132,14 @@ public class KakaduService {
      * Iterate through list of image files and run kdu_compress to convert all tifs to jp2s
      * @param fileName a list of image files
      */
-    public void fileListKduCompress(String fileName) throws Exception {
+    public void fileListKduCompress(String fileName, String outputPath) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
 
         Iterator<String> itr = listOfFiles.iterator();
         while (itr.hasNext()) {
             String imageFileName = itr.next();
             if (Files.exists(Paths.get(imageFileName))) {
-                kduCompress(imageFileName);
+                kduCompress(imageFileName, outputPath);
             } else {
                 throw new Exception(imageFileName + " does not exist. Not processing file list further.");
             }

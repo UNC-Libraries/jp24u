@@ -6,11 +6,13 @@ import colorscanner.services.TemporaryImageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -25,6 +27,9 @@ public class ColorScannerCommandIT {
 
     protected CommandLine command;
 
+    @TempDir
+    public Path tmpFolder;
+
     private ColorFieldsService colorFieldsService;
     private KakaduService kakaduService;
     private TemporaryImageService temporaryImageService;
@@ -37,6 +42,7 @@ public class ColorScannerCommandIT {
         colorFieldsService = new ColorFieldsService();
         kakaduService = new KakaduService();
         temporaryImageService = new TemporaryImageService();
+        kakaduService.setColorFieldsService(colorFieldsService);
         kakaduService.setTemporaryImageService(temporaryImageService);
     }
 
@@ -92,6 +98,7 @@ public class ColorScannerCommandIT {
         String[] args = new String[] {
                 "colorscanner",
                 "kdu_compress", "-f", testFile,
+                "-o", tmpFolder.toString()
         };
 
         executeExpectSuccess(args);
@@ -117,6 +124,7 @@ public class ColorScannerCommandIT {
         String[] args = new String[] {
                 "colorscanner",
                 "kdu_compress_all", "-f", testFile,
+                "-o", tmpFolder.toString()
         };
 
         executeExpectSuccess(args);
