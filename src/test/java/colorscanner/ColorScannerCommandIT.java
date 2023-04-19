@@ -112,6 +112,7 @@ public class ColorScannerCommandIT {
         String[] args = new String[] {
                 "colorscanner",
                 "kdu_compress", "-f", testFile,
+                "-o", tmpFolder.toString()
         };
 
         executeExpectFailure(args);
@@ -137,6 +138,7 @@ public class ColorScannerCommandIT {
         String[] args = new String[] {
                 "colorscanner",
                 "kdu_compress_all", "-f", testFile,
+                "-o", tmpFolder.toString()
         };
 
         executeExpectFailure(args);
