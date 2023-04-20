@@ -59,6 +59,40 @@ public class TemporaryImageService {
     }
 
     /**
+     * Run ImageMagick convert and convert PSD images to tiff
+     * GraphicsMagick doesn't support PSD
+     * @param fileName an image file
+     * @return temporaryFile a temporary tiff file
+     */
+    public String convertPsd(String fileName) throws Exception {
+        initializeTempImageFilesDir();
+
+        String convert = "convert";
+        String importFile = fileName + "[0]";
+        //if converting the [0] flattened layer doesn't work, try removing the [0] and adding -flatten to the command
+        //String importFile = fileName;
+        //String flatten = "-flatten";
+        String colorspace = "-colorspace";
+        String colorspaceOptions = "sRGB";
+        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+                + ".tif").toAbsolutePath().toString();
+
+        List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            String cmdOutput = new String(process.getInputStream().readAllBytes());
+            log.info(cmdOutput);
+        } catch (Exception e) {
+            throw new Exception(fileName + " failed to generate tiff file.", e);
+        }
+
+        return temporaryFile;
+    }
+
+    /**
      * Create tmp image files directory for jpgs
      * @return tmpImageFilesDirectoryPath
      */

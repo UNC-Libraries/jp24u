@@ -15,12 +15,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TemporaryImageServiceTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
+    private ColorFieldsService colorFieldsService;
     private TemporaryImageService service;
 
     @BeforeEach
     public void setup() throws Exception {
         System.setOut(new PrintStream(outputStreamCaptor));
 
+        colorFieldsService = new ColorFieldsService();
         service = new TemporaryImageService();
     }
 
@@ -40,6 +42,22 @@ public class TemporaryImageServiceTest {
         service.convertImage(testFile);
 
         assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR + "/Surgery.tif.jpg")));
+    }
+
+    @Test
+    public void testConvertPsdToTiff() throws Exception {
+        String testFile = "src/test/resources/17.psd";
+        String tempTif = service.TMP_FILES_DIR + "/17.psd.tif";
+        String tifExifData = "DateTimeOriginal:2008:02:07 13:05:19\tDateTimeDigitized:2008:02:07 13:05:19\t" +
+                "ICCProfileName:sRGB IEC61966-2.1\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
+                "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: 8bim,exif,icc,iptc,xmp;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+
+        service.convertPsd(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
     }
 
     @Test
