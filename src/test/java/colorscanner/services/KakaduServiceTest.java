@@ -71,6 +71,18 @@ public class KakaduServiceTest {
         Files.deleteIfExists(Paths.get("src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.jp2"));
     }
 
+    @Test
+    public void testKduCompressPsd() throws Exception {
+        String testFile = "src/test/resources/17.psd";
+        service.kduCompress(testFile);
+        assertTrue(Files.exists(Paths.get("src/test/resources/17.jp2")));
+
+        //service.kduCompress(testFile, tmpFolder.toString());
+        //service.kduCompress(testFile, "src/test/resources");
+
+        //assertTrue(Files.exists(Paths.get(tmpFolder + "/17.jp2")));
+    }
+
     @Disabled
     @Test
     public void testKakaduKduCompressFail() throws Exception {

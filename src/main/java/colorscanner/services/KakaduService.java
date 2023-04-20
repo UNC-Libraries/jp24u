@@ -1,5 +1,6 @@
 package colorscanner.services;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
@@ -7,9 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -56,6 +59,7 @@ public class KakaduService {
     public void kduCompress(String fileName) throws Exception {
         String kduCompress = "kdu_compress";
         String input = "-i";
+        String inputFile;
         String output = "-o";
         String outputFile = fileName.split("\\.")[0] + ".jp2";
         String clevels = "Clevels=6";
@@ -75,7 +79,20 @@ public class KakaduService {
         String jp2Space;
         String jp2SpaceOptions;
 
-        List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, fileName, output, outputFile, clevels, clayers, cprecincts, stiles,
+        // for non-TIFF image formats: convert to temp tiff before kdu_compress
+        // currently supported image formats: JPEG, PNG, GIF, PICT, BMP, PSD
+        String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "gif", "pct", "bmp"));
+        // if (imageFormats.contains(fileNameExtension)) {
+            //inputFile = temporaryImageService.convertImageFormats(fileName);
+        //} else
+        if (fileNameExtension.matches("psd")) {
+            inputFile = temporaryImageService.convertPsd(fileName);
+        } else {
+            inputFile = fileName;
+        }
+
+        List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile, clevels, clayers, cprecincts, stiles,
                 corder, orggenplt, orgtparts, cblk, cusesop, cuseeph, flushPeriod, flushPeriodOptions,
                 rate, rateOptions));
 
