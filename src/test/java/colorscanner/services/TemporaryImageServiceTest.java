@@ -27,21 +27,28 @@ public class TemporaryImageServiceTest {
     }
 
     @Test
-    public void testConvertImageWithIccProfile() throws Exception {
+    public void testConvertCmykImageWithIccProfile() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        service.convertImage(testFile);
+        service.convertCmykColorSpace(testFile);
+        colorFieldsService.listFields(service.TMP_FILES_DIR +
+                "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif");
 
         assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR +
-                "/OP20459_1_TremorsKelleyandtheCowboys.tif.jpg")));
+                "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
+        assertTrue(outputStreamCaptor.toString().contains("RGB"));
+        assertFalse(outputStreamCaptor.toString().contains("CMYK"));
     }
 
     @Disabled("testFile is 155.6MB, too big to add to github")
     @Test
-    public void testConvertImageWithoutIccProfile() throws Exception {
+    public void testConvertCmykImageWithoutIccProfile() throws Exception {
         String testFile = "src/test/resources/Surgery.tif";
-        service.convertImage(testFile);
+        service.convertCmykColorSpace(testFile);
+        colorFieldsService.listFields(service.TMP_FILES_DIR + "/Surgery.tif.tif");
 
-        assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR + "/Surgery.tif.jpg")));
+        assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR + "/Surgery.tif.tif")));
+        assertTrue(outputStreamCaptor.toString().contains("RGB"));
+        assertFalse(outputStreamCaptor.toString().contains("CMYK"));
     }
 
     @Test
@@ -61,20 +68,89 @@ public class TemporaryImageServiceTest {
     }
 
     @Test
-    public void testConvertImageWithMultipleTemporaryImages() throws Exception {
-        String testFile = "src/test/resources/SAAACAM-HopeHouse_transparency_with-title_merged.tif";
-        service.convertImage(testFile);
+    public void testConvertJpegtoTiff() throws Exception {
+        String testFile = "src/test/resources/IMG_2377.jpeg";
+        String tempTif = service.TMP_FILES_DIR + "/IMG_2377.jpeg.tif";
+        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:Display P3\t" +
+                "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:YCbCr\t" +
+                "MagickIdentify:\"Dimensions: 4032x3024;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: 8bim,icc,iptc;ICC Profile: Display P3;ICM Profile: ;\"";
 
-        assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR +
-                "/SAAACAM-HopeHouse_transparency_with-title_merged.tif-0.jpg")));
-        assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR +
-                "/SAAACAM-HopeHouse_transparency_with-title_merged.tif-1.jpg")));
+        service.convertImageFormats(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
+    }
+
+    @Test
+    public void testConvertPngToTiff() throws Exception {
+        String testFile = "src/test/resources/schoolphotos1.png";
+        String tempTif = service.TMP_FILES_DIR + "/schoolphotos1.png.tif";
+        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:Adobe RGB (1998)\t" +
+                "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
+                "MagickIdentify:\"Dimensions: 1300x2000;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: icc;ICC Profile: Adobe RGB (1998);ICM Profile: ;\"";
+
+        service.convertImageFormats(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
+    }
+
+    @Test
+    public void testConvertGifToTiff() throws Exception {
+        String testFile = "src/test/resources/CARTEZOO.GIF";
+        String tempTif = service.TMP_FILES_DIR + "/CARTEZOO.GIF.tif";
+        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:null\t" +
+                "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:RGB Palette\t" +
+                "MagickIdentify:\"Dimensions: 295x353;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"";
+
+        service.convertImageFormats(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
+    }
+
+    @Test
+    public void testConvertPictToTiff() throws Exception {
+        String testFile = "src/test/resources/IMG_3444.pct";
+        String tempTif = service.TMP_FILES_DIR + "/IMG_3444.pct.tif";
+        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
+                "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
+                "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+
+        service.convertImageFormats(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
+    }
+
+    @Test
+    public void testConvertBmpToTiff() throws Exception {
+        String testFile = "src/test/resources/Wagoner_BW.bmp";
+        String tempTif = service.TMP_FILES_DIR + "/Wagoner_BW.bmp.tif";
+        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:null\t" +
+                "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
+                "MagickIdentify:\"Dimensions: 1940x2676;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"";
+
+        service.convertImageFormats(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
     }
 
     @Test
     public void testTmpImageFileDirDeleted() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        service.convertImage(testFile);
+        service.convertCmykColorSpace(testFile);
         service.deleteTmpImageFilesDir();
 
         assertFalse(Files.exists(service.TMP_FILES_DIR));

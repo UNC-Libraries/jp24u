@@ -56,8 +56,9 @@ public class ColorScannerCommand {
             description = "Run kakadu kdu_compress on an image file.")
     public int kduCompress(@Mixin ColorScannerOptions options) throws Exception {
         try {
+            kakaduService.setColorFieldsService(colorFieldsService);
             kakaduService.setTemporaryImageService(temporaryImageService);
-            kakaduService.kduCompress(options.getFileName());
+            kakaduService.kduCompress(options.getFileName(), options.getOutputPath());
             temporaryImageService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
@@ -71,8 +72,9 @@ public class ColorScannerCommand {
             description = "Run kakadu kdu_compress on a list of image files.")
     public int kduCompressAll(@Mixin ColorScannerOptions options) throws Exception {
         try {
+            kakaduService.setColorFieldsService(colorFieldsService);
             kakaduService.setTemporaryImageService(temporaryImageService);
-            kakaduService.fileListKduCompress(options.getFileName());
+            kakaduService.fileListKduCompress(options.getFileName(), options.getOutputPath());
             temporaryImageService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
