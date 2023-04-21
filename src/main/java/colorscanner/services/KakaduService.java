@@ -62,7 +62,12 @@ public class KakaduService {
         String input = "-i";
         String inputFile;
         String output = "-o";
-        String outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
+        String outputFile;
+        if (Files.exists(Paths.get(outputPath))) {
+            outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
+        } else {
+            throw new Exception(outputPath + " does not exist.");
+        }
         String clevels = "Clevels=6";
         String clayers = "Clayers=6";
         String cprecincts = "Cprecincts={256,256},{256,256},{128,128}";

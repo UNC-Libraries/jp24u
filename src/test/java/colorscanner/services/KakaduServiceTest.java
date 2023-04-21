@@ -128,9 +128,14 @@ public class KakaduServiceTest {
     @Test
     public void testNonExistentTempFolderFail() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
-        service.kduCompress(testFile, "folder");
 
-        assertFalse(Files.exists(Paths.get("folder/E101_F8_0112.jp2")));
+        try {
+            service.kduCompress(testFile, "folder");
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("folder does not exist."));
+            assertFalse(Files.exists(Paths.get("folder/E101_F8_0112.jp2")));
+        }
     }
 
     @Test
