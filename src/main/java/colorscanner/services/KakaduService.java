@@ -8,11 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -25,7 +23,7 @@ public class KakaduService {
     private static final Logger log = getLogger(KakaduService.class);
 
     private ColorFieldsService colorFieldsService;
-    private TemporaryImageService temporaryImageService;
+    private ImagePreproccessingService imagePreproccessingService;
 
     /**
      * Get ColorSpace from exif fields
@@ -60,7 +58,7 @@ public class KakaduService {
     public void kduCompress(String fileName, String outputPath) throws Exception {
         String kduCompress = "kdu_compress";
         String input = "-i";
-        String inputFile;
+        String inputFile = imagePreproccessingService.convertToTiff(fileName);
         String output = "-o";
         String outputFile;
         if (Files.exists(Paths.get(outputPath))) {
@@ -87,23 +85,11 @@ public class KakaduService {
         String jp2SpaceOptions;
         String noPalette;
 
-        // for non-TIFF image formats: convert to temp tiff before kdu_compress
-        // currently supported image formats: JPEG, PNG, GIF, PICT, BMP, PSD
-        String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-        Set<String> imageFormats = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "gif", "pct", "bmp"));
-         if (imageFormats.contains(fileNameExtension)) {
-            inputFile = temporaryImageService.convertImageFormats(fileName);
-        } else if (fileNameExtension.matches("psd")) {
-            inputFile = temporaryImageService.convertPsd(fileName);
-        } else {
-            inputFile = fileName;
-        }
-
         // get color space from colorFields
         String colorSpace = getColorSpace(inputFile);
         //for CMYK images: convert to temporary tiff before kduCompress
         if (colorSpace.toLowerCase().contains("cmyk")) {
-            inputFile = temporaryImageService.convertCmykColorSpace(fileName);
+            inputFile = imagePreproccessingService.convertCmykColorSpace(fileName);
         }
 
         List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
@@ -157,7 +143,7 @@ public class KakaduService {
         this.colorFieldsService = colorFieldsService;
     }
 
-    public void setTemporaryImageService(TemporaryImageService temporaryImageService) {
-        this.temporaryImageService = temporaryImageService;
+    public void setImagePreproccessingService(ImagePreproccessingService imagePreproccessingService) {
+        this.imagePreproccessingService = imagePreproccessingService;
     }
 }

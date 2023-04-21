@@ -3,7 +3,7 @@ package colorscanner;
 import colorscanner.options.ColorScannerOptions;
 import colorscanner.services.ColorFieldsService;
 import colorscanner.services.KakaduService;
-import colorscanner.services.TemporaryImageService;
+import colorscanner.services.ImagePreproccessingService;
 import org.slf4j.Logger;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -23,7 +23,7 @@ public class ColorScannerCommand {
     private CLIMain parentCommand;
 
     private ColorFieldsService colorFieldsService = new ColorFieldsService();
-    private TemporaryImageService temporaryImageService = new TemporaryImageService();
+    private ImagePreproccessingService imagePreproccessingService = new ImagePreproccessingService();
     private KakaduService kakaduService = new KakaduService();
 
     @Command(name = "list",
@@ -57,9 +57,9 @@ public class ColorScannerCommand {
     public int kduCompress(@Mixin ColorScannerOptions options) throws Exception {
         try {
             kakaduService.setColorFieldsService(colorFieldsService);
-            kakaduService.setTemporaryImageService(temporaryImageService);
+            kakaduService.setImagePreproccessingService(imagePreproccessingService);
             kakaduService.kduCompress(options.getFileName(), options.getOutputPath());
-            temporaryImageService.deleteTmpImageFilesDir();
+            imagePreproccessingService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
             outputLogger.info("{}", e.getMessage());
@@ -73,9 +73,9 @@ public class ColorScannerCommand {
     public int kduCompressAll(@Mixin ColorScannerOptions options) throws Exception {
         try {
             kakaduService.setColorFieldsService(colorFieldsService);
-            kakaduService.setTemporaryImageService(temporaryImageService);
+            kakaduService.setImagePreproccessingService(imagePreproccessingService);
             kakaduService.fileListKduCompress(options.getFileName(), options.getOutputPath());
-            temporaryImageService.deleteTmpImageFilesDir();
+            imagePreproccessingService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
             outputLogger.info("FAIL: {}", e.getMessage());
