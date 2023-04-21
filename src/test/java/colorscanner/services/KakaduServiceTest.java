@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -122,6 +123,14 @@ public class KakaduServiceTest {
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("File format could not be determined"));
         }
+    }
+
+    @Test
+    public void testNonExistentTempFolderFail() throws Exception {
+        String testFile = "src/test/resources/E101_F8_0112.tif";
+        service.kduCompress(testFile, "folder");
+
+        assertFalse(Files.exists(Paths.get("folder/E101_F8_0112.jp2")));
     }
 
     @Test

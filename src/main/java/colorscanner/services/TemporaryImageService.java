@@ -65,7 +65,7 @@ public class TemporaryImageService {
      * Run GraphicsMagick convert and convert other image formats to tiff
      * Other image formats: JPEG, PNG, GIF, PICT, BMP
      * @param fileName an image file
-     * @return temporaryFile a temporary tiff file
+     * @return temporaryFile the path to a temporary tiff file
      */
     //formats accepted by kakadu: TIFF (including BigTIFF), RAW (big-endian), RAWL (little-endian), BMP (they lied), PBM, PGM and PPM
     //formats accepted by metadata-extractor: JPEG, TIFF, WebP, WAV, AVI, PSD, PNG, BMP, GIF, ICO, PCX, QuickTime, MP4, Camera Raw
