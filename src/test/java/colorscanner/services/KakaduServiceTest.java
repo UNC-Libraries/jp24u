@@ -74,7 +74,6 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressJpeg() throws Exception {
         String testFile = "src/test/resources/IMG_2377.jpeg";
-        //String testFile = "src/test/resources/IMG_3247.jpg";
         service.kduCompress(testFile, tmpFolder.toString());
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_2377.jp2")));
@@ -115,13 +114,9 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressPsd() throws Exception {
         String testFile = "src/test/resources/17.psd";
-        service.kduCompress(testFile);
-        assertTrue(Files.exists(Paths.get("src/test/resources/17.jp2")));
+        service.kduCompress(testFile, tmpFolder.toString());
 
-        //service.kduCompress(testFile, tmpFolder.toString());
-        //service.kduCompress(testFile, "src/test/resources");
-
-        //assertTrue(Files.exists(Paths.get(tmpFolder + "/17.jp2")));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/17.jp2")));
     }
 
     @Disabled

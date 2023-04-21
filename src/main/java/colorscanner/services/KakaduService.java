@@ -99,10 +99,6 @@ public class KakaduService {
             inputFile = fileName;
         }
 
-        List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile, clevels, clayers, cprecincts, stiles,
-                corder, orggenplt, orgtparts, cblk, cusesop, cuseeph, flushPeriod, flushPeriodOptions,
-                rate, rateOptions));
-
         // get color space from colorFields
         String colorSpace = getColorSpace(inputFile);
         //for CMYK images: convert to temporary tiff before kduCompress
@@ -126,10 +122,6 @@ public class KakaduService {
             jp2SpaceOptions = "sLUM";
             command.add(jp2Space);
             command.add(jp2SpaceOptions);
-        }
-        //for CMYK images: convert to temporary jpg image before kduCompress
-        if (colorSpace.toLowerCase().contains("cmyk")) {
-            fileName = temporaryImageService.convertImage(fileName);
         }
 
         try {
