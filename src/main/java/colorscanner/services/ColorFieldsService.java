@@ -47,7 +47,7 @@ public class ColorFieldsService {
     public static final String MAGICK_IDENTIFY = "MagickIdentify";
 
     /**
-     * Return list of EXIF and ICC Profile fields
+     * Use metadata-extractor to return list of EXIF and ICC Profile fields
      * @param fileName an image file
      * @return map of color fields
      */
