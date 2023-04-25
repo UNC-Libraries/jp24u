@@ -87,10 +87,8 @@ public class KakaduService {
 
         // get color space from colorFields
         String colorSpace = getColorSpace(inputFile);
-        //for CMYK images: convert to temporary tiff before kduCompress
-        if (colorSpace.toLowerCase().contains("cmyk")) {
-            inputFile = imagePreproccessingService.convertCmykColorSpace(fileName);
-        }
+        //for unusual colorspaces (CMYK): convert to temporary tiff before kduCompress
+        inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
 
         List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
                 clevels, clayers, cprecincts, stiles, corder, orggenplt, orgtparts, cblk, cusesop, cuseeph,

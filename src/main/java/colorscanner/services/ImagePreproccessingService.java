@@ -139,14 +139,40 @@ public class ImagePreproccessingService {
     public String convertToTiff(String fileName) throws Exception {
         String inputFile;
         String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-        Set<String> imageFormats = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "gif", "pct", "bmp"));
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "gif", "pict", "pct", "pic", "bmp"));
 
         if (imageFormats.contains(fileNameExtension)) {
             inputFile = convertImageFormats(fileName);
         } else if (fileNameExtension.matches("psd")) {
             inputFile = convertPsd(fileName);
-        } else {
+        } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
             inputFile = fileName;
+        } else {
+            log.info("JP2 conversion for the following file format not supported: {}", fileNameExtension);
+            throw new Exception("JP2 conversion for the following file format not supported: " + fileNameExtension);
+        }
+
+        return inputFile;
+    }
+
+    /**
+     * Determine image colorspace and preprocess if needed
+     * for unusual colorspaces: convert to temp TIFF and set colorspace to RGB before kdu_compress
+     * currently supported colorspaces: RGB, sRGB, RGB Palette, Gray, CMYK
+     * @param fileName an image file
+     * @return inputFile a path to a TIFF image file
+     */
+    public String convertColorSpaces(String colorSpace, String fileName) throws Exception {
+        String inputFile;
+        Set<String> colorSpaces = new HashSet<>(Arrays.asList("rgb", "srgb", "rgb palette", "gray"));
+
+        if (colorSpace.toLowerCase().contains("cmyk")) {
+            inputFile = convertCmykColorSpace(fileName);
+        } else if (colorSpaces.contains(colorSpace.toLowerCase())) {
+            inputFile = fileName;
+        } else {
+            log.info("JP2 conversion for the following colorspace not supported: {}", colorSpace);
+            throw new Exception("JP2 conversion for the following colorspace not supported: " + colorSpace);
         }
 
         return inputFile;

@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -171,6 +172,25 @@ public class ImagePreprocessingServiceTest {
         service.convertToTiff(testFile);
 
         assertFalse(Files.exists(Paths.get(tempTif)));
+    }
+
+    @Test
+    public void testConvertColorspace() throws Exception {
+        String testFile = "src/test/resources/IMG_3444.pct.tif";
+
+        String result = service.convertColorSpaces("rgb", testFile);
+
+        assertEquals(testFile, result);
+    }
+
+    @Test
+    public void testConvertUnusualColorspace() throws Exception {
+        String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
+
+        service.convertColorSpaces("cmyk", testFile);
+
+        assertTrue(Files.exists(Paths.get(service.TMP_FILES_DIR +
+                "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
     }
 
     @Test
