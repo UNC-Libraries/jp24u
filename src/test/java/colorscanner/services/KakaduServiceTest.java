@@ -24,17 +24,17 @@ public class KakaduServiceTest {
 
     private KakaduService service;
     private ColorFieldsService colorFieldsService;
-    private TemporaryImageService temporaryImageService;
+    private ImagePreproccessingService imagePreproccessingService;
 
     @BeforeEach
     public void setup() throws Exception {
         System.setOut(new PrintStream(outputStreamCaptor));
 
         colorFieldsService = new ColorFieldsService();
-        temporaryImageService = new TemporaryImageService();
+        imagePreproccessingService = new ImagePreproccessingService();
         service = new KakaduService();
         service.setColorFieldsService(colorFieldsService);
-        service.setTemporaryImageService(temporaryImageService);
+        service.setImagePreproccessingService(imagePreproccessingService);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class KakaduServiceTest {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
         service.kduCompress(testFile, tmpFolder.toString());
 
-        assertTrue(Files.exists(Paths.get(temporaryImageService.TMP_FILES_DIR +
+        assertTrue(Files.exists(Paths.get(imagePreproccessingService.TMP_FILES_DIR +
                 "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
         assertTrue(Files.exists(Paths.get(tmpFolder + "/OP20459_1_TremorsKelleyandtheCowboys.jp2")));
     }
@@ -74,7 +74,6 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressJpeg() throws Exception {
         String testFile = "src/test/resources/IMG_2377.jpeg";
-        //String testFile = "src/test/resources/IMG_3247.jpg";
         service.kduCompress(testFile, tmpFolder.toString());
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_2377.jp2")));
@@ -110,6 +109,14 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, tmpFolder.toString());
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/Wagoner_BW.jp2")));
+    }
+
+    @Test
+    public void testKduCompressPsd() throws Exception {
+        String testFile = "src/test/resources/17.psd";
+        service.kduCompress(testFile, tmpFolder.toString());
+
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/17.jp2")));
     }
 
     @Disabled

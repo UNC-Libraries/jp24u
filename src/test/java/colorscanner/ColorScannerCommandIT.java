@@ -2,7 +2,7 @@ package colorscanner;
 
 import colorscanner.services.ColorFieldsService;
 import colorscanner.services.KakaduService;
-import colorscanner.services.TemporaryImageService;
+import colorscanner.services.ImagePreproccessingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ public class ColorScannerCommandIT {
 
     private ColorFieldsService colorFieldsService;
     private KakaduService kakaduService;
-    private TemporaryImageService temporaryImageService;
+    private ImagePreproccessingService temporaryImageService;
 
     @BeforeEach
     public void setup() throws Exception {
@@ -41,9 +41,9 @@ public class ColorScannerCommandIT {
 
         colorFieldsService = new ColorFieldsService();
         kakaduService = new KakaduService();
-        temporaryImageService = new TemporaryImageService();
+        temporaryImageService = new ImagePreproccessingService();
         kakaduService.setColorFieldsService(colorFieldsService);
-        kakaduService.setTemporaryImageService(temporaryImageService);
+        kakaduService.setImagePreproccessingService(temporaryImageService);
     }
 
     @Test
