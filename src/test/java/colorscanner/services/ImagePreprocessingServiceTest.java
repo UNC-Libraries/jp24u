@@ -149,6 +149,23 @@ public class ImagePreprocessingServiceTest {
     }
 
     @Test
+    public void testConvertJp2toTiff() throws Exception {
+        String testFile = "src/test/resources/17.jp2";
+        String tempTif = service.TMP_FILES_DIR + "/17.jp2.tif";
+        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
+                "ICCProfileName:sRGB IEC61966-2.1\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
+                "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+
+        service.convertJp2(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
+
+    }
+
+    @Test
     public void testImagePreprocessingPict() throws Exception {
         String testFile = "src/test/resources/IMG_3444.pct";
         String tempTif = service.TMP_FILES_DIR + "/IMG_3444.pct.tif";

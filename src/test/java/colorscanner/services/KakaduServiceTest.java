@@ -119,6 +119,14 @@ public class KakaduServiceTest {
         assertTrue(Files.exists(Paths.get(tmpFolder + "/17.jp2")));
     }
 
+    @Test
+    public void testKduCompressJp2() throws Exception {
+        String testFile = "src/test/resources/17.jp2";
+        service.kduCompress(testFile, tmpFolder.toString());
+
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/17_deriv.jp2")));
+    }
+
     @Disabled
     @Test
     public void testKduCompressFail() throws Exception {

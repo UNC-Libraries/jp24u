@@ -62,7 +62,12 @@ public class KakaduService {
         String output = "-o";
         String outputFile;
         if (Files.exists(Paths.get(outputPath))) {
-            outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
+            //add _deriv to access JP2 output in order to avoid overwriting preservation-quality JP2
+            if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
+                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
+            } else {
+                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
+            }
         } else {
             throw new Exception(outputPath + " does not exist.");
         }

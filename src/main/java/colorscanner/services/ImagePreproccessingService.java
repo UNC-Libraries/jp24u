@@ -130,6 +130,35 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Run ImageMagick convert and convert JP2 images to tiff
+     * GraphicsMagick requires jasper 1.600.0 or later to support JP2
+     * @param fileName an image file
+     * @return temporaryFile a temporary tiff file
+     */
+    public String convertJp2(String fileName) throws Exception {
+        initializeTempImageFilesDir();
+
+        String convert = "convert";
+        String importFile = fileName;
+        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+                + ".tif").toAbsolutePath().toString();
+
+        List<String> command = Arrays.asList(convert, importFile, temporaryFile);
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            String cmdOutput = new String(process.getInputStream().readAllBytes());
+            log.info(cmdOutput);
+        } catch (Exception e) {
+            throw new Exception(fileName + " failed to generate tiff file.", e);
+        }
+
+        return temporaryFile;
+    }
+
+    /**
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temp tiff before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD
@@ -145,6 +174,8 @@ public class ImagePreproccessingService {
             inputFile = convertImageFormats(fileName);
         } else if (fileNameExtension.matches("psd")) {
             inputFile = convertPsd(fileName);
+        } else if (fileNameExtension.matches("jp2")) {
+            inputFile = convertJp2(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
             inputFile = fileName;
         } else {
