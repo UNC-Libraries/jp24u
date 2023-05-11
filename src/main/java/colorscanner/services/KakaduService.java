@@ -8,9 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -55,7 +57,23 @@ public class KakaduService {
      * Run kdu_compress and convert image to jp2
      * @param fileName an image file
      */
-    public void kduCompress(String fileName, String outputPath) throws Exception {
+    public void kduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
+        // override source file type detection with user-inputted image file type
+        // for files without file extensions
+        // accepted image formats are listed in sourceFormats set
+        String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
+        Set<String> sourceFormats = new HashSet<>(Arrays.asList("tiff", "tif", "jpeg", "jpg", "png", "gif", "pict",
+                "pct", "pic", "bmp", "\'image/tiff\'", "\'image/jpeg\'", "\'image/png\'", "\'image/gif\'",
+                "\'image/bmp\'"));
+        if (fileNameExtension.isEmpty() && sourceFormats.contains(sourceFormat)) {
+            if (sourceFormat.contains("image")) {
+                sourceFormat = sourceFormat.split("/")[1].replaceAll("\'", "");
+            }
+            fileName = fileName + "." + sourceFormat;
+        } else if (!sourceFormats.contains(sourceFormat)) {
+            throw new Exception(sourceFormat + " file type is not supported.");
+        }
+
         String kduCompress = "kdu_compress";
         String input = "-i";
         String inputFile = imagePreproccessingService.convertToTiff(fileName);
@@ -128,14 +146,14 @@ public class KakaduService {
      * Iterate through list of image files and run kdu_compress to convert all tifs to jp2s
      * @param fileName a list of image files
      */
-    public void fileListKduCompress(String fileName, String outputPath) throws Exception {
+    public void fileListKduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
 
         Iterator<String> itr = listOfFiles.iterator();
         while (itr.hasNext()) {
             String imageFileName = itr.next();
             if (Files.exists(Paths.get(imageFileName))) {
-                kduCompress(imageFileName, outputPath);
+                kduCompress(imageFileName, outputPath, sourceFormat);
             } else {
                 throw new Exception(imageFileName + " does not exist. Not processing file list further.");
             }

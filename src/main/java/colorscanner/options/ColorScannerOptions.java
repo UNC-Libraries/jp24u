@@ -17,6 +17,11 @@ public class ColorScannerOptions {
             description = "Destination for converted images. You must set the output path manually, no default.")
     private String outputPath;
 
+    @Option(names = {"-sf", "--source-fmt"},
+            description = "Override source file type detection. Defaults to jpeg.",
+            defaultValue = "jpeg")
+    private String sourceFormat;
+
     public String getFileName() {
         return fileName;
     }
@@ -31,5 +36,13 @@ public class ColorScannerOptions {
 
     public void setOutputPath(String outputPath) {
         this.outputPath = outputPath;
+    }
+
+    public String getSourceFormat() {
+        return sourceFormat;
+    }
+
+    public void setSourceFormat(String sourceFormat) {
+        this.sourceFormat = sourceFormat;
     }
 }

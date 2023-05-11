@@ -58,7 +58,7 @@ public class ColorScannerCommand {
         try {
             kakaduService.setColorFieldsService(colorFieldsService);
             kakaduService.setImagePreproccessingService(imagePreproccessingService);
-            kakaduService.kduCompress(options.getFileName(), options.getOutputPath());
+            kakaduService.kduCompress(options.getFileName(), options.getOutputPath(), options.getSourceFormat());
             imagePreproccessingService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
@@ -74,7 +74,7 @@ public class ColorScannerCommand {
         try {
             kakaduService.setColorFieldsService(colorFieldsService);
             kakaduService.setImagePreproccessingService(imagePreproccessingService);
-            kakaduService.fileListKduCompress(options.getFileName(), options.getOutputPath());
+            kakaduService.fileListKduCompress(options.getFileName(), options.getOutputPath(), options.getSourceFormat());
             imagePreproccessingService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
