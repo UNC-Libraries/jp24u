@@ -80,7 +80,7 @@ public class KakaduService {
         String output = "-o";
         String outputFile;
         if (Files.exists(Paths.get(outputPath))) {
-            //add _deriv to access JP2 output in order to avoid overwriting preservation-quality JP2
+            //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
             if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
                 outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
             } else {
@@ -110,7 +110,7 @@ public class KakaduService {
 
         // get color space from colorFields
         String colorSpace = getColorSpace(inputFile);
-        //for unusual colorspaces (CMYK): convert to temporary tiff before kduCompress
+        // for unusual colorspaces (CMYK): convert to temporary tiff before kduCompress
         inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
 
         List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,

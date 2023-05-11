@@ -23,3 +23,4 @@ Images with a CMYK color space are first converted to a temporary TIFF file befo
 - `colorscanner list_all -f <filename>`: retrieve image color fields and attributes for a list of files
 - `colorscanner kdu_compress -f <filename> -o <outputPath>`: run kduCompress on an image file, must set output path
 - `colorscanner kdu_compress_all -f <filename> -o <outputPath>`: run kduCompress on a list of image files, must set output path
+- `colorscanner -sf <sourceFormat>`: override source file type detection, for files without file extensions
