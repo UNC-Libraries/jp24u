@@ -152,11 +152,19 @@ public class KakaduServiceTest {
     }
 
     @Test
-    public void testJpegSourceFormat() throws Exception {
-        String testFile = "src/test/resources/E101_F8_0112.tif";
+    public void testSourceFormatJpegWithTiffExtension() throws Exception {
+        String testFile = "src/test/resources/IMG_2377_sfjpeg.tif";
         service.kduCompress(testFile, tmpFolder.toString(), "jpeg");
 
-        assertTrue(Files.exists(Paths.get(tmpFolder + "/E101_F8_0112.jp2")));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_2377_sfjpeg.jp2")));
+    }
+
+    @Test
+    public void testSourceFormatJpegWithNoFileExtension() throws Exception {
+        String testFile = "src/test/resources/IMG_2377_nofileext";
+        service.kduCompress(testFile, tmpFolder.toString(), "jpeg");
+
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_2377_nofileext.jp2")));
     }
 
     @Test
