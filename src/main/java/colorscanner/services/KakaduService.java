@@ -1,5 +1,6 @@
 package colorscanner.services;
 
+import colorscanner.options.ColorScannerOptions;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
@@ -59,24 +60,21 @@ public class KakaduService {
      */
     public void kduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
         // override source file type detection with user-inputted image file type
-        // for files without file extensions
         // accepted image formats are listed in sourceFormats set
-        String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
         Set<String> sourceFormats = new HashSet<>(Arrays.asList("tiff", "tif", "jpeg", "jpg", "png", "gif", "pict",
                 "pct", "pic", "bmp", "\'image/tiff\'", "\'image/jpeg\'", "\'image/png\'", "\'image/gif\'",
                 "\'image/bmp\'"));
-        if (fileNameExtension.isEmpty() && sourceFormats.contains(sourceFormat)) {
+        if (!sourceFormat.isEmpty() && sourceFormats.contains(sourceFormat)) {
             if (sourceFormat.contains("image")) {
                 sourceFormat = sourceFormat.split("/")[1].replaceAll("\'", "");
             }
-            fileName = fileName + "." + sourceFormat;
-        } else if (!sourceFormats.contains(sourceFormat)) {
+        } else if (!sourceFormat.isEmpty() && !sourceFormats.contains(sourceFormat)) {
             throw new Exception(sourceFormat + " file type is not supported.");
         }
 
         String kduCompress = "kdu_compress";
         String input = "-i";
-        String inputFile = imagePreproccessingService.convertToTiff(fileName);
+        String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
         String output = "-o";
         String outputFile;
         if (Files.exists(Paths.get(outputPath))) {

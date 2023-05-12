@@ -18,8 +18,8 @@ public class ColorScannerOptions {
     private String outputPath;
 
     @Option(names = {"-sf", "--source-fmt"},
-            description = "Override source file type detection. Defaults to jpeg.",
-            defaultValue = "jpeg")
+            description = "Override source file type detection. File extensions (jpeg) and mimetypes (\'image/jpeg\') accepted.",
+            defaultValue = "")
     private String sourceFormat;
 
     public String getFileName() {

@@ -165,10 +165,13 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return inputFile a path to a TIFF image file
      */
-    public String convertToTiff(String fileName) throws Exception {
+    public String convertToTiff(String fileName, String sourceFormat) throws Exception {
         String inputFile;
         String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
         Set<String> imageFormats = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "gif", "pict", "pct", "pic", "bmp"));
+        if (!sourceFormat.isEmpty()) {
+            fileNameExtension = sourceFormat;
+        }
 
         if (imageFormats.contains(fileNameExtension)) {
             inputFile = convertImageFormats(fileName);
