@@ -1,6 +1,5 @@
 package colorscanner.services;
 
-import colorscanner.options.ColorScannerOptions;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
@@ -18,7 +17,7 @@ import java.util.Set;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * Service for kakadu kduCompress
+ * Service for Kakadu kduCompress
  * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP
  * @author krwong
  */
@@ -29,12 +28,12 @@ public class KakaduService {
     private ImagePreproccessingService imagePreproccessingService;
 
     /**
-     * Get ColorSpace from exif fields
+     * Get color space from EXIF fields
      * @param fileName an image file
      * @return colorSpace
      */
     public String getColorSpace(String fileName) throws Exception {
-        // we will check 2 exif fields (ColorSpace and PhotometricInterpretation) for color space information
+        // we will check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information
         String colorSpace = "null";
         Map<String,String> imageMetadata = colorFieldsService.colorFields(fileName);
 
@@ -43,7 +42,7 @@ public class KakaduService {
         } else if (imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
             colorSpace = imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else {
-            log.info(fileName + ": colorSpace information not found.");
+            log.info(fileName + ": color space information not found.");
         }
 
         if (colorSpace.toLowerCase().matches("blackiszero") ||
@@ -55,12 +54,13 @@ public class KakaduService {
     }
 
     /**
-     * Run kdu_compress and convert image to jp2
-     * @param fileName an image file
+     * Run kdu_compress and convert image to JP2
+     * @param fileName an image file, outputPath destination for converted files,
+     *                 sourceFormat file extension/mimetype override
      */
     public void kduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
         // override source file type detection with user-inputted image file type
-        // accepted image formats are listed in sourceFormats set
+        // accepted file types are listed in sourceFormats set
         Set<String> sourceFormats = new HashSet<>(Arrays.asList("tiff", "tif", "jpeg", "jpg", "png", "gif", "pict",
                 "pct", "pic", "bmp", "\'image/tiff\'", "\'image/jpeg\'", "\'image/png\'", "\'image/gif\'",
                 "\'image/bmp\'"));
@@ -108,7 +108,7 @@ public class KakaduService {
 
         // get color space from colorFields
         String colorSpace = getColorSpace(inputFile);
-        // for unusual colorspaces (CMYK): convert to temporary tiff before kduCompress
+        // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
         inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
 
         List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
@@ -141,8 +141,9 @@ public class KakaduService {
     }
 
     /**
-     * Iterate through list of image files and run kdu_compress to convert all tifs to jp2s
-     * @param fileName a list of image files
+     * Iterate through list of image files and run kdu_compress to convert all images to JP2s
+     * @param fileName a list of image files, outputPath destination for converted files,
+     *                 sourceFormat file extension/mimetype override
      */
     public void fileListKduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);

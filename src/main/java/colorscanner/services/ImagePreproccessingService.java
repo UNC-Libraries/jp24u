@@ -17,8 +17,8 @@ import java.util.Set;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * Service for converting non-tif images and images with unusual color spaces
- * to a temporary image file before kakadu jp2 compression
+ * Service for converting non-TIFF images and images with unusual color spaces
+ * to a temporary image file before Kakadu JP2 compression
  * @author krwong
  */
 public class ImagePreproccessingService {
@@ -28,14 +28,14 @@ public class ImagePreproccessingService {
     public static final Path TMP_FILES_DIR = TMP_DIR.resolve("colorscanner");
 
     /**
-     * For images with CMYK colorspace
-     * Run GraphicsMagick convert and convert tif to temp tif
+     * For images with CMYK color space
+     * Run GraphicsMagick convert and convert TIFF to temporary TIFF
      * @param fileName an image file
-     * @return temporaryFile a temporary tif file
+     * @return temporaryFile a temporary TIFF file
      */
     //TODO: we will need to test different CMYK conversion options
-    //It seems like only using Color Space creates a more color accurate temporary image.
-    //Using Color Space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
+    //It seems like only using color space creates a more color accurate temporary image.
+    //Using color space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
     public String convertCmykColorSpace(String fileName) throws Exception {
         initializeTempImageFilesDir();
 
@@ -58,20 +58,20 @@ public class ImagePreproccessingService {
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.info(cmdOutput);
         } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate temp tif file.", e);
+            throw new Exception(fileName + " failed to generate temporary TIFF file.", e);
         }
 
         return temporaryFile;
     }
 
     /**
-     * Run GraphicsMagick convert and convert other image formats to tiff
+     * Run GraphicsMagick convert and convert other image formats to TIFF
      * Other image formats: JPEG, PNG, GIF, PICT, BMP
      * @param fileName an image file
-     * @return temporaryFile the path to a temporary tiff file
+     * @return temporaryFile the path to a temporary TIFF file
      */
-    //formats accepted by kakadu: TIFF (including BigTIFF), RAW (big-endian), RAWL (little-endian), BMP (they lied), PBM, PGM and PPM
-    //formats accepted by metadata-extractor: JPEG, TIFF, WebP, WAV, AVI, PSD, PNG, BMP, GIF, ICO, PCX, QuickTime, MP4, Camera Raw
+    // formats accepted by kakadu: TIFF (including BigTIFF), RAW (big-endian), RAWL (little-endian), BMP (they lied), PBM, PGM and PPM
+    // formats accepted by metadata-extractor: JPEG, TIFF, WebP, WAV, AVI, PSD, PNG, BMP, GIF, ICO, PCX, QuickTime, MP4, Camera Raw
     public String convertImageFormats(String fileName) throws Exception {
         initializeTempImageFilesDir();
 
@@ -89,26 +89,26 @@ public class ImagePreproccessingService {
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.info(cmdOutput);
         } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate tiff file.", e);
+            throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
 
         return temporaryFile;
     }
 
     /**
-     * Run ImageMagick convert and convert PSD images to tiff
+     * Run ImageMagick convert and convert PSD images to TIFF
      * GraphicsMagick doesn't support PSD
      * @param fileName an image file
-     * @return temporaryFile a temporary tiff file
+     * @return temporaryFile a temporary TIFF file
      */
     public String convertPsd(String fileName) throws Exception {
         initializeTempImageFilesDir();
 
         String convert = "convert";
         String importFile = fileName + "[0]";
-        //if converting the [0] flattened layer doesn't work, try removing the [0] and adding -flatten to the command
-        //String importFile = fileName;
-        //String flatten = "-flatten";
+        // if converting the [0] flattened layer doesn't work, try removing the [0] and adding -flatten to the command
+        // String importFile = fileName;
+        // String flatten = "-flatten";
         String colorspace = "-colorspace";
         String colorspaceOptions = "sRGB";
         String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
@@ -123,17 +123,17 @@ public class ImagePreproccessingService {
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.info(cmdOutput);
         } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate tiff file.", e);
+            throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
 
         return temporaryFile;
     }
 
     /**
-     * Run ImageMagick convert and convert JP2 images to tiff
+     * Run ImageMagick convert and convert JP2 images to TIFF
      * GraphicsMagick requires jasper 1.600.0 or later to support JP2
      * @param fileName an image file
-     * @return temporaryFile a temporary tiff file
+     * @return temporaryFile a temporary TIFF file
      */
     public String convertJp2(String fileName) throws Exception {
         initializeTempImageFilesDir();
@@ -152,7 +152,7 @@ public class ImagePreproccessingService {
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.info(cmdOutput);
         } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate tiff file.", e);
+            throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
 
         return temporaryFile;
@@ -160,9 +160,9 @@ public class ImagePreproccessingService {
 
     /**
      * Determine image format and preprocess if needed
-     * for non-TIFF image formats: convert to temp tiff before kdu_compress
+     * for non-TIFF image formats: convert to temporary TIFF before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD
-     * @param fileName an image file
+     * @param fileName an image file, sourceFormat file extension/mimetype override
      * @return inputFile a path to a TIFF image file
      */
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
@@ -190,10 +190,10 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Determine image colorspace and preprocess if needed
-     * for unusual colorspaces: convert to temp TIFF and set colorspace to RGB before kdu_compress
-     * currently supported colorspaces: RGB, sRGB, RGB Palette, Gray, CMYK
-     * @param fileName an image file
+     * Determine image color space and preprocess if needed
+     * for unusual color spaces: convert to temporary TIFF and set color space to RGB before kdu_compress
+     * currently supported color spaces: RGB, sRGB, RGB Palette, Gray, CMYK
+     * @param colorSpace an image color space, fileName an image file
      * @return inputFile a path to a TIFF image file
      */
     public String convertColorSpaces(String colorSpace, String fileName) throws Exception {
@@ -205,15 +205,15 @@ public class ImagePreproccessingService {
         } else if (colorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = fileName;
         } else {
-            log.info("JP2 conversion for the following colorspace not supported: {}", colorSpace);
-            throw new Exception("JP2 conversion for the following colorspace not supported: " + colorSpace);
+            log.info("JP2 conversion for the following color space not supported: {}", colorSpace);
+            throw new Exception("JP2 conversion for the following color space not supported: " + colorSpace);
         }
 
         return inputFile;
     }
 
     /**
-     * Create tmp image files directory for jpgs
+     * Create tmp image files directory for temporary files
      * @return tmpImageFilesDirectoryPath
      */
     public Path initializeTempImageFilesDir() throws IOException {
