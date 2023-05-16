@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -60,15 +61,27 @@ public class KakaduService {
      */
     public void kduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
         // override source file type detection with user-inputted image file type
-        // accepted file types are listed in sourceFormats set
-        Set<String> sourceFormats = new HashSet<>(Arrays.asList("tiff", "tif", "jpeg", "jpg", "png", "gif", "pict",
-                "pct", "pic", "bmp", "\'image/tiff\'", "\'image/jpeg\'", "\'image/png\'", "\'image/gif\'",
-                "\'image/bmp\'"));
-        if (!sourceFormat.isEmpty() && sourceFormats.contains(sourceFormat)) {
-            if (sourceFormat.contains("image")) {
-                sourceFormat = sourceFormat.split("/")[1].replaceAll("\'", "");
-            }
-        } else if (!sourceFormat.isEmpty() && !sourceFormats.contains(sourceFormat)) {
+        // accepted file types are listed in sourceFormats below
+        Map<String, String> sourceFormats = new HashMap<>();
+        sourceFormats.put("tiff", "tiff");
+        sourceFormats.put("tif", "tiff");
+        sourceFormats.put("image/tiff", "tiff");
+        sourceFormats.put("jpeg", "jpeg");
+        sourceFormats.put("jpg", "jpeg");
+        sourceFormats.put("image/jpeg", "jpeg");
+        sourceFormats.put("png", "png");
+        sourceFormats.put("image/png", "png");
+        sourceFormats.put("gif", "gif");
+        sourceFormats.put("image/gif", "gif");
+        sourceFormats.put("pict", "pct");
+        sourceFormats.put("pct", "pct");
+        sourceFormats.put("pic", "pct");
+        sourceFormats.put("bmp", "bmp");
+        sourceFormats.put("image/bmp", "bmp");
+
+        if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
+            sourceFormat = sourceFormats.get(sourceFormat);
+        } else if (!sourceFormat.isEmpty() && !sourceFormats.containsKey(sourceFormat)) {
             throw new Exception(sourceFormat + " file type is not supported.");
         }
 
