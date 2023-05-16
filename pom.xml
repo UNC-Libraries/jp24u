@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.unc.lib</groupId>
-    <artifactId>colorscanner</artifactId>
+    <artifactId>jp2-image-converter</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -60,7 +60,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>colorscanner</finalName>
+        <finalName>JP2ImageConverter</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -77,7 +77,7 @@
                                                      "org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer implementation=
                                                      "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>colorscanner.CLIMain</mainClass>
+                                    <mainClass>JP2ImageConverter.CLIMain</mainClass>
                                 </transformer>
                             </transformers>
                             <createDependencyReducedPom>false</createDependencyReducedPom>

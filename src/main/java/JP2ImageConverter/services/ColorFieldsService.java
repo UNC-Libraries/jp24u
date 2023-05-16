@@ -1,4 +1,4 @@
-package colorscanner.services;
+package JP2ImageConverter.services;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;

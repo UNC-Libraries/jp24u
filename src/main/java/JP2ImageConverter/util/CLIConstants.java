@@ -1,4 +1,4 @@
-package colorscanner.util;
+package JP2ImageConverter.util;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

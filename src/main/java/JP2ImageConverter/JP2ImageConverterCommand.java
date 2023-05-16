@@ -1,24 +1,24 @@
-package colorscanner;
+package JP2ImageConverter;
 
-import colorscanner.options.ColorScannerOptions;
-import colorscanner.services.ColorFieldsService;
-import colorscanner.services.KakaduService;
-import colorscanner.services.ImagePreproccessingService;
+import JP2ImageConverter.options.JP2ImageConverterOptions;
+import JP2ImageConverter.services.ColorFieldsService;
+import JP2ImageConverter.services.KakaduService;
+import JP2ImageConverter.services.ImagePreproccessingService;
 import org.slf4j.Logger;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.ParentCommand;
 
-import static colorscanner.util.CLIConstants.outputLogger;
+import static JP2ImageConverter.util.CLIConstants.outputLogger;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author krwong
  */
-@Command(name = "colorscanner",
+@Command(name = "jp24u",
         description = "")
-public class ColorScannerCommand {
-    private static final Logger log = getLogger(ColorScannerCommand.class);
+public class JP2ImageConverterCommand {
+    private static final Logger log = getLogger(JP2ImageConverterCommand.class);
     @ParentCommand
     private CLIMain parentCommand;
 
@@ -28,7 +28,7 @@ public class ColorScannerCommand {
 
     @Command(name = "list",
             description = "Retrieve image color fields and attributes for an image file.")
-    public int list(@Mixin ColorScannerOptions options) throws Exception {
+    public int list(@Mixin JP2ImageConverterOptions options) throws Exception {
         try {
             colorFieldsService.listFields(options.getFileName());
             return 0;
@@ -41,7 +41,7 @@ public class ColorScannerCommand {
 
     @Command(name = "list_all",
             description = "Retrieve image color fields and attributes for a list of files.")
-    public int listAll(@Mixin ColorScannerOptions options) throws Exception {
+    public int listAll(@Mixin JP2ImageConverterOptions options) throws Exception {
         try {
             colorFieldsService.fileListAllFields(options.getFileName());
             return 0;
@@ -54,7 +54,7 @@ public class ColorScannerCommand {
 
     @Command(name = "kdu_compress",
             description = "Run kakadu kdu_compress on an image file.")
-    public int kduCompress(@Mixin ColorScannerOptions options) throws Exception {
+    public int kduCompress(@Mixin JP2ImageConverterOptions options) throws Exception {
         try {
             kakaduService.setColorFieldsService(colorFieldsService);
             kakaduService.setImagePreproccessingService(imagePreproccessingService);
@@ -70,7 +70,7 @@ public class ColorScannerCommand {
 
     @Command(name = "kdu_compress_all",
             description = "Run kakadu kdu_compress on a list of image files.")
-    public int kduCompressAll(@Mixin ColorScannerOptions options) throws Exception {
+    public int kduCompressAll(@Mixin JP2ImageConverterOptions options) throws Exception {
         try {
             kakaduService.setColorFieldsService(colorFieldsService);
             kakaduService.setImagePreproccessingService(imagePreproccessingService);

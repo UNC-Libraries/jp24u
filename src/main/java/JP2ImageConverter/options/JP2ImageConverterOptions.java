@@ -1,12 +1,12 @@
-package colorscanner.options;
+package JP2ImageConverter.options;
 
 import picocli.CommandLine.Option;
 
 /**
- * Options for color scanner
+ * Options for JP2ImageConverter
  * @author krwong
  */
-public class ColorScannerOptions {
+public class JP2ImageConverterOptions {
 
     @Option(names = {"-f", "--filename"},
             required = true,

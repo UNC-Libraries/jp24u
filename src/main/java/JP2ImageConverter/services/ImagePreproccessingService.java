@@ -1,4 +1,4 @@
-package colorscanner.services;
+package JP2ImageConverter.services;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -25,7 +25,7 @@ public class ImagePreproccessingService {
     private static final Logger log = getLogger(ImagePreproccessingService.class);
 
     public static final Path TMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
-    public static final Path TMP_FILES_DIR = TMP_DIR.resolve("colorscanner");
+    public static final Path TMP_FILES_DIR = TMP_DIR.resolve("JP2ImageConverter");
 
     /**
      * For images with CMYK color space

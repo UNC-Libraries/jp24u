@@ -1,8 +1,8 @@
-package colorscanner;
+package JP2ImageConverter;
 
-import colorscanner.services.ColorFieldsService;
-import colorscanner.services.KakaduService;
-import colorscanner.services.ImagePreproccessingService;
+import JP2ImageConverter.services.ColorFieldsService;
+import JP2ImageConverter.services.KakaduService;
+import JP2ImageConverter.services.ImagePreproccessingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class ColorScannerCommandIT {
-    private static final Logger log = getLogger(ColorScannerCommandIT.class);
+public class JP2ImageConverterCommandIT {
+    private static final Logger log = getLogger(JP2ImageConverterCommandIT.class);
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     protected final PrintStream originalOut = System.out;
     protected final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -50,7 +50,7 @@ public class ColorScannerCommandIT {
     public void listColorFieldsTest() throws Exception {
         String testFile = "src/test/resources/P0024_0066.tif";
         String[] args = new String[] {
-                "colorscanner",
+                "JP2ImageConverter",
                 "list", "-f", testFile
         };
 
@@ -61,7 +61,7 @@ public class ColorScannerCommandIT {
     public void listColorFieldsLogEfforWithNonexistentFile() throws Exception {
         String testFile = "src/test/resources/test.tif";
         String[] args = new String[] {
-                "colorscanner",
+                "JP2ImageConverter",
                 "list", "-f", testFile
         };
 
@@ -72,7 +72,7 @@ public class ColorScannerCommandIT {
     public void listAllColorFieldsTest() throws Exception {
         String testFile = "src/test/resources/test_input.txt";
         String[] args = new String[] {
-                "colorscanner",
+                "JP2ImageConverter",
                 "list_all", "-f", testFile
                 };
 
@@ -84,7 +84,7 @@ public class ColorScannerCommandIT {
         String testFile = "src/test/resources/test_input_fail.txt";
 
         String[] args = new String[] {
-                "colorscanner",
+                "JP2ImageConverter",
                 "list_all", "-f", testFile
         };
 
@@ -96,7 +96,7 @@ public class ColorScannerCommandIT {
         String testFile = "src/test/resources/P0024_0103_01.tif";
 
         String[] args = new String[] {
-                "colorscanner",
+                "JP2ImageConverter",
                 "kdu_compress", "-f", testFile,
                 "-o", tmpFolder.toString()
         };
@@ -110,7 +110,7 @@ public class ColorScannerCommandIT {
         String testFile = "src/test/resources/test.tif";
 
         String[] args = new String[] {
-                "colorscanner",
+                "JP2ImageConverter",
                 "kdu_compress", "-f", testFile,
                 "-o", tmpFolder.toString()
         };
@@ -123,7 +123,7 @@ public class ColorScannerCommandIT {
         String testFile = "src/test/resources/test_input.txt";
 
         String[] args = new String[] {
-                "colorscanner",
+                "JP2ImageConverter",
                 "kdu_compress_all", "-f", testFile,
                 "-o", tmpFolder.toString()
         };
@@ -136,7 +136,7 @@ public class ColorScannerCommandIT {
         String testFile = "src/test/resources/test_input_fail.txt";
 
         String[] args = new String[] {
-                "colorscanner",
+                "JP2ImageConverter",
                 "kdu_compress_all", "-f", testFile,
                 "-o", tmpFolder.toString()
         };

@@ -1,4 +1,4 @@
-package colorscanner;
+package JP2ImageConverter;
 
 import picocli.CommandLine;
 
@@ -7,7 +7,7 @@ import picocli.CommandLine;
  * @author krwong
  */
 @CommandLine.Command(subcommands = {
-        ColorScannerCommand.class
+        JP2ImageConverterCommand.class
 })
 public class CLIMain {
 
