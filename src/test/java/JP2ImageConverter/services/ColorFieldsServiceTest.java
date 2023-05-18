@@ -1,4 +1,4 @@
-package colorscanner.services;
+package JP2ImageConverter.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ public class ColorFieldsServiceTest {
     public void testMissingColorFields() throws Exception {
         String testFile = "src/test/resources/P0024_0066.tif";
 
-        //PhotometricInterpretation is never missing
+        // PhotometricInterpretation is never missing
         Map<String,String> testFields = new LinkedHashMap<>();
         testFields.put(ColorFieldsService.IMAGE_FILE_NAME, testFile);
         testFields.put(ColorFieldsService.FILE_SIZE, "40736840 bytes");

@@ -1,4 +1,4 @@
-package colorscanner.services;
+package JP2ImageConverter.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -174,7 +174,7 @@ public class ImagePreprocessingServiceTest {
                 "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
                 "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
 
-        service.convertToTiff(testFile);
+        service.convertToTiff(testFile, "");
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -186,7 +186,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/E101_F8_0112.tif";
         String tempTif = service.TMP_FILES_DIR + "/E101_F8_0112.tif.tif";
 
-        service.convertToTiff(testFile);
+        service.convertToTiff(testFile, "");
 
         assertFalse(Files.exists(Paths.get(tempTif)));
     }

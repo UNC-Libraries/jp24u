@@ -1,4 +1,4 @@
-package colorscanner.services;
+package JP2ImageConverter.services;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Map;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
- * Service for kakadu kduCompress
+ * Service for Kakadu kduCompress
  * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP
  * @author krwong
  */
@@ -26,12 +27,12 @@ public class KakaduService {
     private ImagePreproccessingService imagePreproccessingService;
 
     /**
-     * Get ColorSpace from exif fields
+     * Get color space from EXIF fields
      * @param fileName an image file
      * @return colorSpace
      */
     public String getColorSpace(String fileName) throws Exception {
-        // we will check 2 exif fields (ColorSpace and PhotometricInterpretation) for color space information
+        // we will check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information
         String colorSpace = "null";
         Map<String,String> imageMetadata = colorFieldsService.colorFields(fileName);
 
@@ -40,7 +41,7 @@ public class KakaduService {
         } else if (imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
             colorSpace = imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else {
-            log.info(fileName + ": colorSpace information not found.");
+            log.info(fileName + ": color space information not found.");
         }
 
         if (colorSpace.toLowerCase().matches("blackiszero") ||
@@ -52,17 +53,43 @@ public class KakaduService {
     }
 
     /**
-     * Run kdu_compress and convert image to jp2
-     * @param fileName an image file
+     * Run kdu_compress and convert image to JP2
+     * @param fileName an image file, outputPath destination for converted files,
+     *                 sourceFormat file extension/mimetype override
      */
-    public void kduCompress(String fileName, String outputPath) throws Exception {
+    public void kduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
+        // override source file type detection with user-inputted image file type
+        // accepted file types are listed in sourceFormats below
+        Map<String, String> sourceFormats = new HashMap<>();
+        sourceFormats.put("tiff", "tiff");
+        sourceFormats.put("tif", "tiff");
+        sourceFormats.put("image/tiff", "tiff");
+        sourceFormats.put("jpeg", "jpeg");
+        sourceFormats.put("jpg", "jpeg");
+        sourceFormats.put("image/jpeg", "jpeg");
+        sourceFormats.put("png", "png");
+        sourceFormats.put("image/png", "png");
+        sourceFormats.put("gif", "gif");
+        sourceFormats.put("image/gif", "gif");
+        sourceFormats.put("pict", "pct");
+        sourceFormats.put("pct", "pct");
+        sourceFormats.put("pic", "pct");
+        sourceFormats.put("bmp", "bmp");
+        sourceFormats.put("image/bmp", "bmp");
+
+        if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
+            sourceFormat = sourceFormats.get(sourceFormat);
+        } else if (!sourceFormat.isEmpty() && !sourceFormats.containsKey(sourceFormat)) {
+            throw new Exception(sourceFormat + " file type is not supported.");
+        }
+
         String kduCompress = "kdu_compress";
         String input = "-i";
-        String inputFile = imagePreproccessingService.convertToTiff(fileName);
+        String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
         String output = "-o";
         String outputFile;
         if (Files.exists(Paths.get(outputPath))) {
-            //add _deriv to access JP2 output in order to avoid overwriting preservation-quality JP2
+            //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
             if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
                 outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
             } else {
@@ -92,7 +119,7 @@ public class KakaduService {
 
         // get color space from colorFields
         String colorSpace = getColorSpace(inputFile);
-        //for unusual colorspaces (CMYK): convert to temporary tiff before kduCompress
+        // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
         inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
 
         List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
@@ -125,17 +152,18 @@ public class KakaduService {
     }
 
     /**
-     * Iterate through list of image files and run kdu_compress to convert all tifs to jp2s
-     * @param fileName a list of image files
+     * Iterate through list of image files and run kdu_compress to convert all images to JP2s
+     * @param fileName a list of image files, outputPath destination for converted files,
+     *                 sourceFormat file extension/mimetype override
      */
-    public void fileListKduCompress(String fileName, String outputPath) throws Exception {
+    public void fileListKduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
 
         Iterator<String> itr = listOfFiles.iterator();
         while (itr.hasNext()) {
             String imageFileName = itr.next();
             if (Files.exists(Paths.get(imageFileName))) {
-                kduCompress(imageFileName, outputPath);
+                kduCompress(imageFileName, outputPath, sourceFormat);
             } else {
                 throw new Exception(imageFileName + " does not exist. Not processing file list further.");
             }

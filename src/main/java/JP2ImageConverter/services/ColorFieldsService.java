@@ -1,4 +1,4 @@
-package colorscanner.services;
+package JP2ImageConverter.services;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -65,7 +65,7 @@ public class ColorFieldsService {
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
 
-            //ICC Profile Tag(s): ICCProfileName, ColorSpace
+            // ICC Profile Tag(s): ICCProfileName, ColorSpace
             if (metadata.containsDirectoryOfType(IccDirectory.class)) {
                 IccDirectory iccDirectory = metadata.getFirstDirectoryOfType(IccDirectory.class);
                 if (iccDirectory.containsTag(IccDirectory.TAG_TAG_desc)) {
@@ -76,7 +76,7 @@ public class ColorFieldsService {
                 }
             }
 
-            //File System Tag(s): FileSize
+            // File System Tag(s): FileSize
             if (metadata.containsDirectoryOfType(FileSystemDirectory.class)) {
                 FileSystemDirectory fileSystemDirectory = metadata.getFirstDirectoryOfType(FileSystemDirectory.class);
                 if (fileSystemDirectory.containsTag(FileSystemDirectory.TAG_FILE_SIZE)) {
@@ -87,7 +87,7 @@ public class ColorFieldsService {
                 }
             }
 
-            //EXIF SubIFD Tag(s): DateTimeOriginal, DateTimeDigitized
+            // EXIF SubIFD Tag(s): DateTimeOriginal, DateTimeDigitized
             if (metadata.containsDirectoryOfType(ExifSubIFDDirectory.class)) {
                 ExifSubIFDDirectory exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
                 if (exifSubIFDDirectory.containsTag(ExifInteropDirectory.TAG_DATETIME_ORIGINAL)) {
@@ -98,7 +98,7 @@ public class ColorFieldsService {
                 }
             }
 
-            //EXIF InteropIFD Tag(s): InteropIndex
+            // EXIF InteropIFD Tag(s): InteropIndex
             if (metadata.containsDirectoryOfType(ExifInteropDirectory.class)) {
                 ExifInteropDirectory exifInteropDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
                 if (exifInteropDirectory.containsTag(ExifInteropDirectory.TAG_INTEROP_INDEX)) {
@@ -106,7 +106,7 @@ public class ColorFieldsService {
                 }
             }
 
-            //EXIF IFD0 Tag(s): PhotometricInterpretation
+            // EXIF IFD0 Tag(s): PhotometricInterpretation
             if (metadata.containsDirectoryOfType(ExifIFD0Directory.class)) {
                 ExifIFD0Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
                 if (exifIFD0Directory.containsTag(ExifInteropDirectory.TAG_PHOTOMETRIC_INTERPRETATION)) {
@@ -119,8 +119,8 @@ public class ColorFieldsService {
             System.out.println("Error reading image metadata for file " + fileName);
         }
 
-        //image metadata: ImageFileName, FileSize, FileModifiedDate, DateTimeOriginal, DateTimeDigitized,
-        //ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
+        // image metadata: ImageFileName, FileSize, FileModifiedDate, DateTimeOriginal, DateTimeDigitized,
+        // ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
         Map<String, String> imageMetadata = new LinkedHashMap<>();
         imageMetadata.put(IMAGE_FILE_NAME, fileName);
         imageMetadata.put(FILE_SIZE, fileSize);
@@ -163,12 +163,12 @@ public class ColorFieldsService {
     }
 
     /**
-     * Combine then print exif fields and ImageMagick attributes
+     * Combine then print EXIF fields and ImageMagick attributes
      * @param fileName an image file
-     * @return list with exif and ImageMagick runtimes
+     * @return list with EXIF and ImageMagick runtimes
      */
     public List<Long> listFields(String fileName) throws Exception {
-        //get exif fields and ImageMagick attributes
+        // get EXIF fields and ImageMagick attributes
         Instant exifStart = Instant.now();
         Map<String, String> imageMetadata = colorFields(fileName);
         Instant exifEnd = Instant.now();
@@ -177,17 +177,17 @@ public class ColorFieldsService {
         String attributes = identify(fileName);
         Instant imageMagickEnd = Instant.now();
 
-        //add ImageMagick attributes to map with exif fields
+        // add ImageMagick attributes to map with EXIF fields
         imageMetadata.put(MAGICK_IDENTIFY, attributes);
 
-        //print all image metadata
+        // print all image metadata
         for (Map.Entry<String, String> entry : imageMetadata.entrySet()) {
             System.out.print(entry.getKey() + ":" + entry.getValue() + "\t");
         }
         System.out.println();
 
-        //return list with exif and ImageMagick runtimes
-        //for calculating total exif runtime and total ImageMagick runtime
+        // return list with EXIF and ImageMagick runtimes
+        // for calculating total EXIF runtime and total ImageMagick runtime
         List<Long> runtimes = new ArrayList<>();
         Long exifRuntime = Duration.between(exifStart, exifEnd).toMillis();
         Long imageMagickRuntime = Duration.between(imageMagickStart, imageMagickEnd).toMillis();
@@ -227,7 +227,7 @@ public class ColorFieldsService {
         Long overallRuntime = Duration.between(start, end).toMillis();
         Long runtimePerFile = overallRuntime / filesProcessed;
 
-        //after run completed, print runtime data
+        // after run completed, print runtime data
         System.out.println("Number of Files Processed: " + filesProcessed);
         System.out.println("Total Overall Runtime: " + overallRuntime + " milliseconds");
         System.out.println("Average Runtime per File: " + runtimePerFile + " milliseconds/file");

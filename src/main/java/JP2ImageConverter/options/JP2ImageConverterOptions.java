@@ -1,21 +1,26 @@
-package colorscanner.options;
+package JP2ImageConverter.options;
 
 import picocli.CommandLine.Option;
 
 /**
- * Options for color scanner
+ * Options for JP2ImageConverter
  * @author krwong
  */
-public class ColorScannerOptions {
+public class JP2ImageConverterOptions {
 
     @Option(names = {"-f", "--filename"},
             required = true,
             description = "Required. Filename with list of image files to run commands on.")
     private String fileName;
 
-    @Option(names = {"-o", "--outputPath"},
+    @Option(names = {"-o", "--output-path"},
             description = "Destination for converted images. You must set the output path manually, no default.")
     private String outputPath;
+
+    @Option(names = {"-sf", "--source-fmt"},
+            description = "Override source file type detection. File extensions (jpeg) and mimetypes (\'image/jpeg\') accepted.",
+            defaultValue = "")
+    private String sourceFormat;
 
     public String getFileName() {
         return fileName;
@@ -31,5 +36,13 @@ public class ColorScannerOptions {
 
     public void setOutputPath(String outputPath) {
         this.outputPath = outputPath;
+    }
+
+    public String getSourceFormat() {
+        return sourceFormat;
+    }
+
+    public void setSourceFormat(String sourceFormat) {
+        this.sourceFormat = sourceFormat;
     }
 }
