@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.unc.lib</groupId>
-    <artifactId>jp2-image-converter</artifactId>
+    <artifactId>jp24u</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -60,7 +60,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>JP2ImageConverter</finalName>
+        <finalName>jp24u</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
