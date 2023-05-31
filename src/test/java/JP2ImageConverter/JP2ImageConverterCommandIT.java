@@ -50,7 +50,7 @@ public class JP2ImageConverterCommandIT {
     public void listColorFieldsTest() throws Exception {
         String testFile = "src/test/resources/P0024_0066.tif";
         String[] args = new String[] {
-                "JP2ImageConverter",
+                "jp24u",
                 "list", "-f", testFile
         };
 
@@ -58,10 +58,10 @@ public class JP2ImageConverterCommandIT {
     }
 
     @Test
-    public void listColorFieldsLogEfforWithNonexistentFile() throws Exception {
+    public void listColorFieldsLogErrorWithNonexistentFile() throws Exception {
         String testFile = "src/test/resources/test.tif";
         String[] args = new String[] {
-                "JP2ImageConverter",
+                "jp24u",
                 "list", "-f", testFile
         };
 
@@ -72,7 +72,7 @@ public class JP2ImageConverterCommandIT {
     public void listAllColorFieldsTest() throws Exception {
         String testFile = "src/test/resources/test_input.txt";
         String[] args = new String[] {
-                "JP2ImageConverter",
+                "jp24u",
                 "list_all", "-f", testFile
                 };
 
@@ -84,7 +84,7 @@ public class JP2ImageConverterCommandIT {
         String testFile = "src/test/resources/test_input_fail.txt";
 
         String[] args = new String[] {
-                "JP2ImageConverter",
+                "jp24u",
                 "list_all", "-f", testFile
         };
 
@@ -96,15 +96,14 @@ public class JP2ImageConverterCommandIT {
         String testFile = "src/test/resources/P0024_0103_01.tif";
 
         String[] args = new String[] {
-                "JP2ImageConverter",
+                "jp24u",
                 "kdu_compress", "-f", testFile,
-                "-o", tmpFolder.toString()
+                "-o", tmpFolder.toString() + "/P0024_0103_01"
         };
 
         executeExpectSuccess(args);
     }
 
-    @Disabled
     @Test
     public void kakaduKduCompressFail() throws Exception {
         String testFile = "src/test/resources/test.tif";
@@ -112,37 +111,37 @@ public class JP2ImageConverterCommandIT {
         String[] args = new String[] {
                 "JP2ImageConverter",
                 "kdu_compress", "-f", testFile,
-                "-o", tmpFolder.toString()
+                "-o", tmpFolder.toString() + "/test"
         };
 
         executeExpectFailure(args);
     }
 
-    @Test
-    public void kakaduKduCompressAllTest() throws Exception {
-        String testFile = "src/test/resources/test_input.txt";
-
-        String[] args = new String[] {
-                "JP2ImageConverter",
-                "kdu_compress_all", "-f", testFile,
-                "-o", tmpFolder.toString()
-        };
-
-        executeExpectSuccess(args);
-    }
-
-    @Test
-    public void kakaduKduCompressAllFail() throws Exception {
-        String testFile = "src/test/resources/test_input_fail.txt";
-
-        String[] args = new String[] {
-                "JP2ImageConverter",
-                "kdu_compress_all", "-f", testFile,
-                "-o", tmpFolder.toString()
-        };
-
-        executeExpectFailure(args);
-    }
+//    @Test
+//    public void kakaduKduCompressAllTest() throws Exception {
+//        String testFile = "src/test/resources/test_input.txt";
+//
+//        String[] args = new String[] {
+//                "JP2ImageConverter",
+//                "kdu_compress_all", "-f", testFile,
+//                "-o", tmpFolder.toString()
+//        };
+//
+//        executeExpectSuccess(args);
+//    }
+//
+//    @Test
+//    public void kakaduKduCompressAllFail() throws Exception {
+//        String testFile = "src/test/resources/test_input_fail.txt";
+//
+//        String[] args = new String[] {
+//                "JP2ImageConverter",
+//                "kdu_compress_all", "-f", testFile,
+//                "-o", tmpFolder.toString()
+//        };
+//
+//        executeExpectFailure(args);
+//    }
 
     protected void executeExpectSuccess(String[] args) {
         int result = command.execute(args);

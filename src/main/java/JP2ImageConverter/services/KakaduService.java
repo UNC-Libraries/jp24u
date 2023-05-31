@@ -88,16 +88,19 @@ public class KakaduService {
         String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
         String output = "-o";
         String outputFile;
-        if (Files.exists(Paths.get(outputPath))) {
+
+        String outputDirectory = outputPath.substring(0, outputPath.lastIndexOf("/"));
+        if (!outputPath.isEmpty() && Files.exists(Paths.get(outputDirectory))) {
             //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
             if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
-                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
+                outputFile = outputPath + "_deriv.jp2";
             } else {
-                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
+                outputFile = outputPath + ".jp2";
             }
         } else {
             throw new Exception(outputPath + " does not exist.");
         }
+
         String clevels = "Clevels=6";
         String clayers = "Clayers=6";
         String cprecincts = "Cprecincts={256,256},{256,256},{128,128}";
@@ -151,24 +154,24 @@ public class KakaduService {
         }
     }
 
-    /**
-     * Iterate through list of image files and run kdu_compress to convert all images to JP2s
-     * @param fileName a list of image files, outputPath destination for converted files,
-     *                 sourceFormat file extension/mimetype override
-     */
-    public void fileListKduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
-        List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
-
-        Iterator<String> itr = listOfFiles.iterator();
-        while (itr.hasNext()) {
-            String imageFileName = itr.next();
-            if (Files.exists(Paths.get(imageFileName))) {
-                kduCompress(imageFileName, outputPath, sourceFormat);
-            } else {
-                throw new Exception(imageFileName + " does not exist. Not processing file list further.");
-            }
-        }
-    }
+//    /**
+//     * Iterate through list of image files and run kdu_compress to convert all images to JP2s
+//     * @param fileName a list of image files, outputPath destination for converted files,
+//     *                 sourceFormat file extension/mimetype override
+//     */
+//    public void fileListKduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
+//        List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
+//
+//        Iterator<String> itr = listOfFiles.iterator();
+//        while (itr.hasNext()) {
+//            String imageFileName = itr.next();
+//            if (Files.exists(Paths.get(imageFileName))) {
+//                kduCompress(imageFileName, outputPath, sourceFormat);
+//            } else {
+//                throw new Exception(imageFileName + " does not exist. Not processing file list further.");
+//            }
+//        }
+//    }
 
     public void setColorFieldsService(ColorFieldsService colorFieldsService) {
         this.colorFieldsService = colorFieldsService;

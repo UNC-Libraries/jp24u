@@ -25,5 +25,4 @@ Images with a CMYK color space are first converted to a temporary TIFF file befo
 - `jp24u list -f <filename>`: retrieve image color fields and attributes for an image file
 - `jp24u list_all -f <filename>`: retrieve image color fields and attributes for a list of files
 - `jp24u kdu_compress -f <filename> -o <outputPath>`: run kduCompress on an image file, must set output path
-- `jp24u kdu_compress_all -f <filename> -o <outputPath>`: run kduCompress on a list of image files, must set output path
 - `jp24u -sf <sourceFormat>`: override source file type detection
