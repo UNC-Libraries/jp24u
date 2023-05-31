@@ -180,7 +180,7 @@ public class ImagePreproccessingService {
         } else if (fileNameExtension.matches("jp2")) {
             inputFile = convertJp2(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
-            inputFile = fileName;
+            inputFile = linkToTiff(fileName);
         } else {
             log.info("JP2 conversion for the following file format not supported: {}", fileNameExtension);
             throw new Exception("JP2 conversion for the following file format not supported: " + fileNameExtension);
@@ -210,6 +210,14 @@ public class ImagePreproccessingService {
         }
 
         return inputFile;
+    }
+
+    public String linkToTiff(String fileName) throws IOException {
+        Path target = Paths.get(fileName);
+        Path link = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString() + ".tif");
+        Files.createSymbolicLink(link, target);
+
+        return link.toAbsolutePath().toString();
     }
 
     /**
