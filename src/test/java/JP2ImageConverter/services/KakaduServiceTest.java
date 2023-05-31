@@ -66,7 +66,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, tmpFolder.toString() + "/OP20459_1_TremorsKelleyandtheCowboys",
                 "");
 
-        assertTrue(Files.exists(Paths.get(imagePreproccessingService.TMP_FILES_DIR +
+        assertTrue(Files.exists(Paths.get(imagePreproccessingService.tmpFilesDir +
                 "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
         assertTrue(Files.exists(Paths.get(tmpFolder + "/OP20459_1_TremorsKelleyandtheCowboys.jp2")));
     }
