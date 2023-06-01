@@ -44,6 +44,7 @@ public class KakaduService {
             log.info(fileName + ": color space information not found.");
         }
 
+        // if ColorSpace is BlackIsZero or WhiteIsZero, it is a grayscale image
         if (colorSpace.toLowerCase().matches("blackiszero") ||
                 colorSpace.toLowerCase().matches("whiteiszero")) {
             colorSpace = "Gray";
@@ -85,13 +86,14 @@ public class KakaduService {
 
         String kduCompress = "kdu_compress";
         String input = "-i";
+        // preprocess non-TIFF images and convert them to temporary TIFFs before kdu_compress
         String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
         String output = "-o";
         String outputFile;
 
         String outputDirectory = outputPath.substring(0, outputPath.lastIndexOf("/"));
         if (!outputPath.isEmpty() && Files.exists(Paths.get(outputDirectory))) {
-            //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
+            // add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
             if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
                 outputFile = outputPath + "_deriv.jp2";
             } else {
@@ -148,30 +150,11 @@ public class KakaduService {
             builder.redirectErrorStream(true);
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.info(cmdOutput);
+            log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jp2 file.", e);
         }
     }
-
-//    /**
-//     * Iterate through list of image files and run kdu_compress to convert all images to JP2s
-//     * @param fileName a list of image files, outputPath destination for converted files,
-//     *                 sourceFormat file extension/mimetype override
-//     */
-//    public void fileListKduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
-//        List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
-//
-//        Iterator<String> itr = listOfFiles.iterator();
-//        while (itr.hasNext()) {
-//            String imageFileName = itr.next();
-//            if (Files.exists(Paths.get(imageFileName))) {
-//                kduCompress(imageFileName, outputPath, sourceFormat);
-//            } else {
-//                throw new Exception(imageFileName + " does not exist. Not processing file list further.");
-//            }
-//        }
-//    }
 
     public void setColorFieldsService(ColorFieldsService colorFieldsService) {
         this.colorFieldsService = colorFieldsService;

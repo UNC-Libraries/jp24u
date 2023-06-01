@@ -31,6 +31,7 @@ public class KakaduServiceTest {
 
         colorFieldsService = new ColorFieldsService();
         imagePreproccessingService = new ImagePreproccessingService();
+        imagePreproccessingService.tmpFilesDir = tmpFolder;
         service = new KakaduService();
         service.setColorFieldsService(colorFieldsService);
         service.setImagePreproccessingService(imagePreproccessingService);
@@ -66,8 +67,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, tmpFolder.toString() + "/OP20459_1_TremorsKelleyandtheCowboys",
                 "");
 
-        assertTrue(Files.exists(Paths.get(imagePreproccessingService.tmpFilesDir +
-                "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
+        assertTrue(Files.exists(Paths.get(tmpFolder + "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
         assertTrue(Files.exists(Paths.get(tmpFolder + "/OP20459_1_TremorsKelleyandtheCowboys.jp2")));
     }
 
@@ -169,6 +169,17 @@ public class KakaduServiceTest {
     }
 
     @Test
+    public void testNoSourceFormatWithNoFileExtensionFail() throws Exception {
+        String testFile = "src/test/resources/IMG_2377_nofileext";
+        try {
+            service.kduCompress(testFile, tmpFolder.toString() + "/IMG_2377_nofileext", "");
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("JP2 conversion for the following file format not supported: "));
+        }
+    }
+
+    @Test
     public void testUnrecognizedSourceFormatFail() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
@@ -179,26 +190,4 @@ public class KakaduServiceTest {
             assertTrue(e.getMessage().contains("test file type is not supported."));
         }
     }
-
-//    @Test
-//    public void testListOfFilesKduCompress() throws Exception {
-//        String testFile = "src/test/resources/test_input.txt";
-//        service.fileListKduCompress(testFile, tmpFolder.toString(), "");
-//
-//        assertTrue(Files.exists(Paths.get(tmpFolder + "/E101_F8_0112.jp2")));
-//        assertTrue(Files.exists(Paths.get(tmpFolder + "/P0024_0066.jp2")));
-//    }
-//
-//    @Test
-//    public void testListofFilesWithNonexistentFileKduCompress() throws Exception {
-//        String testFile = "src/test/resources/test_input_fail.txt";
-//
-//        try {
-//            service.fileListKduCompress(testFile, tmpFolder.toString(), "");
-//            fail();
-//        } catch (Exception e) {
-//            assertTrue(e.getMessage().contains("src/test/resources/test.tif does not exist. " +
-//                    "Not processing file list further."));
-//        }
-//    }
 }

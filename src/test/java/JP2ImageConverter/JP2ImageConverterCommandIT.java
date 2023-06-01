@@ -32,7 +32,7 @@ public class JP2ImageConverterCommandIT {
 
     private ColorFieldsService colorFieldsService;
     private KakaduService kakaduService;
-    private ImagePreproccessingService temporaryImageService;
+    private ImagePreproccessingService imagePreproccessingService;
 
     @BeforeEach
     public void setup() throws Exception {
@@ -41,9 +41,9 @@ public class JP2ImageConverterCommandIT {
 
         colorFieldsService = new ColorFieldsService();
         kakaduService = new KakaduService();
-        temporaryImageService = new ImagePreproccessingService();
+        imagePreproccessingService = new ImagePreproccessingService();
         kakaduService.setColorFieldsService(colorFieldsService);
-        kakaduService.setImagePreproccessingService(temporaryImageService);
+        kakaduService.setImagePreproccessingService(imagePreproccessingService);
     }
 
     @Test
@@ -116,32 +116,6 @@ public class JP2ImageConverterCommandIT {
 
         executeExpectFailure(args);
     }
-
-//    @Test
-//    public void kakaduKduCompressAllTest() throws Exception {
-//        String testFile = "src/test/resources/test_input.txt";
-//
-//        String[] args = new String[] {
-//                "JP2ImageConverter",
-//                "kdu_compress_all", "-f", testFile,
-//                "-o", tmpFolder.toString()
-//        };
-//
-//        executeExpectSuccess(args);
-//    }
-//
-//    @Test
-//    public void kakaduKduCompressAllFail() throws Exception {
-//        String testFile = "src/test/resources/test_input_fail.txt";
-//
-//        String[] args = new String[] {
-//                "JP2ImageConverter",
-//                "kdu_compress_all", "-f", testFile,
-//                "-o", tmpFolder.toString()
-//        };
-//
-//        executeExpectFailure(args);
-//    }
 
     protected void executeExpectSuccess(String[] args) {
         int result = command.execute(args);
