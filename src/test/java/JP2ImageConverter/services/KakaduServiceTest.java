@@ -48,7 +48,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressTiff() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
-        service.kduCompress(testFile, tmpFolder.toString() + "/E101_F8_0112", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/E101_F8_0112"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/E101_F8_0112.jp2")));
     }
@@ -56,7 +56,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressGrayscaleTiff() throws Exception {
         String testFile = "src/test/resources/P0024_0103_01.tif";
-        service.kduCompress(testFile, tmpFolder.toString() + "/P0024_0103_01", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/P0024_0103_01"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/P0024_0103_01.jp2")));
     }
@@ -64,7 +64,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressCmykTiff() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        service.kduCompress(testFile, tmpFolder.toString() + "/OP20459_1_TremorsKelleyandtheCowboys",
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/OP20459_1_TremorsKelleyandtheCowboys"),
                 "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
@@ -74,7 +74,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressJpeg() throws Exception {
         String testFile = "src/test/resources/IMG_2377.jpeg";
-        service.kduCompress(testFile, tmpFolder.toString() + "/IMG_2377", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_2377.jp2")));
     }
@@ -82,7 +82,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressPng() throws Exception {
         String testFile = "src/test/resources/schoolphotos1.png";
-        service.kduCompress(testFile, tmpFolder.toString() + "/schoolphotos1", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/schoolphotos1"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/schoolphotos1.jp2")));
     }
@@ -90,7 +90,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressGif() throws Exception {
         String testFile = "src/test/resources/CARTEZOO.GIF";
-        service.kduCompress(testFile, tmpFolder.toString() + "/CARTEZOO", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/CARTEZOO"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/CARTEZOO.jp2")));
     }
@@ -98,7 +98,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressPict() throws Exception {
         String testFile = "src/test/resources/IMG_3444.pct";
-        service.kduCompress(testFile, tmpFolder.toString() + "/IMG_3444", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_3444"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_3444.jp2")));
     }
@@ -106,7 +106,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressBmp() throws Exception {
         String testFile = "src/test/resources/Wagoner_BW.bmp";
-        service.kduCompress(testFile, tmpFolder.toString() + "/Wagoner_BW", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/Wagoner_BW"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/Wagoner_BW.jp2")));
     }
@@ -114,7 +114,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressPsd() throws Exception {
         String testFile = "src/test/resources/17.psd";
-        service.kduCompress(testFile, tmpFolder.toString() + "/17", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/17"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/17.jp2")));
     }
@@ -122,7 +122,7 @@ public class KakaduServiceTest {
     @Test
     public void testKduCompressJp2() throws Exception {
         String testFile = "src/test/resources/17.jp2";
-        service.kduCompress(testFile, tmpFolder.toString() + "/17", "");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/17"), "");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/17_deriv.jp2")));
     }
@@ -132,7 +132,7 @@ public class KakaduServiceTest {
         String testFile = "src/test/resources/test_input.txt";
 
         try {
-            service.kduCompress(testFile, tmpFolder.toString() + "/test_input", "");
+            service.kduCompress(testFile, Paths.get(tmpFolder + "/test_input"), "");
             fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("JP2 conversion for the following file format not supported: txt"));
@@ -144,7 +144,7 @@ public class KakaduServiceTest {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
         try {
-            service.kduCompress(testFile, "folder/E101_F8_0112", "");
+            service.kduCompress(testFile, Paths.get("folder/E101_F8_0112"), "");
             fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("folder/E101_F8_0112 does not exist."));
@@ -155,7 +155,7 @@ public class KakaduServiceTest {
     @Test
     public void testSourceFormatJpegWithTiffExtension() throws Exception {
         String testFile = "src/test/resources/IMG_2377_sfjpeg.tif";
-        service.kduCompress(testFile, tmpFolder.toString() + "/IMG_2377_sfjpeg", "jpeg");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377_sfjpeg"), "jpeg");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_2377_sfjpeg.jp2")));
     }
@@ -163,7 +163,7 @@ public class KakaduServiceTest {
     @Test
     public void testSourceFormatJpegWithNoFileExtension() throws Exception {
         String testFile = "src/test/resources/IMG_2377_nofileext";
-        service.kduCompress(testFile, tmpFolder.toString() + "/IMG_2377_nofileext", "jpeg");
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377_nofileext"), "jpeg");
 
         assertTrue(Files.exists(Paths.get(tmpFolder + "/IMG_2377_nofileext.jp2")));
     }
@@ -172,7 +172,7 @@ public class KakaduServiceTest {
     public void testNoSourceFormatWithNoFileExtensionFail() throws Exception {
         String testFile = "src/test/resources/IMG_2377_nofileext";
         try {
-            service.kduCompress(testFile, tmpFolder.toString() + "/IMG_2377_nofileext", "");
+            service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377_nofileext"), "");
             fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("JP2 conversion for the following file format not supported: "));
@@ -184,10 +184,32 @@ public class KakaduServiceTest {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
         try {
-            service.kduCompress(testFile, tmpFolder.toString() + "/E101_F8_0112", "test");
+            service.kduCompress(testFile, Paths.get(tmpFolder + "/E101_F8_0112"), "test");
             fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("test file type is not supported."));
+        }
+    }
+
+    @Test
+    public void testListOfFilesKduCompress() throws Exception {
+        String testFile = "src/test/resources/test_input.txt";
+        service.fileListKduCompress(testFile, tmpFolder, "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("E101_F8_0112.jp2")));
+        assertTrue(Files.exists(tmpFolder.resolve("P0024_0066.jp2")));
+    }
+
+    @Test
+    public void testListofFilesWithNonexistentFileKduCompress() throws Exception {
+        String testFile = "src/test/resources/test_input_fail.txt";
+
+        try {
+            service.fileListKduCompress(testFile, tmpFolder, "");
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("src/test/resources/test.tif does not exist. " +
+                    "Not processing file list further."));
         }
     }
 }

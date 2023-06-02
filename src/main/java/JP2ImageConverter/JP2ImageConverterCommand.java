@@ -67,4 +67,20 @@ public class JP2ImageConverterCommand {
             return 1;
         }
     }
+
+    @Command(name = "kdu_compress_all",
+            description = "Run kakadu kdu_compress on a list of image files.")
+    public int kduCompressAll(@Mixin JP2ImageConverterOptions options) throws Exception {
+        try {
+            kakaduService.setColorFieldsService(colorFieldsService);
+            kakaduService.setImagePreproccessingService(imagePreproccessingService);
+            kakaduService.fileListKduCompress(options.getFileName(), options.getOutputPath(), options.getSourceFormat());
+            imagePreproccessingService.deleteTmpImageFilesDir();
+            return 0;
+        } catch (Exception e) {
+            outputLogger.info("FAIL: {}", e.getMessage());
+            log.error("Failed to generate jp2 file. Not processing file list further.", e);
+            return 1;
+        }
+    }
 }

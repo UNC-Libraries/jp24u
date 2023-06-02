@@ -2,6 +2,8 @@ package JP2ImageConverter.options;
 
 import picocli.CommandLine.Option;
 
+import java.nio.file.Path;
+
 /**
  * Options for JP2ImageConverter
  * @author krwong
@@ -15,7 +17,7 @@ public class JP2ImageConverterOptions {
 
     @Option(names = {"-o", "--output-path"},
             description = "Destination for converted images. You must set the output path manually, no default.")
-    private String outputPath;
+    private Path outputPath;
 
     @Option(names = {"-sf", "--source-fmt"},
             description = "Override source file type detection. File extensions (jpeg) and mimetypes (\'image/jpeg\') accepted.",
@@ -30,11 +32,11 @@ public class JP2ImageConverterOptions {
         this.fileName = fileName;
     }
 
-    public String getOutputPath() {
+    public Path getOutputPath() {
         return outputPath;
     }
 
-    public void setOutputPath(String outputPath) {
+    public void setOutputPath(Path outputPath) {
         this.outputPath = outputPath;
     }
 

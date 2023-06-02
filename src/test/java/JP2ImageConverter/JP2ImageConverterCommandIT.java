@@ -4,7 +4,6 @@ import JP2ImageConverter.services.ColorFieldsService;
 import JP2ImageConverter.services.KakaduService;
 import JP2ImageConverter.services.ImagePreproccessingService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
@@ -42,6 +41,7 @@ public class JP2ImageConverterCommandIT {
         colorFieldsService = new ColorFieldsService();
         kakaduService = new KakaduService();
         imagePreproccessingService = new ImagePreproccessingService();
+        imagePreproccessingService.tmpFilesDir = tmpFolder;
         kakaduService.setColorFieldsService(colorFieldsService);
         kakaduService.setImagePreproccessingService(imagePreproccessingService);
     }
@@ -109,9 +109,49 @@ public class JP2ImageConverterCommandIT {
         String testFile = "src/test/resources/test.tif";
 
         String[] args = new String[] {
-                "JP2ImageConverter",
+                "jp24u",
                 "kdu_compress", "-f", testFile,
                 "-o", tmpFolder.toString() + "/test"
+        };
+
+        executeExpectFailure(args);
+    }
+
+    @Test
+    public void kakaduKduCompressWithSourceFormatTest() throws Exception {
+        String testFile = "src/test/resources/P0024_0103_01.tif";
+
+        String[] args = new String[] {
+                "jp24u",
+                "kdu_compress", "-f", testFile,
+                "-o", tmpFolder.toString() + "/P0024_0103_01",
+                "-sf", "image/tiff"
+        };
+
+        executeExpectSuccess(args);
+    }
+
+    @Test
+    public void kakaduKduCompressAllTest() throws Exception {
+        String testFile = "src/test/resources/test_input_2.txt";
+
+        String[] args = new String[] {
+                "jp24u",
+                "kdu_compress_all", "-f", testFile,
+                "-o", tmpFolder.toString()
+        };
+
+        executeExpectSuccess(args);
+    }
+
+    @Test
+    public void kakaduKduCompressAllFail() throws Exception {
+        String testFile = "src/test/resources/test_input_fail.txt";
+
+        String[] args = new String[]{
+                "jp24u",
+                "kdu_compress_all", "-f", testFile,
+                "-o", tmpFolder.toString()
         };
 
         executeExpectFailure(args);

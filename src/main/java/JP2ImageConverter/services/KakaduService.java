@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +59,7 @@ public class KakaduService {
      * @param fileName an image file, outputPath destination for converted files,
      *                 sourceFormat file extension/mimetype override
      */
-    public void kduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
+    public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
         // override source file type detection with user-inputted image file type
         // accepted file types are listed in sourceFormats below
         Map<String, String> sourceFormats = new HashMap<>();
@@ -91,8 +92,16 @@ public class KakaduService {
         String output = "-o";
         String outputFile;
 
-        String outputDirectory = outputPath.substring(0, outputPath.lastIndexOf("/"));
-        if (!outputPath.isEmpty() && Files.exists(Paths.get(outputDirectory))) {
+        // if the output path is a directory
+        if (Files.exists(outputPath)) {
+            //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
+            if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
+                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
+            } else {
+                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
+            }
+        // if the output path is a file
+        } else if (Files.exists(outputPath.getParent())) {
             // add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
             if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
                 outputFile = outputPath + "_deriv.jp2";
@@ -153,6 +162,25 @@ public class KakaduService {
             log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jp2 file.", e);
+        }
+    }
+
+    /**
+     * Iterate through list of image files and run kdu_compress to convert all images to JP2s
+     * @param fileName a list of image files, outputPath destination for converted files,
+     *        sourceFormat file extension/mimetype override
+     */
+    public void fileListKduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
+        List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
+
+        Iterator<String> itr = listOfFiles.iterator();
+        while (itr.hasNext()) {
+            String imageFileName = itr.next();
+            if (Files.exists(Paths.get(imageFileName))) {
+                kduCompress(imageFileName, outputPath, sourceFormat);
+            } else {
+                throw new Exception(imageFileName + " does not exist. Not processing file list further.");
+            }
         }
     }
 

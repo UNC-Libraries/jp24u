@@ -212,6 +212,11 @@ public class ImagePreproccessingService {
         return inputFile;
     }
 
+    /**
+     * Create symbolic link for TIFF
+     * @param fileName an image file
+     * @return link a path to a TIFF image file
+     */
     public String linkToTiff(String fileName) throws IOException {
         Path target = Paths.get(fileName).toAbsolutePath();
         Path link = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString() + ".tif");
