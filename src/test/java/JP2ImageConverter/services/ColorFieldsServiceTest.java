@@ -23,6 +23,7 @@ public class ColorFieldsServiceTest {
         service = new ColorFieldsService();
     }
 
+    // if all the tests stop passing, you probably just need to update the FILE_MODIFIED_DATE and FileModifiedDate
     @Test
     public void testColorFields() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
@@ -30,7 +31,7 @@ public class ColorFieldsServiceTest {
         Map<String, String> testFields = new LinkedHashMap<>();
         testFields.put(ColorFieldsService.IMAGE_FILE_NAME, "src/test/resources/E101_F8_0112.tif");
         testFields.put(ColorFieldsService.FILE_SIZE, "57001526 bytes");
-        testFields.put(ColorFieldsService.FILE_MODIFIED_DATE, "Wed Oct 12 12:31:30 -04:00 2022");
+        testFields.put(ColorFieldsService.FILE_MODIFIED_DATE, "Thu May 18 17:00:05 -04:00 2023");
         testFields.put(ColorFieldsService.DATE_TIME_ORIGINAL, "2021:08:30 19:56:48");
         testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2021:08:30 19:56:48");
         testFields.put(ColorFieldsService.ICC_PROFILE_NAME, "Adobe RGB (1998)");
@@ -50,7 +51,7 @@ public class ColorFieldsServiceTest {
         Map<String,String> testFields = new LinkedHashMap<>();
         testFields.put(ColorFieldsService.IMAGE_FILE_NAME, testFile);
         testFields.put(ColorFieldsService.FILE_SIZE, "40736840 bytes");
-        testFields.put(ColorFieldsService.FILE_MODIFIED_DATE, "Wed Oct 12 12:31:30 -04:00 2022");
+        testFields.put(ColorFieldsService.FILE_MODIFIED_DATE, "Thu May 18 17:00:05 -04:00 2023");
         testFields.put(ColorFieldsService.DATE_TIME_ORIGINAL, null);
         testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2013:06:25 14:51:58");
         testFields.put(ColorFieldsService.ICC_PROFILE_NAME, null);
@@ -78,7 +79,7 @@ public class ColorFieldsServiceTest {
 
         service.listFields(testFile);
         String testOutput = "ImageFileName:src/test/resources/P0024_0066.tif\tFileSize:40736840 bytes\t" +
-                "FileModifiedDate:Wed Oct 12 12:31:30 -04:00 2022\tDateTimeOriginal:null\t" +
+                "FileModifiedDate:Thu May 18 17:00:05 -04:00 2023\tDateTimeOriginal:null\t" +
                 "DateTimeDigitized:2013:06:25 14:51:58\tICCProfileName:null\tColorSpace:null\t" +
                 "InteropIndex:null\tPhotometricInterpretation:BlackIsZero\tMagickIdentify:\"Dimensions: 5300x3841;" +
                 "Channels: gray;Bit-depth: 16;Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;" +
@@ -92,7 +93,7 @@ public class ColorFieldsServiceTest {
 
         service.fileListAllFields(testFile);
         assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/E101_F8_0112.tif\t" +
-                "FileSize:57001526 bytes\tFileModifiedDate:Wed Oct 12 12:31:30 -04:00 2022\t" +
+                "FileSize:57001526 bytes\tFileModifiedDate:Thu May 18 17:00:05 -04:00 2023\t" +
                 "DateTimeOriginal:2021:08:30 19:56:48\tDateTimeDigitized:2021:08:30 19:56:48\t" +
                 "ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB\tInteropIndex:Unknown (R03)\t" +
                 "PhotometricInterpretation:RGB\tMagickIdentify:\"Dimensions: 2600x3650;Channels: srgb;" +
@@ -100,7 +101,7 @@ public class ColorFieldsServiceTest {
                 "ICC Profile: Adobe RGB (1998);ICM Profile: ;Dimensions: 114x160;Channels: srgb;Bit-depth: 8;" +
                 "Alpha channel: False;Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"\t\n"));
         assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/P0024_0066.tif\t" +
-                "FileSize:40736840 bytes\tFileModifiedDate:Wed Oct 12 12:31:30 -04:00 2022\t" +
+                "FileSize:40736840 bytes\tFileModifiedDate:Thu May 18 17:00:05 -04:00 2023\t" +
                 "DateTimeOriginal:null\tDateTimeDigitized:2013:06:25 14:51:58\t" +
                 "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
                 "MagickIdentify:\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
@@ -118,7 +119,7 @@ public class ColorFieldsServiceTest {
 
         service.fileListAllFields(testFile);
         assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/E101_F8_0112.tif\t" +
-                "FileSize:57001526 bytes\tFileModifiedDate:Wed Oct 12 12:31:30 -04:00 2022\t" +
+                "FileSize:57001526 bytes\tFileModifiedDate:Thu May 18 17:00:05 -04:00 2023\t" +
                 "DateTimeOriginal:2021:08:30 19:56:48\tDateTimeDigitized:2021:08:30 19:56:48\t" +
                 "ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB\tInteropIndex:Unknown (R03)\t" +
                 "PhotometricInterpretation:RGB\tMagickIdentify:\"Dimensions: 2600x3650;Channels: srgb;" +
@@ -127,7 +128,7 @@ public class ColorFieldsServiceTest {
                 "Alpha channel: False;Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"\t\n"));
         assertTrue(outputStreamCaptor.toString().contains("src/test/resources/test.tif does not exist."));
         assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/P0024_0066.tif\t" +
-                "FileSize:40736840 bytes\tFileModifiedDate:Wed Oct 12 12:31:30 -04:00 2022\t" +
+                "FileSize:40736840 bytes\tFileModifiedDate:Thu May 18 17:00:05 -04:00 2023\t" +
                 "DateTimeOriginal:null\tDateTimeDigitized:2013:06:25 14:51:58\t" +
                 "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
                 "MagickIdentify:\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +

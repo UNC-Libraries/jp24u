@@ -1,0 +1,2 @@
+src/test/resources/P0024_0103_01.tif
+src/test/resources/schoolphotos1.png

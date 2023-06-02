@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +45,7 @@ public class KakaduService {
             log.info(fileName + ": color space information not found.");
         }
 
+        // if ColorSpace is BlackIsZero or WhiteIsZero, it is a grayscale image
         if (colorSpace.toLowerCase().matches("blackiszero") ||
                 colorSpace.toLowerCase().matches("whiteiszero")) {
             colorSpace = "Gray";
@@ -57,7 +59,7 @@ public class KakaduService {
      * @param fileName an image file, outputPath destination for converted files,
      *                 sourceFormat file extension/mimetype override
      */
-    public void kduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
+    public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
         // override source file type detection with user-inputted image file type
         // accepted file types are listed in sourceFormats below
         Map<String, String> sourceFormats = new HashMap<>();
@@ -85,19 +87,31 @@ public class KakaduService {
 
         String kduCompress = "kdu_compress";
         String input = "-i";
+        // preprocess non-TIFF images and convert them to temporary TIFFs before kdu_compress
         String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
         String output = "-o";
         String outputFile;
-        if (Files.exists(Paths.get(outputPath))) {
+
+        // if the output path is a directory
+        if (Files.isDirectory(outputPath)) {
             //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
             if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
                 outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
             } else {
                 outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
             }
+        // if the output path is a file
+        } else if (Files.exists(outputPath.getParent())) {
+            // add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
+            if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
+                outputFile = outputPath + "_deriv.jp2";
+            } else {
+                outputFile = outputPath + ".jp2";
+            }
         } else {
             throw new Exception(outputPath + " does not exist.");
         }
+
         String clevels = "Clevels=6";
         String clayers = "Clayers=6";
         String cprecincts = "Cprecincts={256,256},{256,256},{128,128}";
@@ -145,7 +159,7 @@ public class KakaduService {
             builder.redirectErrorStream(true);
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.info(cmdOutput);
+            log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jp2 file.", e);
         }
@@ -154,9 +168,9 @@ public class KakaduService {
     /**
      * Iterate through list of image files and run kdu_compress to convert all images to JP2s
      * @param fileName a list of image files, outputPath destination for converted files,
-     *                 sourceFormat file extension/mimetype override
+     *        sourceFormat file extension/mimetype override
      */
-    public void fileListKduCompress(String fileName, String outputPath, String sourceFormat) throws Exception {
+    public void fileListKduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);
 
         Iterator<String> itr = listOfFiles.iterator();

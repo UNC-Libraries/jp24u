@@ -24,8 +24,16 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ImagePreproccessingService {
     private static final Logger log = getLogger(ImagePreproccessingService.class);
 
-    public static final Path TMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
-    public static final Path TMP_FILES_DIR = TMP_DIR.resolve("JP2ImageConverter");
+    public Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
+    public Path tmpFilesDir = tmpDir.resolve("JP2ImageConverter");
+
+    public ImagePreproccessingService() {
+        try {
+            initializeTempImageFilesDir();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * For images with CMYK color space
@@ -37,15 +45,13 @@ public class ImagePreproccessingService {
     //It seems like only using color space creates a more color accurate temporary image.
     //Using color space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
     public String convertCmykColorSpace(String fileName) throws Exception {
-        initializeTempImageFilesDir();
-
         String gm = "gm";
         String convert = "convert";
         String colorSpace = "-colorspace";
         String colorSpaceOptions = "rgb";
         String profile = "+profile";
         String profileOptions = "\"*\"";
-        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
                 + ".tif").toAbsolutePath().toString();
 
         List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
@@ -56,7 +62,7 @@ public class ImagePreproccessingService {
             builder.redirectErrorStream(true);
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.info(cmdOutput);
+            log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate temporary TIFF file.", e);
         }
@@ -73,11 +79,9 @@ public class ImagePreproccessingService {
     // formats accepted by kakadu: TIFF (including BigTIFF), RAW (big-endian), RAWL (little-endian), BMP (they lied), PBM, PGM and PPM
     // formats accepted by metadata-extractor: JPEG, TIFF, WebP, WAV, AVI, PSD, PNG, BMP, GIF, ICO, PCX, QuickTime, MP4, Camera Raw
     public String convertImageFormats(String fileName) throws Exception {
-        initializeTempImageFilesDir();
-
         String gm = "gm";
         String convert = "convert";
-        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
                 + ".tif").toAbsolutePath().toString();
 
         List<String> command = Arrays.asList(gm, convert, fileName, temporaryFile);
@@ -87,7 +91,7 @@ public class ImagePreproccessingService {
             builder.redirectErrorStream(true);
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.info(cmdOutput);
+            log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
@@ -102,8 +106,6 @@ public class ImagePreproccessingService {
      * @return temporaryFile a temporary TIFF file
      */
     public String convertPsd(String fileName) throws Exception {
-        initializeTempImageFilesDir();
-
         String convert = "convert";
         String importFile = fileName + "[0]";
         // if converting the [0] flattened layer doesn't work, try removing the [0] and adding -flatten to the command
@@ -111,7 +113,7 @@ public class ImagePreproccessingService {
         // String flatten = "-flatten";
         String colorspace = "-colorspace";
         String colorspaceOptions = "sRGB";
-        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
                 + ".tif").toAbsolutePath().toString();
 
         List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
@@ -121,7 +123,7 @@ public class ImagePreproccessingService {
             builder.redirectErrorStream(true);
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.info(cmdOutput);
+            log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
@@ -136,11 +138,9 @@ public class ImagePreproccessingService {
      * @return temporaryFile a temporary TIFF file
      */
     public String convertJp2(String fileName) throws Exception {
-        initializeTempImageFilesDir();
-
         String convert = "convert";
         String importFile = fileName;
-        String temporaryFile = TMP_FILES_DIR.resolve(Paths.get(fileName).getFileName().toString()
+        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
                 + ".tif").toAbsolutePath().toString();
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
@@ -150,7 +150,7 @@ public class ImagePreproccessingService {
             builder.redirectErrorStream(true);
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.info(cmdOutput);
+            log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
@@ -180,7 +180,7 @@ public class ImagePreproccessingService {
         } else if (fileNameExtension.matches("jp2")) {
             inputFile = convertJp2(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
-            inputFile = fileName;
+            inputFile = linkToTiff(fileName);
         } else {
             log.info("JP2 conversion for the following file format not supported: {}", fileNameExtension);
             throw new Exception("JP2 conversion for the following file format not supported: " + fileNameExtension);
@@ -213,11 +213,24 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Create symbolic link for TIFF
+     * @param fileName an image file
+     * @return link a path to a TIFF image file
+     */
+    public String linkToTiff(String fileName) throws IOException {
+        Path target = Paths.get(fileName).toAbsolutePath();
+        Path link = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString() + ".tif");
+        Files.createSymbolicLink(link, target);
+
+        return link.toAbsolutePath().toString();
+    }
+
+    /**
      * Create tmp image files directory for temporary files
      * @return tmpImageFilesDirectoryPath
      */
     public Path initializeTempImageFilesDir() throws IOException {
-        Path path = TMP_FILES_DIR;
+        Path path = tmpFilesDir;
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }
@@ -228,7 +241,7 @@ public class ImagePreproccessingService {
      * Delete tmp image files directory
      */
     public void deleteTmpImageFilesDir() throws Exception {
-        File tmpDir = new File(TMP_FILES_DIR.toString());
+        File tmpDir = new File(tmpFilesDir.toString());
         FileUtils.deleteDirectory(tmpDir);
         tmpDir.delete();
     }

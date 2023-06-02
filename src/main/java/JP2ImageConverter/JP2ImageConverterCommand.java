@@ -83,5 +83,4 @@ public class JP2ImageConverterCommand {
             return 1;
         }
     }
-
 }
