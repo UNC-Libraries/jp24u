@@ -93,7 +93,7 @@ public class KakaduService {
         String outputFile;
 
         // if the output path is a directory
-        if (Files.exists(outputPath)) {
+        if (Files.isDirectory(outputPath)) {
             //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
             if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
                 outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
