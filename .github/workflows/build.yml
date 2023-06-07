@@ -21,11 +21,8 @@ jobs:
         with:
           java-version: 11
 
-      - run: sudo apt install graphicsmagick
-      - run: wget https://jack.lib.unc.edu/packages/rhel7/repoview/kakadu.html/kakadu-8.3.0.02066L-4.el7_9.unc.x86_64.rpm
-      - run: sudo apt install alien
-      - run: sudo alien package.rpm
-      - run: sudo apt install ./kakadu-8.3.0.02066L-4.el7_9.unc.x86_64.deb
+      - name: Install GraphicsMagick and Kakadu
+        run: sudo apt install graphicsmagick
 
       - name: Cache Maven packages
         uses: actions/cache@v2
