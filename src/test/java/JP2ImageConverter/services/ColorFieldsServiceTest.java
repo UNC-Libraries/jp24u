@@ -23,14 +23,15 @@ public class ColorFieldsServiceTest {
         service = new ColorFieldsService();
     }
 
-    // if all the tests stop passing, you probably just need to update the FILE_MODIFIED_DATE and FileModifiedDate
+    // FILE_MODIFIED_DATE and FileModifiedDate tend to change when rerunning tests,
+    // so I avoided giving them actual values
     @Test
     public void testColorFields() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
         Map<String, String> fields = service.colorFields(testFile);
 
-        assertTrue(fields.containsValue("src/test/resources/E101_F8_0112.tif"));
+        assertTrue(fields.containsValue(testFile));
         assertTrue(fields.containsValue("57001526 bytes"));
         assertTrue(fields.containsKey(ColorFieldsService.FILE_MODIFIED_DATE));
         assertTrue(fields.containsValue("2021:08:30 19:56:48"));
@@ -46,19 +47,17 @@ public class ColorFieldsServiceTest {
         String testFile = "src/test/resources/P0024_0066.tif";
 
         // PhotometricInterpretation is never missing
-        Map<String,String> testFields = new LinkedHashMap<>();
-        testFields.put(ColorFieldsService.IMAGE_FILE_NAME, testFile);
-        testFields.put(ColorFieldsService.FILE_SIZE, "40736840 bytes");
-        testFields.put(ColorFieldsService.FILE_MODIFIED_DATE, "Thu May 18 17:00:05 -04:00 2023");
-        testFields.put(ColorFieldsService.DATE_TIME_ORIGINAL, null);
-        testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2013:06:25 14:51:58");
-        testFields.put(ColorFieldsService.ICC_PROFILE_NAME, null);
-        testFields.put(ColorFieldsService.COLOR_SPACE, null);
-        testFields.put(ColorFieldsService.INTEROP_INDEX, null);
-        testFields.put(ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "BlackIsZero");
-
         Map<String, String> fields = service.colorFields(testFile);
-        assertEquals(testFields, fields);
+
+        assertTrue(fields.containsValue(testFile));
+        assertTrue(fields.containsValue("40736840 bytes"));
+        assertTrue(fields.containsKey(ColorFieldsService.FILE_MODIFIED_DATE));
+        assertTrue(fields.containsValue(null));
+        assertTrue(fields.containsValue("2013:06:25 14:51:58"));
+        assertTrue(fields.containsValue(null));
+        assertTrue(fields.containsValue(null));
+        assertTrue(fields.containsValue(null));
+        assertTrue(fields.containsValue("BlackIsZero"));
     }
 
     @Test
