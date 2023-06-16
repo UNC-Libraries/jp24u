@@ -18,7 +18,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Service for Kakadu kduCompress
- * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP
+ * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2
  * @author krwong
  */
 public class KakaduService {
@@ -78,6 +78,10 @@ public class KakaduService {
         sourceFormats.put("pic", "pct");
         sourceFormats.put("bmp", "bmp");
         sourceFormats.put("image/bmp", "bmp");
+        sourceFormats.put("psd", "psd");
+        sourceFormats.put("image/psd", "psd");
+        sourceFormats.put("jp2", "jp2");
+        sourceFormats.put("image/jp2", "jp2");
 
         if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
             sourceFormat = sourceFormats.get(sourceFormat);
@@ -132,7 +136,17 @@ public class KakaduService {
         String noPalette;
 
         // get color space from colorFields
-        String colorSpace = getColorSpace(inputFile);
+        // Kakadu, ImageMagick, GraphicsMagick, and metadata-extractor all accept different image formats, with some overlap
+        // Kakadu doesn't accept JPEGs or JPEGs preprocessed to TIFFs, but it does accept JPEGs converted to PPMs
+        // metadata-extractor accepts JPEGs and TIFFs but not PPMs
+        // So if jp24u is given a JPEG, it will use the original file (fileName) to determine the colorspace
+        String colorSpace;
+        if (sourceFormat.contains("jpeg") || FilenameUtils.getExtension(fileName).contains("jpeg")) {
+            colorSpace = getColorSpace(fileName);
+        } else {
+            colorSpace = getColorSpace(inputFile);
+        }
+
         // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
         inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
 

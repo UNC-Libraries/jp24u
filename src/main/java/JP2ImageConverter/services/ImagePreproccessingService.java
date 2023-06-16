@@ -72,7 +72,7 @@ public class ImagePreproccessingService {
 
     /**
      * Run GraphicsMagick convert and convert other image formats to TIFF
-     * Other image formats: JPEG, PNG, GIF, PICT, BMP
+     * Other image formats: PNG, GIF, PICT, BMP
      * @param fileName an image file
      * @return temporaryFile the path to a temporary TIFF file
      */
@@ -159,6 +159,33 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Run ImageMagick convert and convert JPEG images to PPM
+     * Converting JPEGs to temporary TIFFs results in Kakadu errors and 0 byte JP2s
+     * @param fileName an image file
+     * @return temporaryFile a temporary PPM file
+     */
+    public String convertJpeg(String fileName) throws Exception {
+        String convert = "convert";
+        String importFile = fileName;
+        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
+                + ".ppm").toAbsolutePath().toString();
+
+        List<String> command = Arrays.asList(convert, importFile, temporaryFile);
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            String cmdOutput = new String(process.getInputStream().readAllBytes());
+            log.info(cmdOutput);
+        } catch (Exception e) {
+            throw new Exception(fileName + " failed to generate PPM file.", e);
+        }
+
+        return temporaryFile;
+    }
+
+    /**
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD
@@ -168,7 +195,7 @@ public class ImagePreproccessingService {
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
         String inputFile;
         String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-        Set<String> imageFormats = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "gif", "pict", "pct", "pic", "bmp"));
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp"));
         if (!sourceFormat.isEmpty()) {
             fileNameExtension = sourceFormat;
         }
@@ -179,6 +206,8 @@ public class ImagePreproccessingService {
             inputFile = convertPsd(fileName);
         } else if (fileNameExtension.matches("jp2")) {
             inputFile = convertJp2(fileName);
+        } else if (fileNameExtension.matches("jpeg") || fileNameExtension.matches("jpg")){
+            inputFile = convertJpeg(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
             inputFile = linkToTiff(fileName);
         } else {
