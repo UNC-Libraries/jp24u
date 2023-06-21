@@ -41,7 +41,6 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return temporaryFile a temporary TIFF file
      */
-    //TODO: we will need to test different CMYK conversion options
     //It seems like only using color space creates a more color accurate temporary image.
     //Using color space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
     public String convertCmykColorSpace(String fileName) throws Exception {
@@ -177,7 +176,7 @@ public class ImagePreproccessingService {
             builder.redirectErrorStream(true);
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.info(cmdOutput);
+            log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate PPM file.", e);
         }
@@ -187,10 +186,10 @@ public class ImagePreproccessingService {
 
     /**
      * Determine image format and preprocess if needed
-     * for non-TIFF image formats: convert to temporary TIFF before kdu_compress
+     * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD
      * @param fileName an image file, sourceFormat file extension/mimetype override
-     * @return inputFile a path to a TIFF image file
+     * @return inputFile a path to a TIFF/PPM image file
      */
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
         String inputFile;
