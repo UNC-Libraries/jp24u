@@ -166,7 +166,6 @@ public class ImagePreprocessingServiceTest {
 
         assertTrue(Files.exists(Paths.get(tempTif)));
         assertTrue(outputStreamCaptor.toString().contains(tifExifData));
-
     }
 
     @Test

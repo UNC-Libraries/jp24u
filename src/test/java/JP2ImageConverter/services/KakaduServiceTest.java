@@ -41,7 +41,7 @@ public class KakaduServiceTest {
     public void testRetrieveColorSpace() throws Exception {
         // EXIF ColorSpace is null, EXIF PhotometricInterpretation is gray
         String testFile = "src/test/resources/P0024_0066.tif";
-        String colorSpace = service.getColorSpace(testFile, testFile);
+        String colorSpace = service.getColorSpace(testFile, testFile, "tiff");
         assertEquals("Gray", colorSpace);
     }
 

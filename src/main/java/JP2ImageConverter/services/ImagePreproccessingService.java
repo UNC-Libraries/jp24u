@@ -205,9 +205,9 @@ public class ImagePreproccessingService {
             inputFile = convertPsd(fileName);
         } else if (fileNameExtension.matches("jp2")) {
             inputFile = convertJp2(fileName);
-        } else if (fileNameExtension.matches("jpeg") || fileNameExtension.matches("jpg")){
+        } else if (fileNameExtension.matches("jpeg")){
             inputFile = convertJpeg(fileName);
-        } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
+        } else if (fileNameExtension.matches("tiff")){
             inputFile = linkToTiff(fileName);
         } else {
             log.info("JP2 conversion for the following file format not supported: {}", fileNameExtension);
