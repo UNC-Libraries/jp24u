@@ -221,14 +221,4 @@ public class ImagePreprocessingServiceTest {
         String result = service.linkToTiff(testFile);
         assertEquals(testLink, result);
     }
-
-    @Test
-    public void testTmpImageFileDirDeleted() throws Exception {
-        String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        service.convertCmykColorSpace(testFile);
-        service.deleteTmpImageFilesDir();
-
-        assertFalse(Files.exists(service.tmpFilesDir));
-    }
-
 }

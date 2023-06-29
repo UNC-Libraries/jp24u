@@ -264,13 +264,4 @@ public class ImagePreproccessingService {
         }
         return path;
     }
-
-    /**
-     * Delete tmp image files directory
-     */
-    public void deleteTmpImageFilesDir() throws Exception {
-        File tmpDir = new File(tmpFilesDir.toString());
-        FileUtils.deleteDirectory(tmpDir);
-        tmpDir.delete();
-    }
 }

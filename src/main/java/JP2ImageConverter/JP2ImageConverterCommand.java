@@ -59,7 +59,6 @@ public class JP2ImageConverterCommand {
             kakaduService.setColorFieldsService(colorFieldsService);
             kakaduService.setImagePreproccessingService(imagePreproccessingService);
             kakaduService.kduCompress(options.getFileName(), options.getOutputPath(), options.getSourceFormat());
-            imagePreproccessingService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
             outputLogger.info("{}", e.getMessage());
@@ -75,7 +74,6 @@ public class JP2ImageConverterCommand {
             kakaduService.setColorFieldsService(colorFieldsService);
             kakaduService.setImagePreproccessingService(imagePreproccessingService);
             kakaduService.fileListKduCompress(options.getFileName(), options.getOutputPath(), options.getSourceFormat());
-            imagePreproccessingService.deleteTmpImageFilesDir();
             return 0;
         } catch (Exception e) {
             outputLogger.info("FAIL: {}", e.getMessage());
