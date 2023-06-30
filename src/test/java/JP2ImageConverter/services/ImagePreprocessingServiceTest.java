@@ -60,16 +60,10 @@ public class ImagePreprocessingServiceTest {
     public void testConvertJpegtoPpm() throws Exception {
         String testFile = "src/test/resources/IMG_2377.jpeg";
         String tempPpm = service.tmpFilesDir + "/IMG_2377.jpeg.ppm";
-//        String ppmExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:Display P3\t" +
-//                "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:null\t" +
-//                "MagickIdentify:\"Dimensions: 4032x3024;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
-//                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"";
 
         service.convertJpeg(testFile);
-        //colorFieldsService.listFields(tempPpm);
 
         assertTrue(Files.exists(Paths.get(tempPpm)));
-        //assertTrue(outputStreamCaptor.toString().contains(ppmExifData));
     }
 
     @Test

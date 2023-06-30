@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,32 +35,17 @@ public class KakaduService {
      * @return colorSpace
      */
     public String getColorSpace(String preprocessedImage, String originalImage, String sourceFormat) throws Exception {
-        // we will check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information
-        // if the preprocessed image does not have a color space, check the original image for color space information
-        // if no color space is found with metadata-extractor, set color space to sRGB
         String colorSpace;
-        Map<String,String> imageMetadata = new HashMap<>();
-        Map<String,String> originalImageMetadata = new HashMap<>();
-        String preprocessedImageExtension = FilenameUtils.getExtension(preprocessedImage).toLowerCase();
-        String originalImageExtension = FilenameUtils.getExtension(originalImage).toLowerCase();
-        if (!sourceFormat.isEmpty()) {
-            originalImageExtension = sourceFormat;
-        }
+        var preprocessedImageMetadata = extractMetadata(preprocessedImage, "");
+        var originalImageMetadata = extractMetadata(originalImage, sourceFormat);
 
-        // metadata-extractor doesn't support some formats: JP2, PICT, PPM
-        if (originalImageExtension.matches("jp2") || originalImageExtension.matches("pct")) {
-            imageMetadata = colorFieldsService.colorFields(preprocessedImage);
-        } else if (preprocessedImageExtension.matches("ppm")) {
-            originalImageMetadata = colorFieldsService.colorFields(originalImage);
-        } else {
-            imageMetadata = colorFieldsService.colorFields(preprocessedImage);
-            originalImageMetadata = colorFieldsService.colorFields(originalImage);
-        }
-
-        if (imageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
-            colorSpace = imageMetadata.get(ColorFieldsService.COLOR_SPACE);
-        } else if (imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
-            colorSpace = imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
+        // Check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information.
+        // If the preprocessed image does not have a color space, check the original image for color space information.
+        // If no color space is found with metadata-extractor, set color space to sRGB.
+        if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
+            colorSpace = preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE);
+        } else if (preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
+            colorSpace = preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else if (originalImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = originalImageMetadata.get(ColorFieldsService.COLOR_SPACE);
         } else if (originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
@@ -75,6 +61,20 @@ public class KakaduService {
         }
 
         return colorSpace;
+    }
+
+    /**
+     * Extract metadata from files of formats supported by metadata-extractor.
+     * Return an empty collection for unsupported types (JP2, PICT, PPM)
+     * @param fileName an image file, sourceFormat file extension/mimetype override
+     * @return imageMetadata
+     */
+    private Map<String, String> extractMetadata(String fileName, String sourceFormat) throws Exception {
+        String extension = sourceFormat.isEmpty() ? FilenameUtils.getExtension(fileName).toLowerCase() : sourceFormat;
+        if (extension.equals("jp2") || extension.equals("pct") || extension.equals("ppm")) {
+            return Collections.emptyMap();
+        }
+        return colorFieldsService.colorFields(fileName);
     }
 
     /**

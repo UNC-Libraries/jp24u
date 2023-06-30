@@ -3,7 +3,6 @@ package JP2ImageConverter.services;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,7 +27,7 @@ public class ImagePreproccessingService {
     public ImagePreproccessingService() {
         try {
             initializeTempImageFilesDir();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -48,9 +47,7 @@ public class ImagePreproccessingService {
         String colorSpaceOptions = "rgb";
         String profile = "+profile";
         String profileOptions = "\"*\"";
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".tif").toAbsolutePath().toString();
-        Files.deleteIfExists(Paths.get(temporaryFile)); // delete the intermediate file if it already exists
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
                 profile, profileOptions, temporaryFile);
@@ -79,9 +76,7 @@ public class ImagePreproccessingService {
     public String convertImageFormats(String fileName) throws Exception {
         String gm = "gm";
         String convert = "convert";
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".tif").toAbsolutePath().toString();
-        Files.deleteIfExists(Paths.get(temporaryFile)); // delete the intermediate file if it already exists
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, fileName, temporaryFile);
 
@@ -112,9 +107,7 @@ public class ImagePreproccessingService {
         // String flatten = "-flatten";
         String colorspace = "-colorspace";
         String colorspaceOptions = "sRGB";
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".tif").toAbsolutePath().toString();
-        Files.deleteIfExists(Paths.get(temporaryFile)); // delete the intermediate file if it already exists
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
 
@@ -140,9 +133,7 @@ public class ImagePreproccessingService {
     public String convertJp2(String fileName) throws Exception {
         String convert = "convert";
         String importFile = fileName;
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".tif").toAbsolutePath().toString();
-        Files.deleteIfExists(Paths.get(temporaryFile)); // delete the intermediate file if it already exists
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
 
@@ -168,9 +159,7 @@ public class ImagePreproccessingService {
     public String convertJpeg(String fileName) throws Exception {
         String convert = "convert";
         String importFile = fileName;
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".ppm").toAbsolutePath().toString();
-        Files.deleteIfExists(Paths.get(temporaryFile)); // delete the intermediate file if it already exists
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
 
@@ -248,11 +237,9 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return link a path to a TIFF image file
      */
-    public String linkToTiff(String fileName) throws IOException {
-        // delete the intermediate file if it already exists
-        Files.deleteIfExists(tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString() + ".tif"));
+    public String linkToTiff(String fileName) throws Exception {
         Path target = Paths.get(fileName).toAbsolutePath();
-        Path link = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString() + ".tif");
+        Path link = prepareTempPath(fileName, ".tif");
         Files.createSymbolicLink(link, target);
 
         return link.toAbsolutePath().toString();
@@ -262,11 +249,21 @@ public class ImagePreproccessingService {
      * Create tmp image files directory for temporary files
      * @return tmpImageFilesDirectoryPath
      */
-    public Path initializeTempImageFilesDir() throws IOException {
+    public Path initializeTempImageFilesDir() throws Exception {
         Path path = tmpFilesDir;
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }
         return path;
+    }
+
+    /**
+     * Create temporary image file path and delete temporary file if it already exists
+     * @return tmpImageFilesDirectoryPath
+     */
+    private Path prepareTempPath(String fileName, String extension) throws Exception {
+        Path tempPath = tmpFilesDir.resolve(FilenameUtils.getName(fileName) + extension).toAbsolutePath();
+        Files.deleteIfExists(tempPath);
+        return tempPath;
     }
 }
