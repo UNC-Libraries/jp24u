@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +19,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Service for Kakadu kduCompress
- * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP
+ * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2
  * @author krwong
  */
 public class KakaduService {
@@ -29,20 +30,28 @@ public class KakaduService {
 
     /**
      * Get color space from EXIF fields
-     * @param fileName an image file
+     * @param preprocessedImage a preprocessed image, originalImage the original input image,
+     *                          sourceFormat file extension/mimetype
      * @return colorSpace
      */
-    public String getColorSpace(String fileName) throws Exception {
-        // we will check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information
-        String colorSpace = "null";
-        Map<String,String> imageMetadata = colorFieldsService.colorFields(fileName);
+    public String getColorSpace(String preprocessedImage, String originalImage, String sourceFormat) throws Exception {
+        String colorSpace;
+        var preprocessedImageMetadata = extractMetadata(preprocessedImage, "");
+        var originalImageMetadata = extractMetadata(originalImage, sourceFormat);
 
-        if (imageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
-            colorSpace = imageMetadata.get(ColorFieldsService.COLOR_SPACE);
-        } else if (imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
-            colorSpace = imageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
+        // Check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information.
+        // If the preprocessed image does not have a color space, check the original image for color space information.
+        // If no color space is found with metadata-extractor, set color space to sRGB.
+        if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
+            colorSpace = preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE);
+        } else if (preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
+            colorSpace = preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
+        } else if (originalImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
+            colorSpace = originalImageMetadata.get(ColorFieldsService.COLOR_SPACE);
+        } else if (originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
+            colorSpace = originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else {
-            log.info(fileName + ": color space information not found.");
+            colorSpace = "sRGB";
         }
 
         // if ColorSpace is BlackIsZero or WhiteIsZero, it is a grayscale image
@@ -52,6 +61,20 @@ public class KakaduService {
         }
 
         return colorSpace;
+    }
+
+    /**
+     * Extract metadata from files of formats supported by metadata-extractor.
+     * Return an empty collection for unsupported types (JP2, PICT, PPM)
+     * @param fileName an image file, sourceFormat file extension/mimetype override
+     * @return imageMetadata
+     */
+    private Map<String, String> extractMetadata(String fileName, String sourceFormat) throws Exception {
+        String extension = sourceFormat.isEmpty() ? FilenameUtils.getExtension(fileName).toLowerCase() : sourceFormat;
+        if (extension.equals("jp2") || extension.equals("pct") || extension.equals("ppm")) {
+            return Collections.emptyMap();
+        }
+        return colorFieldsService.colorFields(fileName);
     }
 
     /**
@@ -78,6 +101,10 @@ public class KakaduService {
         sourceFormats.put("pic", "pct");
         sourceFormats.put("bmp", "bmp");
         sourceFormats.put("image/bmp", "bmp");
+        sourceFormats.put("psd", "psd");
+        sourceFormats.put("image/psd", "psd");
+        sourceFormats.put("jp2", "jp2");
+        sourceFormats.put("image/jp2", "jp2");
 
         if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
             sourceFormat = sourceFormats.get(sourceFormat);
@@ -132,7 +159,8 @@ public class KakaduService {
         String noPalette;
 
         // get color space from colorFields
-        String colorSpace = getColorSpace(inputFile);
+        String colorSpace = getColorSpace(inputFile, fileName, sourceFormat);
+
         // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
         inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
 

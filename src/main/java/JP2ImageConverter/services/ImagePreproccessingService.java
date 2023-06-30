@@ -1,11 +1,8 @@
 package JP2ImageConverter.services;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +27,7 @@ public class ImagePreproccessingService {
     public ImagePreproccessingService() {
         try {
             initializeTempImageFilesDir();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -41,7 +38,6 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return temporaryFile a temporary TIFF file
      */
-    //TODO: we will need to test different CMYK conversion options
     //It seems like only using color space creates a more color accurate temporary image.
     //Using color space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
     public String convertCmykColorSpace(String fileName) throws Exception {
@@ -51,8 +47,7 @@ public class ImagePreproccessingService {
         String colorSpaceOptions = "rgb";
         String profile = "+profile";
         String profileOptions = "\"*\"";
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".tif").toAbsolutePath().toString();
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
                 profile, profileOptions, temporaryFile);
@@ -72,7 +67,7 @@ public class ImagePreproccessingService {
 
     /**
      * Run GraphicsMagick convert and convert other image formats to TIFF
-     * Other image formats: JPEG, PNG, GIF, PICT, BMP
+     * Other image formats: PNG, GIF, PICT, BMP
      * @param fileName an image file
      * @return temporaryFile the path to a temporary TIFF file
      */
@@ -81,8 +76,7 @@ public class ImagePreproccessingService {
     public String convertImageFormats(String fileName) throws Exception {
         String gm = "gm";
         String convert = "convert";
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".tif").toAbsolutePath().toString();
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, fileName, temporaryFile);
 
@@ -113,8 +107,7 @@ public class ImagePreproccessingService {
         // String flatten = "-flatten";
         String colorspace = "-colorspace";
         String colorspaceOptions = "sRGB";
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".tif").toAbsolutePath().toString();
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
 
@@ -140,8 +133,7 @@ public class ImagePreproccessingService {
     public String convertJp2(String fileName) throws Exception {
         String convert = "convert";
         String importFile = fileName;
-        String temporaryFile = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString()
-                + ".tif").toAbsolutePath().toString();
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
 
@@ -159,16 +151,42 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Run ImageMagick convert and convert JPEG images to PPM
+     * Converting JPEGs to temporary TIFFs results in Kakadu errors and 0 byte JP2s
+     * @param fileName an image file
+     * @return temporaryFile a temporary PPM file
+     */
+    public String convertJpeg(String fileName) throws Exception {
+        String convert = "convert";
+        String importFile = fileName;
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
+
+        List<String> command = Arrays.asList(convert, importFile, temporaryFile);
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            String cmdOutput = new String(process.getInputStream().readAllBytes());
+            log.debug(cmdOutput);
+        } catch (Exception e) {
+            throw new Exception(fileName + " failed to generate PPM file.", e);
+        }
+
+        return temporaryFile;
+    }
+
+    /**
      * Determine image format and preprocess if needed
-     * for non-TIFF image formats: convert to temporary TIFF before kdu_compress
+     * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD
      * @param fileName an image file, sourceFormat file extension/mimetype override
-     * @return inputFile a path to a TIFF image file
+     * @return inputFile a path to a TIFF/PPM image file
      */
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
         String inputFile;
         String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-        Set<String> imageFormats = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "gif", "pict", "pct", "pic", "bmp"));
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp"));
         if (!sourceFormat.isEmpty()) {
             fileNameExtension = sourceFormat;
         }
@@ -179,6 +197,8 @@ public class ImagePreproccessingService {
             inputFile = convertPsd(fileName);
         } else if (fileNameExtension.matches("jp2")) {
             inputFile = convertJp2(fileName);
+        } else if (fileNameExtension.matches("jpeg")){
+            inputFile = convertJpeg(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
             inputFile = linkToTiff(fileName);
         } else {
@@ -217,9 +237,9 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return link a path to a TIFF image file
      */
-    public String linkToTiff(String fileName) throws IOException {
+    public String linkToTiff(String fileName) throws Exception {
         Path target = Paths.get(fileName).toAbsolutePath();
-        Path link = tmpFilesDir.resolve(Paths.get(fileName).getFileName().toString() + ".tif");
+        Path link = prepareTempPath(fileName, ".tif");
         Files.createSymbolicLink(link, target);
 
         return link.toAbsolutePath().toString();
@@ -229,7 +249,7 @@ public class ImagePreproccessingService {
      * Create tmp image files directory for temporary files
      * @return tmpImageFilesDirectoryPath
      */
-    public Path initializeTempImageFilesDir() throws IOException {
+    public Path initializeTempImageFilesDir() throws Exception {
         Path path = tmpFilesDir;
         if (!Files.exists(path)) {
             Files.createDirectories(path);
@@ -238,11 +258,12 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Delete tmp image files directory
+     * Create temporary image file path and delete temporary file if it already exists
+     * @return tmpImageFilesDirectoryPath
      */
-    public void deleteTmpImageFilesDir() throws Exception {
-        File tmpDir = new File(tmpFilesDir.toString());
-        FileUtils.deleteDirectory(tmpDir);
-        tmpDir.delete();
+    private Path prepareTempPath(String fileName, String extension) throws Exception {
+        Path tempPath = tmpFilesDir.resolve(FilenameUtils.getName(fileName) + extension).toAbsolutePath();
+        Files.deleteIfExists(tempPath);
+        return tempPath;
     }
 }
