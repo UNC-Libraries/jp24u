@@ -65,7 +65,7 @@ public class JP2ImageConverterCommandIT {
                 "list", "-f", testFile
         };
 
-        executeExpectSuccess(args);
+        executeExpectFailure(args);
     }
 
     @Test

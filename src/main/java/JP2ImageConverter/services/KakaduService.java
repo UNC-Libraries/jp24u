@@ -39,11 +39,15 @@ public class KakaduService {
         String colorSpace;
         var preprocessedImageMetadata = extractMetadata(preprocessedImage, "");
         var originalImageMetadata = extractMetadata(originalImage, sourceFormat);
+        var imageType = colorFieldsService.identifyType(originalImage);
 
+        // Identify image type for grayscale images and set color space to gray.
         // Check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information.
         // If the preprocessed image does not have a color space, check the original image for color space information.
         // If no color space is found with metadata-extractor, set color space to sRGB.
-        if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
+        if (imageType.equals("Grayscale") || imageType.equals("GrayscaleMatte")) {
+            colorSpace = "Gray";
+        } else if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE);
         } else if (preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
@@ -126,7 +130,8 @@ public class KakaduService {
         // if the output path is a directory
         if (Files.isDirectory(outputPath)) {
             //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
-            if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
+            if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("jp2") ||
+                    sourceFormat.equals("jp2")) {
                 outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
             } else {
                 outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
@@ -134,7 +139,8 @@ public class KakaduService {
         // if the output path is a file
         } else if (Files.exists(outputPath.getParent())) {
             // add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
-            if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
+            if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("jp2") ||
+                    sourceFormat.equals("jp2")) {
                 outputFile = outputPath + "_deriv.jp2";
             } else {
                 outputFile = outputPath + ".jp2";
@@ -173,13 +179,13 @@ public class KakaduService {
                 flushPeriod, flushPeriodOptions, rate, rateOptions, weights));
 
         // for GIF images: add no_palette to command
-        if (fileName.toLowerCase().endsWith("gif")) {
+        if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("gif") || colorSpace.equals("gif")) {
             noPalette = "-no_palette";
             command.add(noPalette);
         }
 
         // for grayscale images: add jp2Space to command
-        if (colorSpace.toLowerCase().contains("gray")) {
+        if (colorSpace.equalsIgnoreCase("gray")) {
             jp2Space = "-jp2_space";
             jp2SpaceOptions = "sLUM";
             command.add(jp2Space);
