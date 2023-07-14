@@ -30,8 +30,9 @@ public class KakaduService {
 
     /**
      * Get color space from EXIF fields
-     * @param preprocessedImage a preprocessed image, originalImage the original input image,
-     *                          sourceFormat file extension/mimetype
+     * @param preprocessedImage a preprocessed image
+     * @param originalImage the original input image
+     * @param sourceFormat file extension/mimetype
      * @return colorSpace
      */
     public String getColorSpace(String preprocessedImage, String originalImage, String sourceFormat) throws Exception {
@@ -66,7 +67,8 @@ public class KakaduService {
     /**
      * Extract metadata from files of formats supported by metadata-extractor.
      * Return an empty collection for unsupported types (JP2, PICT, PPM)
-     * @param fileName an image file, sourceFormat file extension/mimetype override
+     * @param fileName an image file
+     * @param sourceFormat file extension/mimetype override
      * @return imageMetadata
      */
     private Map<String, String> extractMetadata(String fileName, String sourceFormat) throws Exception {
@@ -79,8 +81,9 @@ public class KakaduService {
 
     /**
      * Run kdu_compress and convert image to JP2
-     * @param fileName an image file, outputPath destination for converted files,
-     *                 sourceFormat file extension/mimetype override
+     * @param fileName an image file
+     * @param outputPath destination for converted files
+     * @param sourceFormat file extension/mimetype override
      */
     public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
         // override source file type detection with user-inputted image file type
@@ -103,6 +106,7 @@ public class KakaduService {
         sourceFormats.put("image/bmp", "bmp");
         sourceFormats.put("psd", "psd");
         sourceFormats.put("image/psd", "psd");
+        sourceFormats.put("image/vnd.adobe.photoshop", "psd");
         sourceFormats.put("jp2", "jp2");
         sourceFormats.put("image/jp2", "jp2");
 
@@ -188,6 +192,9 @@ public class KakaduService {
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jp2 file.", e);
         }
@@ -195,8 +202,9 @@ public class KakaduService {
 
     /**
      * Iterate through list of image files and run kdu_compress to convert all images to JP2s
-     * @param fileName a list of image files, outputPath destination for converted files,
-     *        sourceFormat file extension/mimetype override
+     * @param fileName a list of image files
+     * @param outputPath destination for converted files
+     * @param sourceFormat file extension/mimetype override
      */
     public void fileListKduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);

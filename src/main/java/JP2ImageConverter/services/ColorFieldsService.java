@@ -140,7 +140,7 @@ public class ColorFieldsService {
      * @param fileName an image file
      * @return list of color attributes
      */
-    public String identify(String fileName) throws IOException {
+    public String identify(String fileName) throws Exception {
         String identify = "identify";
         String quiet = "-quiet";
         String format = "-format";
@@ -158,6 +158,9 @@ public class ColorFieldsService {
         String attributes = "\"";
         while ((line = br.readLine()) != null) {
             attributes = attributes + line;
+        }
+        if (process.waitFor() != 0) {
+            throw new Exception("Command exited with status code " + process.waitFor());
         }
         return attributes + "\"";
     }
