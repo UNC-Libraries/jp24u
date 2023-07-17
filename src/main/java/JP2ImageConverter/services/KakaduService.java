@@ -45,7 +45,7 @@ public class KakaduService {
         // Check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information.
         // If the preprocessed image does not have a color space, check the original image for color space information.
         // If no color space is found with metadata-extractor, set color space to sRGB.
-        if (imageType.equals("Grayscale") || imageType.equals("GrayscaleMatte")) {
+        if (imageType.contains("Grayscale")) {
             colorSpace = "Gray";
         } else if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE);
@@ -179,7 +179,7 @@ public class KakaduService {
                 flushPeriod, flushPeriodOptions, rate, rateOptions, weights));
 
         // for GIF images: add no_palette to command
-        if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("gif") || colorSpace.equals("gif")) {
+        if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("gif") || sourceFormat.equals("gif")) {
             noPalette = "-no_palette";
             command.add(noPalette);
         }
