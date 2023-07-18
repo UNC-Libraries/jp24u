@@ -126,25 +126,14 @@ public class KakaduService {
         String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
         String output = "-o";
         String outputFile;
+        String outputDefaultFilename = FilenameUtils.getBaseName(fileName) + ".jp2";
 
         // if the output path is a directory
         if (Files.isDirectory(outputPath)) {
-            //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
-            if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("jp2") ||
-                    sourceFormat.equals("jp2")) {
-                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
-            } else {
-                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
-            }
+            outputFile = outputPath + "/" + outputDefaultFilename;
         // if the output path is a file
         } else if (Files.exists(outputPath.getParent())) {
-            // add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
-            if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("jp2") ||
-                    sourceFormat.equals("jp2")) {
-                outputFile = outputPath + "_deriv.jp2";
-            } else {
-                outputFile = outputPath + ".jp2";
-            }
+            outputFile = outputPath + ".jp2";
         } else {
             throw new Exception(outputPath + " does not exist.");
         }
