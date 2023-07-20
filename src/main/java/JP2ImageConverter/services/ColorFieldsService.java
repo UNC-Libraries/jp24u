@@ -140,13 +140,13 @@ public class ColorFieldsService {
      * @param fileName an image file
      * @return list of color attributes
      */
-    public String identify(String fileName) throws IOException {
+    public String identify(String fileName) throws Exception {
         String identify = "identify";
         String quiet = "-quiet";
         String format = "-format";
         String options = "Dimensions: %wx%h;Channels: %[channels];Bit-depth: %[bit-depth];" +
                 "Alpha channel: %A;Color Space: %[colorspace];Profiles: %[profiles];" +
-                "ICC Profile: %[profile:icc];ICM Profile: %[profile:icm];";
+                "ICC Profile: %[profile:icc];ICM Profile: %[profile:icm];Type: %[type];";
         String[] command = {identify, quiet, format, options, fileName};
 
         ProcessBuilder builder = new ProcessBuilder(command);
@@ -159,7 +159,40 @@ public class ColorFieldsService {
         while ((line = br.readLine()) != null) {
             attributes = attributes + line;
         }
+        if (process.waitFor() != 0) {
+            throw new Exception("Command exited with status code " + process.waitFor());
+        }
         return attributes + "\"";
+    }
+
+    /**
+     * Run ImageMagick identify command and return type (https://imagemagick.org/script/command-line-options.php#type)
+     * @param fileName an image file
+     * @return imageType the image type
+     */
+    public String identifyType(String fileName) throws Exception {
+        String imageType = null;
+
+        String identify = "identify";
+        String quiet = "-quiet";
+        String format = "-format";
+        String options = "%[type]";
+        String[] command = {identify, quiet, format, options, fileName};
+
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+        InputStream is = process.getInputStream();
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            imageType = line;
+        }
+        if (process.waitFor() != 0) {
+            throw new Exception("Command exited with status code " + process.waitFor());
+        }
+        return imageType;
     }
 
     /**

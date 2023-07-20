@@ -30,19 +30,24 @@ public class KakaduService {
 
     /**
      * Get color space from EXIF fields
-     * @param preprocessedImage a preprocessed image, originalImage the original input image,
-     *                          sourceFormat file extension/mimetype
+     * @param preprocessedImage a preprocessed image
+     * @param originalImage the original input image
+     * @param sourceFormat file extension/mimetype
      * @return colorSpace
      */
     public String getColorSpace(String preprocessedImage, String originalImage, String sourceFormat) throws Exception {
         String colorSpace;
         var preprocessedImageMetadata = extractMetadata(preprocessedImage, "");
         var originalImageMetadata = extractMetadata(originalImage, sourceFormat);
+        var imageType = colorFieldsService.identifyType(originalImage);
 
+        // Identify image type for grayscale images and set color space to gray.
         // Check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information.
         // If the preprocessed image does not have a color space, check the original image for color space information.
         // If no color space is found with metadata-extractor, set color space to sRGB.
-        if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
+        if (imageType.contains("Grayscale")) {
+            colorSpace = "Gray";
+        } else if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE);
         } else if (preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
@@ -66,7 +71,8 @@ public class KakaduService {
     /**
      * Extract metadata from files of formats supported by metadata-extractor.
      * Return an empty collection for unsupported types (JP2, PICT, PPM)
-     * @param fileName an image file, sourceFormat file extension/mimetype override
+     * @param fileName an image file
+     * @param sourceFormat file extension/mimetype override
      * @return imageMetadata
      */
     private Map<String, String> extractMetadata(String fileName, String sourceFormat) throws Exception {
@@ -79,8 +85,9 @@ public class KakaduService {
 
     /**
      * Run kdu_compress and convert image to JP2
-     * @param fileName an image file, outputPath destination for converted files,
-     *                 sourceFormat file extension/mimetype override
+     * @param fileName an image file
+     * @param outputPath destination for converted files
+     * @param sourceFormat file extension/mimetype override
      */
     public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
         // list of intermediate files to delete after JP2 is created
@@ -105,6 +112,7 @@ public class KakaduService {
         sourceFormats.put("image/bmp", "bmp");
         sourceFormats.put("psd", "psd");
         sourceFormats.put("image/psd", "psd");
+        sourceFormats.put("image/vnd.adobe.photoshop", "psd");
         sourceFormats.put("jp2", "jp2");
         sourceFormats.put("image/jp2", "jp2");
 
@@ -121,23 +129,14 @@ public class KakaduService {
         intermediateFiles.add(inputFile);
         String output = "-o";
         String outputFile;
+        String outputDefaultFilename = FilenameUtils.getBaseName(fileName) + ".jp2";
 
         // if the output path is a directory
         if (Files.isDirectory(outputPath)) {
-            //add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
-            if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
-                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + "_deriv.jp2";
-            } else {
-                outputFile = outputPath + "/" + FilenameUtils.getBaseName(fileName) + ".jp2";
-            }
+            outputFile = outputPath + "/" + outputDefaultFilename;
         // if the output path is a file
         } else if (Files.exists(outputPath.getParent())) {
-            // add _deriv to access JP2 output to avoid overwriting preservation-quality JP2
-            if (FilenameUtils.getExtension(fileName).toLowerCase().matches("jp2")) {
-                outputFile = outputPath + "_deriv.jp2";
-            } else {
-                outputFile = outputPath + ".jp2";
-            }
+            outputFile = outputPath + ".jp2";
         } else {
             throw new Exception(outputPath + " does not exist.");
         }
@@ -173,13 +172,13 @@ public class KakaduService {
                 flushPeriod, flushPeriodOptions, rate, rateOptions, weights));
 
         // for GIF images: add no_palette to command
-        if (fileName.toLowerCase().endsWith("gif")) {
+        if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("gif") || sourceFormat.equals("gif")) {
             noPalette = "-no_palette";
             command.add(noPalette);
         }
 
         // for grayscale images: add jp2Space to command
-        if (colorSpace.toLowerCase().contains("gray")) {
+        if (colorSpace.equalsIgnoreCase("gray")) {
             jp2Space = "-jp2_space";
             jp2SpaceOptions = "sLUM";
             command.add(jp2Space);
@@ -192,6 +191,9 @@ public class KakaduService {
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jp2 file.", e);
         }
@@ -206,8 +208,9 @@ public class KakaduService {
 
     /**
      * Iterate through list of image files and run kdu_compress to convert all images to JP2s
-     * @param fileName a list of image files, outputPath destination for converted files,
-     *        sourceFormat file extension/mimetype override
+     * @param fileName a list of image files
+     * @param outputPath destination for converted files
+     * @param sourceFormat file extension/mimetype override
      */
     public void fileListKduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
         List<String> listOfFiles = Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8);

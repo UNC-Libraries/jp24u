@@ -58,6 +58,9 @@ public class ImagePreproccessingService {
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate temporary TIFF file.", e);
         }
@@ -75,10 +78,11 @@ public class ImagePreproccessingService {
     // formats accepted by metadata-extractor: JPEG, TIFF, WebP, WAV, AVI, PSD, PNG, BMP, GIF, ICO, PCX, QuickTime, MP4, Camera Raw
     public String convertImageFormats(String fileName) throws Exception {
         String gm = "gm";
+        String inputFile = fileName + "[0]";
         String convert = "convert";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
-        List<String> command = Arrays.asList(gm, convert, fileName, temporaryFile);
+        List<String> command = Arrays.asList(gm, convert, inputFile, temporaryFile);
 
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
@@ -86,6 +90,9 @@ public class ImagePreproccessingService {
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
@@ -117,6 +124,9 @@ public class ImagePreproccessingService {
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
@@ -143,6 +153,9 @@ public class ImagePreproccessingService {
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate TIFF file.", e);
         }
@@ -169,6 +182,9 @@ public class ImagePreproccessingService {
             Process process = builder.start();
             String cmdOutput = new String(process.getInputStream().readAllBytes());
             log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate PPM file.", e);
         }
@@ -180,7 +196,8 @@ public class ImagePreproccessingService {
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD
-     * @param fileName an image file, sourceFormat file extension/mimetype override
+     * @param fileName an image file
+     * @param sourceFormat file extension/mimetype override
      * @return inputFile a path to a TIFF/PPM image file
      */
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
@@ -213,7 +230,8 @@ public class ImagePreproccessingService {
      * Determine image color space and preprocess if needed
      * for unusual color spaces: convert to temporary TIFF and set color space to RGB before kdu_compress
      * currently supported color spaces: RGB, sRGB, RGB Palette, Gray, CMYK
-     * @param colorSpace an image color space, fileName an image file
+     * @param colorSpace an image color space
+     * @param fileName an image file
      * @return inputFile a path to a TIFF image file
      */
     public String convertColorSpaces(String colorSpace, String fileName) throws Exception {

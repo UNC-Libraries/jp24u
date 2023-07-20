@@ -73,7 +73,7 @@ public class ImagePreprocessingServiceTest {
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:Adobe RGB (1998)\t" +
                 "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 1300x2000;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: icc;ICC Profile: Adobe RGB (1998);ICM Profile: ;\"";
+                "Color Space: sRGB;Profiles: icc;ICC Profile: Adobe RGB (1998);ICM Profile: ;Type: TrueColor;\"";
 
         service.convertImageFormats(testFile);
         colorFieldsService.listFields(tempTif);
@@ -89,7 +89,7 @@ public class ImagePreprocessingServiceTest {
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:null\t" +
                 "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:RGB Palette\t" +
                 "MagickIdentify:\"Dimensions: 295x353;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"";
+                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: Grayscale;\"";
 
         service.convertImageFormats(testFile);
         colorFieldsService.listFields(tempTif);
@@ -105,7 +105,7 @@ public class ImagePreprocessingServiceTest {
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
                 "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+                "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
 
         service.convertImageFormats(testFile);
         colorFieldsService.listFields(tempTif);
@@ -121,7 +121,7 @@ public class ImagePreprocessingServiceTest {
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:null\t" +
                 "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 1940x2676;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;\"";
+                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"";
 
         service.convertImageFormats(testFile);
         colorFieldsService.listFields(tempTif);
@@ -137,7 +137,8 @@ public class ImagePreprocessingServiceTest {
         String tifExifData = "DateTimeOriginal:2008:02:07 13:05:19\tDateTimeDigitized:2008:02:07 13:05:19\t" +
                 "ICCProfileName:sRGB IEC61966-2.1\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: 8bim,exif,icc,iptc,xmp;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+                "Color Space: sRGB;Profiles: 8bim,exif,icc,iptc,xmp;ICC Profile: sRGB IEC61966-2.1;" +
+                "ICM Profile: ;Type: TrueColor;\"";
 
         service.convertPsd(testFile);
         colorFieldsService.listFields(tempTif);
@@ -153,7 +154,7 @@ public class ImagePreprocessingServiceTest {
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:sRGB IEC61966-2.1\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+                "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
 
         service.convertJp2(testFile);
         colorFieldsService.listFields(tempTif);
@@ -169,7 +170,7 @@ public class ImagePreprocessingServiceTest {
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
                 "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;\"";
+                "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
 
         service.convertToTiff(testFile, "");
         colorFieldsService.listFields(tempTif);
