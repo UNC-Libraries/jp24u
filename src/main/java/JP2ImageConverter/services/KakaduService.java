@@ -1,8 +1,10 @@
 package JP2ImageConverter.services;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -83,6 +85,8 @@ public class KakaduService {
      *                 sourceFormat file extension/mimetype override
      */
     public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
+        // list of intermediate files to delete after JP2 is created
+        List<String> intermediateFiles = new ArrayList<>();
         // override source file type detection with user-inputted image file type
         // accepted file types are listed in sourceFormats below
         Map<String, String> sourceFormats = new HashMap<>();
@@ -116,6 +120,7 @@ public class KakaduService {
         String input = "-i";
         // preprocess non-TIFF images and convert them to temporary TIFFs before kdu_compress
         String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
+        intermediateFiles.add(inputFile);
         String output = "-o";
         String outputFile;
 
@@ -163,6 +168,7 @@ public class KakaduService {
 
         // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
         inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
+        intermediateFiles.add(inputFile);
 
         List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
                 clevels, clayers, cprecincts, stiles, corder, orggenplt, orgtparts, cblk, cusesop, cuseeph,
@@ -190,6 +196,13 @@ public class KakaduService {
             log.debug(cmdOutput);
         } catch (Exception e) {
             throw new Exception(fileName + " failed to generate jp2 file.", e);
+        }
+
+        // delete intermediate files and symlinks after JP2 generated
+        if (Files.exists(Path.of(outputFile))) {
+            for (String intermediateFile : intermediateFiles) {
+                Files.deleteIfExists(Path.of(intermediateFile));
+            }
         }
     }
 
