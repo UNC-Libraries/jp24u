@@ -90,108 +90,120 @@ public class KakaduService {
      * @param sourceFormat file extension/mimetype override
      */
     public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
-        // override source file type detection with user-inputted image file type
-        // accepted file types are listed in sourceFormats below
-        Map<String, String> sourceFormats = new HashMap<>();
-        sourceFormats.put("tiff", "tiff");
-        sourceFormats.put("tif", "tiff");
-        sourceFormats.put("image/tiff", "tiff");
-        sourceFormats.put("jpeg", "jpeg");
-        sourceFormats.put("jpg", "jpeg");
-        sourceFormats.put("image/jpeg", "jpeg");
-        sourceFormats.put("png", "png");
-        sourceFormats.put("image/png", "png");
-        sourceFormats.put("gif", "gif");
-        sourceFormats.put("image/gif", "gif");
-        sourceFormats.put("pict", "pct");
-        sourceFormats.put("pct", "pct");
-        sourceFormats.put("pic", "pct");
-        sourceFormats.put("bmp", "bmp");
-        sourceFormats.put("image/bmp", "bmp");
-        sourceFormats.put("psd", "psd");
-        sourceFormats.put("image/psd", "psd");
-        sourceFormats.put("image/vnd.adobe.photoshop", "psd");
-        sourceFormats.put("jp2", "jp2");
-        sourceFormats.put("image/jp2", "jp2");
-
-        if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
-            sourceFormat = sourceFormats.get(sourceFormat);
-        } else if (!sourceFormat.isEmpty() && !sourceFormats.containsKey(sourceFormat)) {
-            throw new Exception(sourceFormat + " file type is not supported.");
-        }
-
-        String kduCompress = "kdu_compress";
-        String input = "-i";
-        // preprocess non-TIFF images and convert them to temporary TIFFs before kdu_compress
-        String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
-        String output = "-o";
-        String outputFile;
-        String outputDefaultFilename = FilenameUtils.getBaseName(fileName) + ".jp2";
-
-        // if the output path is a directory
-        if (Files.isDirectory(outputPath)) {
-            outputFile = outputPath + "/" + outputDefaultFilename;
-        // if the output path is a file
-        } else if (Files.exists(outputPath.getParent())) {
-            outputFile = outputPath + ".jp2";
-        } else {
-            throw new Exception(outputPath + " does not exist.");
-        }
-
-        String clevels = "Clevels=6";
-        String clayers = "Clayers=6";
-        String cprecincts = "Cprecincts={256,256},{256,256},{128,128}";
-        String stiles = "Stiles={512,512}";
-        String corder = "Corder=RPCL";
-        String orggenplt = "ORGgen_plt=yes";
-        String orgtparts = "ORGtparts=R";
-        String cblk = "Cblk={64,64}";
-        String cusesop = "Cuse_sop=yes";
-        String cuseeph = "Cuse_eph=yes";
-        String flushPeriod = "-flush_period";
-        String flushPeriodOptions = "1024";
-        String rate = "-rate";
-        String rateOptions = "3";
-        String weights = "-no_weights";
-        String jp2Space;
-        String jp2SpaceOptions;
-        String noPalette;
-
-        // get color space from colorFields
-        String colorSpace = getColorSpace(inputFile, fileName, sourceFormat);
-
-        // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
-        inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
-
-        List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
-                clevels, clayers, cprecincts, stiles, corder, orggenplt, orgtparts, cblk, cusesop, cuseeph,
-                flushPeriod, flushPeriodOptions, rate, rateOptions, weights));
-
-        // for GIF images: add no_palette to command
-        if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("gif") || sourceFormat.equals("gif")) {
-            noPalette = "-no_palette";
-            command.add(noPalette);
-        }
-
-        // for grayscale images: add jp2Space to command
-        if (colorSpace.equalsIgnoreCase("gray")) {
-            jp2Space = "-jp2_space";
-            jp2SpaceOptions = "sLUM";
-            command.add(jp2Space);
-            command.add(jp2SpaceOptions);
-        }
+        // list of intermediate files to delete after JP2 is created
+        List<String> intermediateFiles = new ArrayList<>();
 
         try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.debug(cmdOutput);
-            if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
+            // override source file type detection with user-inputted image file type
+            // accepted file types are listed in sourceFormats below
+            Map<String, String> sourceFormats = new HashMap<>();
+            sourceFormats.put("tiff", "tiff");
+            sourceFormats.put("tif", "tiff");
+            sourceFormats.put("image/tiff", "tiff");
+            sourceFormats.put("jpeg", "jpeg");
+            sourceFormats.put("jpg", "jpeg");
+            sourceFormats.put("image/jpeg", "jpeg");
+            sourceFormats.put("png", "png");
+            sourceFormats.put("image/png", "png");
+            sourceFormats.put("gif", "gif");
+            sourceFormats.put("image/gif", "gif");
+            sourceFormats.put("pict", "pct");
+            sourceFormats.put("pct", "pct");
+            sourceFormats.put("pic", "pct");
+            sourceFormats.put("bmp", "bmp");
+            sourceFormats.put("image/bmp", "bmp");
+            sourceFormats.put("psd", "psd");
+            sourceFormats.put("image/psd", "psd");
+            sourceFormats.put("image/vnd.adobe.photoshop", "psd");
+            sourceFormats.put("jp2", "jp2");
+            sourceFormats.put("image/jp2", "jp2");
+
+            if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
+                sourceFormat = sourceFormats.get(sourceFormat);
+            } else if (!sourceFormat.isEmpty() && !sourceFormats.containsKey(sourceFormat)) {
+                throw new Exception(sourceFormat + " file type is not supported.");
             }
-        } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate jp2 file.", e);
+
+            String kduCompress = "kdu_compress";
+            String input = "-i";
+            // preprocess non-TIFF images and convert them to temporary TIFFs before kdu_compress
+            String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
+            intermediateFiles.add(inputFile);
+            String output = "-o";
+            String outputFile;
+            String outputDefaultFilename = FilenameUtils.getBaseName(fileName) + ".jp2";
+
+            // if the output path is a directory
+            if (Files.isDirectory(outputPath)) {
+                outputFile = outputPath + "/" + outputDefaultFilename;
+                // if the output path is a file
+            } else if (Files.exists(outputPath.getParent())) {
+                outputFile = outputPath + ".jp2";
+            } else {
+                throw new Exception(outputPath + " does not exist.");
+            }
+
+            String clevels = "Clevels=6";
+            String clayers = "Clayers=6";
+            String cprecincts = "Cprecincts={256,256},{256,256},{128,128}";
+            String stiles = "Stiles={512,512}";
+            String corder = "Corder=RPCL";
+            String orggenplt = "ORGgen_plt=yes";
+            String orgtparts = "ORGtparts=R";
+            String cblk = "Cblk={64,64}";
+            String cusesop = "Cuse_sop=yes";
+            String cuseeph = "Cuse_eph=yes";
+            String flushPeriod = "-flush_period";
+            String flushPeriodOptions = "1024";
+            String rate = "-rate";
+            String rateOptions = "3";
+            String weights = "-no_weights";
+            String jp2Space;
+            String jp2SpaceOptions;
+            String noPalette;
+
+            // get color space from colorFields
+            String colorSpace = getColorSpace(inputFile, fileName, sourceFormat);
+
+            // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
+            inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
+            intermediateFiles.add(inputFile);
+
+            List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
+                    clevels, clayers, cprecincts, stiles, corder, orggenplt, orgtparts, cblk, cusesop, cuseeph,
+                    flushPeriod, flushPeriodOptions, rate, rateOptions, weights));
+
+            // for GIF images: add no_palette to command
+            if (FilenameUtils.getExtension(fileName).equalsIgnoreCase("gif") || sourceFormat.equals("gif")) {
+                noPalette = "-no_palette";
+                command.add(noPalette);
+            }
+
+            // for grayscale images: add jp2Space to command
+            if (colorSpace.equalsIgnoreCase("gray")) {
+                jp2Space = "-jp2_space";
+                jp2SpaceOptions = "sLUM";
+                command.add(jp2Space);
+                command.add(jp2SpaceOptions);
+            }
+
+            try {
+                ProcessBuilder builder = new ProcessBuilder(command);
+                builder.redirectErrorStream(true);
+                Process process = builder.start();
+                String cmdOutput = new String(process.getInputStream().readAllBytes());
+                log.debug(cmdOutput);
+                if (process.waitFor() != 0) {
+                    throw new Exception("Command exited with status code " + process.waitFor());
+                }
+            } catch (Exception e) {
+                throw new Exception(fileName + " failed to generate jp2 file.", e);
+            }
+        } finally {
+            // delete intermediate files and symlinks after JP2 generated
+            for (String intermediateFile : intermediateFiles) {
+                Files.deleteIfExists(Path.of(intermediateFile));
+            }
         }
     }
 
