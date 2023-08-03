@@ -3,6 +3,7 @@ package JP2ImageConverter.services;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -196,6 +197,7 @@ public class KakaduService {
                 if (process.waitFor() != 0) {
                     throw new Exception("Command exited with status code " + process.waitFor());
                 }
+                deleteTinyGrayVoidImages(outputFile);
             } catch (Exception e) {
                 throw new Exception(fileName + " failed to generate jp2 file.", e);
             }
@@ -224,6 +226,17 @@ public class KakaduService {
             } else {
                 throw new Exception(imageFileName + " does not exist. Not processing file list further.");
             }
+        }
+    }
+
+    /**
+     * After JP2 generated, delete tiny gray images less than 10kB
+     * @param outputFile the output JP2
+     */
+    public void deleteTinyGrayVoidImages(String outputFile) throws Exception {
+        File output = new File(outputFile);
+        if (output.length() < 10000 && colorFieldsService.identifyType(outputFile).contains("Gray")) {
+            Files.deleteIfExists(Path.of(outputFile));
         }
     }
 

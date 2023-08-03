@@ -226,4 +226,12 @@ public class KakaduServiceTest {
                     "Not processing file list further."));
         }
     }
+
+    @Test
+    public void testDeleteTinyGrayVoidImage() throws Exception {
+        String testFile = "src/test/resources/04OldWelllogo.psd";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/04OldWelllogo"), "psd");
+
+        assertFalse(Files.exists(tmpFolder.resolve("04OldWelllogo.jp2")));
+    }
 }
