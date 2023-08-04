@@ -11,8 +11,10 @@ import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -102,6 +104,20 @@ public class JP2ImageConverterCommandIT {
         };
 
         executeExpectSuccess(args);
+    }
+
+    @Test
+    public void kakaduKduCompressGrayVoidTest() throws Exception {
+        String testFile = "src/test/resources/04OldWelllogo.psd";
+
+        String[] args = new String[] {
+                "jp24u",
+                "kdu_compress", "-f", testFile,
+                "-o", tmpFolder.toString() + "/04OldWelllogo"
+        };
+
+        executeExpectSuccess(args);
+        assertFalse(Files.exists(tmpFolder.resolve("04OldWelllogo.jp2")));
     }
 
     @Test
