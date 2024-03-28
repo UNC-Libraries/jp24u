@@ -69,8 +69,9 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Run GraphicsMagick convert and convert other image formats to TIFF
+     * Run GraphicsMagick convert and convert other image formats/raw image formats to TIFF
      * Other image formats: PNG, GIF, PICT, BMP
+     * Raw image formats: CRW, CR2, DNG, RAF
      * @param fileName an image file
      * @return temporaryFile the path to a temporary TIFF file
      */
@@ -193,9 +194,40 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Run GraphicsMagick convert and convert NEF images to TIF
+     * @param fileName an image file
+     * @return temporaryFile a temporary PPM file
+     */
+    // add -normalize to correct purple tint
+    public String convertNef(String fileName) throws Exception {
+        String gm = "gm";
+        String inputFile = fileName + "[0]";
+        String convert = "convert";
+        String normalize = "-normalize";
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
+
+        List<String> command = Arrays.asList(gm, convert, normalize, inputFile, temporaryFile);
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            String cmdOutput = new String(process.getInputStream().readAllBytes());
+            log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
+        } catch (Exception e) {
+            throw new Exception(fileName + " failed to generate TIFF file.", e);
+        }
+
+        return temporaryFile;
+    }
+
+    /**
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
-     * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD
+     * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, CRW, CR2, DNG, RAF
      * @param fileName an image file
      * @param sourceFormat file extension/mimetype override
      * @return inputFile a path to a TIFF/PPM image file
@@ -203,7 +235,7 @@ public class ImagePreproccessingService {
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
         String inputFile;
         String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp"));
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp", "crw", "cr2", "dng", "raf"));
         if (!sourceFormat.isEmpty()) {
             fileNameExtension = sourceFormat;
         }
@@ -216,6 +248,8 @@ public class ImagePreproccessingService {
             inputFile = convertJp2(fileName);
         } else if (fileNameExtension.matches("jpeg")){
             inputFile = convertJpeg(fileName);
+        } else if (fileNameExtension.matches("nef")){
+            inputFile = convertNef(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
             inputFile = linkToTiff(fileName);
         } else {

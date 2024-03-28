@@ -118,6 +118,16 @@ public class KakaduService {
             sourceFormats.put("image/vnd.adobe.photoshop", "psd");
             sourceFormats.put("jp2", "jp2");
             sourceFormats.put("image/jp2", "jp2");
+            sourceFormats.put("nef", "nef");
+            sourceFormats.put("image/x-nikon-nef", "nef");
+            sourceFormats.put("crw", "crw");
+            sourceFormats.put("image/x-canon-crw", "crw");
+            sourceFormats.put("cr2", "cr2");
+            sourceFormats.put("image/x-canon-cr2", "cr2");
+            sourceFormats.put("dng", "dng");
+            sourceFormats.put("image/x-adobe-dng", "dng");
+            sourceFormats.put("raf", "raf");
+            sourceFormats.put("image/x-fujifilm-raf", "raf");
 
             if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
                 sourceFormat = sourceFormats.get(sourceFormat);

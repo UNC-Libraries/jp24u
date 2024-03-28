@@ -138,6 +138,51 @@ public class KakaduServiceTest {
     }
 
     @Test
+    public void testKduCompressNef() throws Exception {
+        String testFile = "src/test/resources/rawFiles/20170822_068.NEF";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/20170822_068"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("20170822_068.jp2")));
+        assertFalse(Files.exists(tmpFolder.resolve("20170822_068.NEF.tif")));
+    }
+
+    @Test
+    public void testKduCompressCrw() throws Exception {
+        String testFile = "src/test/resources/rawFiles/CanonEOS10D.crw";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/CanonEOS10D"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("CanonEOS10D.jp2")));
+        assertFalse(Files.exists(tmpFolder.resolve("CanonEOS10D.crw.tif")));
+    }
+
+    @Test
+    public void testKduCompressCr2() throws Exception {
+        String testFile = "src/test/resources/rawFiles/CanonEOS350D.CR2";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/CanonEOS350D"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("CanonEOS350D.jp2")));
+        assertFalse(Files.exists(tmpFolder.resolve("CanonEOS350D.CR2.tif")));
+    }
+
+    @Test
+    public void testKduCompressDng() throws Exception {
+        String testFile = "src/test/resources/rawFiles/DJIPhantom4.dng";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/DJIPhantom4"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("DJIPhantom4.jp2")));
+        assertFalse(Files.exists(tmpFolder.resolve("DJIPhantom4.dng.tif")));
+    }
+
+    @Test
+    public void testKduCompressRaf() throws Exception {
+        String testFile = "src/test/resources/rawFiles/FujiFilmFinePixS5500.raf";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/FujiFilmFinePixS5500"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("FujiFilmFinePixS5500.jp2")));
+        assertFalse(Files.exists(tmpFolder.resolve("FujiFilmFinePixS5500.raf.tif")));
+    }
+
+    @Test
     public void testKduCompressFail() throws Exception {
         String testFile = "src/test/resources/test_input.txt";
 
