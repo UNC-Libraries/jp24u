@@ -1,5 +1,6 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.util.CommandUtility;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
@@ -21,6 +22,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -171,28 +173,13 @@ public class ColorFieldsService {
      * @return imageType the image type
      */
     public String identifyType(String fileName) throws Exception {
-        String imageType = null;
-
         String identify = "identify";
         String quiet = "-quiet";
         String format = "-format";
         String options = "%[type]";
-        String[] command = {identify, quiet, format, options, fileName};
+        List<String> command = Arrays.asList(identify, quiet, format, options, fileName);
 
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-        InputStream is = process.getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String line;
-
-        while ((line = br.readLine()) != null) {
-            imageType = line;
-        }
-        if (process.waitFor() != 0) {
-            throw new Exception("Command exited with status code " + process.waitFor());
-        }
-        return imageType;
+        return CommandUtility.identifyFileType(command);
     }
 
     /**

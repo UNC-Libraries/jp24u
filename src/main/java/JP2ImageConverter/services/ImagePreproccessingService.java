@@ -1,5 +1,6 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.util.CommandUtility;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
@@ -51,7 +52,7 @@ public class ImagePreproccessingService {
 
         List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
                 profile, profileOptions, temporaryFile);
-        generateImage(command);
+        CommandUtility.generateImage(command);
 
         return temporaryFile;
     }
@@ -72,7 +73,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, inputFile, temporaryFile);
-        generateImage(command);
+        CommandUtility.generateImage(command);
 
         return temporaryFile;
     }
@@ -94,7 +95,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
-        generateImage(command);
+        CommandUtility.generateImage(command);
 
         return temporaryFile;
     }
@@ -111,7 +112,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
-        generateImage(command);
+        CommandUtility.generateImage(command);
 
         return temporaryFile;
     }
@@ -128,7 +129,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
-        generateImage(command);
+        CommandUtility.generateImage(command);
 
         return temporaryFile;
     }
@@ -147,7 +148,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, normalize, inputFile, temporaryFile);
-        generateImage(command);
+        CommandUtility.generateImage(command);
 
         return temporaryFile;
     }
@@ -245,20 +246,5 @@ public class ImagePreproccessingService {
         Path tempPath = tmpFilesDir.resolve(FilenameUtils.getName(fileName) + extension).toAbsolutePath();
         Files.deleteIfExists(tempPath);
         return tempPath;
-    }
-
-    private void generateImage(List<String> command) throws Exception {
-        try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.debug(cmdOutput);
-            if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
-            }
-        } catch (Exception e) {
-            throw new Exception(command + " failed to generate file.", e);
-        }
     }
 }

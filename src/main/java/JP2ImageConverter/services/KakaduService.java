@@ -1,5 +1,6 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.util.CommandUtility;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
@@ -198,19 +199,8 @@ public class KakaduService {
                 command.add(jp2SpaceOptions);
             }
 
-            try {
-                ProcessBuilder builder = new ProcessBuilder(command);
-                builder.redirectErrorStream(true);
-                Process process = builder.start();
-                String cmdOutput = new String(process.getInputStream().readAllBytes());
-                log.debug(cmdOutput);
-                if (process.waitFor() != 0) {
-                    throw new Exception("Command exited with status code " + process.waitFor());
-                }
-                deleteTinyGrayVoidImages(outputFile);
-            } catch (Exception e) {
-                throw new Exception(command + " failed to generate jp2 file.", e);
-            }
+            CommandUtility.generateImage(command);
+            deleteTinyGrayVoidImages(outputFile);
         } finally {
             // delete intermediate files and symlinks after JP2 generated
             for (String intermediateFile : intermediateFiles) {
