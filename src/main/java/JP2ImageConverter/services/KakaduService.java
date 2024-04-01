@@ -209,7 +209,7 @@ public class KakaduService {
                 }
                 deleteTinyGrayVoidImages(outputFile);
             } catch (Exception e) {
-                throw new Exception(fileName + " failed to generate jp2 file.", e);
+                throw new Exception(command + " failed to generate jp2 file.", e);
             }
         } finally {
             // delete intermediate files and symlinks after JP2 generated

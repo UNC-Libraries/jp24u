@@ -51,7 +51,7 @@ public class ImagePreproccessingService {
 
         List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
                 profile, profileOptions, temporaryFile);
-        generateImage(command, fileName);
+        generateImage(command);
 
         return temporaryFile;
     }
@@ -72,7 +72,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, inputFile, temporaryFile);
-        generateImage(command, fileName);
+        generateImage(command);
 
         return temporaryFile;
     }
@@ -94,7 +94,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
-        generateImage(command, fileName);
+        generateImage(command);
 
         return temporaryFile;
     }
@@ -111,7 +111,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
-        generateImage(command, fileName);
+        generateImage(command);
 
         return temporaryFile;
     }
@@ -128,7 +128,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
-        generateImage(command, fileName);
+        generateImage(command);
 
         return temporaryFile;
     }
@@ -147,7 +147,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, normalize, inputFile, temporaryFile);
-        generateImage(command, fileName);
+        generateImage(command);
 
         return temporaryFile;
     }
@@ -247,7 +247,7 @@ public class ImagePreproccessingService {
         return tempPath;
     }
 
-    private void generateImage(List<String> command, String fileName) throws Exception {
+    private void generateImage(List<String> command) throws Exception {
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
             builder.redirectErrorStream(true);
@@ -258,7 +258,7 @@ public class ImagePreproccessingService {
                 throw new Exception("Command exited with status code " + process.waitFor());
             }
         } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate file.", e);
+            throw new Exception(command + " failed to generate file.", e);
         }
     }
 }
