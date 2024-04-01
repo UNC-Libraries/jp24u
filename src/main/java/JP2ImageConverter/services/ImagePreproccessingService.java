@@ -51,19 +51,7 @@ public class ImagePreproccessingService {
 
         List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
                 profile, profileOptions, temporaryFile);
-
-        try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.debug(cmdOutput);
-            if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
-            }
-        } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate temporary TIFF file.", e);
-        }
+        generateImage(command, fileName);
 
         return temporaryFile;
     }
@@ -84,19 +72,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, inputFile, temporaryFile);
-
-        try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.debug(cmdOutput);
-            if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
-            }
-        } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate TIFF file.", e);
-        }
+        generateImage(command, fileName);
 
         return temporaryFile;
     }
@@ -118,19 +94,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
-
-        try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.debug(cmdOutput);
-            if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
-            }
-        } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate TIFF file.", e);
-        }
+        generateImage(command, fileName);
 
         return temporaryFile;
     }
@@ -147,19 +111,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
-
-        try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.debug(cmdOutput);
-            if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
-            }
-        } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate TIFF file.", e);
-        }
+        generateImage(command, fileName);
 
         return temporaryFile;
     }
@@ -176,19 +128,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
-
-        try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.debug(cmdOutput);
-            if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
-            }
-        } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate PPM file.", e);
-        }
+        generateImage(command, fileName);
 
         return temporaryFile;
     }
@@ -207,19 +147,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, normalize, inputFile, temporaryFile);
-
-        try {
-            ProcessBuilder builder = new ProcessBuilder(command);
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String cmdOutput = new String(process.getInputStream().readAllBytes());
-            log.debug(cmdOutput);
-            if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
-            }
-        } catch (Exception e) {
-            throw new Exception(fileName + " failed to generate TIFF file.", e);
-        }
+        generateImage(command, fileName);
 
         return temporaryFile;
     }
@@ -317,5 +245,20 @@ public class ImagePreproccessingService {
         Path tempPath = tmpFilesDir.resolve(FilenameUtils.getName(fileName) + extension).toAbsolutePath();
         Files.deleteIfExists(tempPath);
         return tempPath;
+    }
+
+    private void generateImage(List<String> command, String fileName) throws Exception {
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            String cmdOutput = new String(process.getInputStream().readAllBytes());
+            log.debug(cmdOutput);
+            if (process.waitFor() != 0) {
+                throw new Exception("Command exited with status code " + process.waitFor());
+            }
+        } catch (Exception e) {
+            throw new Exception(fileName + " failed to generate file.", e);
+        }
     }
 }
