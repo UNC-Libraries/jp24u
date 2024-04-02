@@ -20,7 +20,7 @@ public class CommandUtility {
                 output = line;
             }
             if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
+                throw new Exception("Command exited with status code " + process.waitFor() + ": " + output);
             }
         } catch (Exception e) {
             throw new Exception("Command failed: " + command, e);

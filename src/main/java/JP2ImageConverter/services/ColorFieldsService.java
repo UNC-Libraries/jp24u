@@ -171,7 +171,7 @@ public class ColorFieldsService {
         try {
             colorspace = CommandUtility.executeCommand(command);
         } catch (Exception e) {
-            log.warn("Colorspace not identified " + e);
+            log.warn("Colorspace not identified: {}", e.getMessage());
         }
 
         return colorspace;
