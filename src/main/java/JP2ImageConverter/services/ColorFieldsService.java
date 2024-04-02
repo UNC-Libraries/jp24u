@@ -179,7 +179,7 @@ public class ColorFieldsService {
         String options = "%[type]";
         List<String> command = Arrays.asList(identify, quiet, format, options, fileName);
 
-        return CommandUtility.identifyFileType(command);
+        return CommandUtility.identifyColorspace(command);
     }
 
     /**

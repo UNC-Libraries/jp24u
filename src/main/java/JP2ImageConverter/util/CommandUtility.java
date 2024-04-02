@@ -27,8 +27,8 @@ public class CommandUtility {
         }
     }
 
-    public static String identifyFileType(List<String> command) throws Exception {
-        String imageType = null;
+    public static String identifyColorspace(List<String> command) {
+        String colorspace = null;
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
             builder.redirectErrorStream(true);
@@ -38,15 +38,15 @@ public class CommandUtility {
             String line;
 
             while ((line = br.readLine()) != null) {
-                imageType = line;
+                colorspace = line;
             }
             if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor());
+                log.warn("Command exited with status code " + process.waitFor());
             }
         } catch (Exception e) {
-            throw new Exception(command + " failed to identity file type");
+            log.warn(command + " failed to identity file type" + e);
         }
 
-        return imageType;
+        return colorspace;
     }
 }
