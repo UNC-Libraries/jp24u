@@ -61,7 +61,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/IMG_2377.jpeg";
         String tempPpm = service.tmpFilesDir + "/IMG_2377.jpeg.ppm";
 
-        service.convertToPpm(testFile);
+        service.convertJpeg(testFile);
 
         assertTrue(Files.exists(Paths.get(tempPpm)));
     }
@@ -198,13 +198,13 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testConvertCr2ToTiff() throws Exception {
         String testFile = "src/test/resources/CanonEOS350D.CR2";
-        String tempTif = service.tmpFilesDir + "/CanonEOS350D.CR2.tif";
+        String tempTif = service.tmpFilesDir + "/CanonEOS350D.CR2.ppm";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:sRGB\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 3474x2314;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB;ICM Profile: ;Type: TrueColor;\"";
 
-        service.convertToPpm(testFile);
+        service.convertCr2AndDng(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -214,13 +214,13 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testConvertDngToTiff() throws Exception {
         String testFile = "src/test/resources/DJIPhantom4.dng";
-        String tempTif = service.tmpFilesDir + "/DJIPhantom4.dng.tif";
+        String tempTif = service.tmpFilesDir + "/DJIPhantom4.dng.ppm";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:sRGB\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
                 "MagickIdentify:\"Dimensions: 4000x3000;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB;ICM Profile: ;Type: TrueColor;\"";
 
-        service.convertToPpm(testFile);
+        service.convertCr2AndDng(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));

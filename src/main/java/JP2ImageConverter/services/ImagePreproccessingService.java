@@ -118,17 +118,35 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Run ImageMagick convert and convert JPEG, CR2, and DNG images to PPM
-     * Converting JPEG/CR2/DNG to temporary TIFFs results in Kakadu errors and 0 byte JP2s
+     * Run ImageMagick convert and convert JPEG images to PPM
+     * Converting JPEG to temporary TIFFs results in Kakadu errors and 0 byte JP2s
      * @param fileName an image file
      * @return temporaryFile a temporary PPM file
      */
-    public String convertToPpm(String fileName) throws Exception {
+    public String convertJpeg(String fileName) throws Exception {
         String convert = "convert";
         String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
+        CommandUtility.executeCommand(command);
+
+        return temporaryFile;
+    }
+
+    /**
+     * Run GraphicsMagick convert and convert CR2 and DNG images to PPM
+     * Converting CR2 and DNG to temporary TIFFs results in Kakadu errors and 0 byte JP2s
+     * @param fileName an image file
+     * @return temporaryFile a temporary PPM file
+     */
+    public String convertCr2AndDng(String fileName) throws Exception {
+        String gm = "gm";
+        String convert = "convert";
+        String importFile = fileName + "[0]";
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
+
+        List<String> command = Arrays.asList(gm, convert, importFile, temporaryFile);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
@@ -175,9 +193,10 @@ public class ImagePreproccessingService {
             inputFile = convertPsd(fileName);
         } else if (fileNameExtension.matches("jp2")) {
             inputFile = convertJp2(fileName);
-        } else if (fileNameExtension.matches("jpeg") || fileNameExtension.matches("cr2")
-                || fileNameExtension.matches("dng")) {
-            inputFile = convertToPpm(fileName);
+        } else if (fileNameExtension.matches("jpeg")) {
+            inputFile = convertJpeg(fileName);
+        } else if (fileNameExtension.matches("cr2") || fileNameExtension.matches("dng")) {
+            inputFile = convertCr2AndDng(fileName);
         } else if (fileNameExtension.matches("nef")) {
             inputFile = convertNef(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")) {
