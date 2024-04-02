@@ -61,7 +61,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/IMG_2377.jpeg";
         String tempPpm = service.tmpFilesDir + "/IMG_2377.jpeg.ppm";
 
-        service.convertJpeg(testFile);
+        service.convertToPpm(testFile);
 
         assertTrue(Files.exists(Paths.get(tempPpm)));
     }
@@ -204,7 +204,7 @@ public class ImagePreprocessingServiceTest {
                 "MagickIdentify:\"Dimensions: 3474x2314;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB;ICM Profile: ;Type: TrueColor;\"";
 
-        service.convertImageFormats(testFile);
+        service.convertToPpm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -220,7 +220,7 @@ public class ImagePreprocessingServiceTest {
                 "MagickIdentify:\"Dimensions: 4000x3000;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB;ICM Profile: ;Type: TrueColor;\"";
 
-        service.convertImageFormats(testFile);
+        service.convertToPpm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));

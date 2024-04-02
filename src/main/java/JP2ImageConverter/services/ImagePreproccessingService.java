@@ -176,11 +176,11 @@ public class ImagePreproccessingService {
         } else if (fileNameExtension.matches("jp2")) {
             inputFile = convertJp2(fileName);
         } else if (fileNameExtension.matches("jpeg") || fileNameExtension.matches("cr2")
-                || fileNameExtension.matches("dng")){
+                || fileNameExtension.matches("dng")) {
             inputFile = convertToPpm(fileName);
-        } else if (fileNameExtension.matches("nef")){
+        } else if (fileNameExtension.matches("nef")) {
             inputFile = convertNef(fileName);
-        } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
+        } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")) {
             inputFile = linkToTiff(fileName);
         } else {
             log.info("JP2 conversion for the following file format not supported: {}", fileNameExtension);
