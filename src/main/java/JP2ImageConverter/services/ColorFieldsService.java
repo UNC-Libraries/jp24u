@@ -149,37 +149,32 @@ public class ColorFieldsService {
         String options = "Dimensions: %wx%h;Channels: %[channels];Bit-depth: %[bit-depth];" +
                 "Alpha channel: %A;Color Space: %[colorspace];Profiles: %[profiles];" +
                 "ICC Profile: %[profile:icc];ICM Profile: %[profile:icm];Type: %[type];";
-        String[] command = {identify, quiet, format, options, fileName};
+        List<String> command = Arrays.asList(identify, quiet, format, options, fileName);
+        String attributes = CommandUtility.executeCommand(command);
 
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-        InputStream is = process.getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String line;
-        String attributes = "\"";
-        while ((line = br.readLine()) != null) {
-            attributes = attributes + line;
-        }
-        if (process.waitFor() != 0) {
-            throw new Exception("Command exited with status code " + process.waitFor());
-        }
-        return attributes + "\"";
+        return "\"" + attributes + "\"";
     }
 
     /**
      * Run ImageMagick identify command and return type (https://imagemagick.org/script/command-line-options.php#type)
      * @param fileName an image file
-     * @return imageType the image type
+     * @return imageType the image type (colorspace)
      */
-    public String identifyType(String fileName) throws Exception {
+    public String identifyType(String fileName) {
+        String colorspace = null;
         String identify = "identify";
         String quiet = "-quiet";
         String format = "-format";
         String options = "%[type]";
         List<String> command = Arrays.asList(identify, quiet, format, options, fileName);
 
-        return CommandUtility.identifyColorspace(command);
+        try {
+            colorspace = CommandUtility.executeCommand(command);
+        } catch (Exception e) {
+            log.warn("Colorspace not identified " + e);
+        }
+
+        return colorspace;
     }
 
     /**

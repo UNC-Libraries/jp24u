@@ -52,7 +52,7 @@ public class ImagePreproccessingService {
 
         List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
                 profile, profileOptions, temporaryFile);
-        CommandUtility.generateImage(command);
+        CommandUtility.executeCommand(command);
 
         return temporaryFile;
     }
@@ -73,7 +73,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, inputFile, temporaryFile);
-        CommandUtility.generateImage(command);
+        CommandUtility.executeCommand(command);
 
         return temporaryFile;
     }
@@ -95,7 +95,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
-        CommandUtility.generateImage(command);
+        CommandUtility.executeCommand(command);
 
         return temporaryFile;
     }
@@ -112,7 +112,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
-        CommandUtility.generateImage(command);
+        CommandUtility.executeCommand(command);
 
         return temporaryFile;
     }
@@ -129,7 +129,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
         List<String> command = Arrays.asList(convert, importFile, temporaryFile);
-        CommandUtility.generateImage(command);
+        CommandUtility.executeCommand(command);
 
         return temporaryFile;
     }
@@ -148,7 +148,7 @@ public class ImagePreproccessingService {
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
         List<String> command = Arrays.asList(gm, convert, normalize, inputFile, temporaryFile);
-        CommandUtility.generateImage(command);
+        CommandUtility.executeCommand(command);
 
         return temporaryFile;
     }

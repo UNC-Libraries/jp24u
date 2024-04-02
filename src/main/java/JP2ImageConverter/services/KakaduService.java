@@ -199,7 +199,7 @@ public class KakaduService {
                 command.add(jp2SpaceOptions);
             }
 
-            CommandUtility.generateImage(command);
+            CommandUtility.executeCommand(command);
             deleteTinyGrayVoidImages(outputFile);
         } finally {
             // delete intermediate files and symlinks after JP2 generated
