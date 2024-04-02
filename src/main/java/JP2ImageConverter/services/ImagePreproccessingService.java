@@ -118,12 +118,12 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Run ImageMagick convert and convert JPEG images to PPM
-     * Converting JPEGs to temporary TIFFs results in Kakadu errors and 0 byte JP2s
+     * Run ImageMagick convert and convert JPEG, CR2, and DNG images to PPM
+     * Converting JPEG/CR2/DNG to temporary TIFFs results in Kakadu errors and 0 byte JP2s
      * @param fileName an image file
      * @return temporaryFile a temporary PPM file
      */
-    public String convertJpeg(String fileName) throws Exception {
+    public String convertToPpm(String fileName) throws Exception {
         String convert = "convert";
         String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
@@ -164,7 +164,7 @@ public class ImagePreproccessingService {
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
         String inputFile;
         String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp", "crw", "cr2", "dng", "raf"));
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp", "crw", "raf"));
         if (!sourceFormat.isEmpty()) {
             fileNameExtension = sourceFormat;
         }
@@ -175,8 +175,9 @@ public class ImagePreproccessingService {
             inputFile = convertPsd(fileName);
         } else if (fileNameExtension.matches("jp2")) {
             inputFile = convertJp2(fileName);
-        } else if (fileNameExtension.matches("jpeg")){
-            inputFile = convertJpeg(fileName);
+        } else if (fileNameExtension.matches("jpeg") || fileNameExtension.matches("cr2")
+                || fileNameExtension.matches("dng")){
+            inputFile = convertToPpm(fileName);
         } else if (fileNameExtension.matches("nef")){
             inputFile = convertNef(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")){
