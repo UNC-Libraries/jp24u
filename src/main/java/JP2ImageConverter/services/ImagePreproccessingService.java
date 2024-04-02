@@ -263,8 +263,7 @@ public class ImagePreproccessingService {
      * @return tmpImageFilesDirectoryPath
      */
     private Path prepareTempPath(String fileName, String extension) throws Exception {
-        Path tempPath = tmpFilesDir.resolve(FilenameUtils.getName(fileName) + extension).toAbsolutePath();
-        Files.deleteIfExists(tempPath);
+        Path tempPath = Files.createTempFile(tmpFilesDir, FilenameUtils.getName(fileName), extension);
         return tempPath;
     }
 }
