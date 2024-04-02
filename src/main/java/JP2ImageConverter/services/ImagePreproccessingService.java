@@ -264,6 +264,8 @@ public class ImagePreproccessingService {
      */
     private Path prepareTempPath(String fileName, String extension) throws Exception {
         Path tempPath = Files.createTempFile(tmpFilesDir, FilenameUtils.getName(fileName), extension);
+        // delete temporary path so that it can be written over by whatever utility has requested a path
+        Files.delete(tempPath);
         return tempPath;
     }
 }
