@@ -60,7 +60,7 @@ public class ImagePreproccessingService {
     /**
      * Run GraphicsMagick convert and convert other image formats/raw image formats to TIFF
      * Other image formats: PNG, GIF, PICT, BMP
-     * Raw image formats: CRW, CR2, DNG, RAF
+     * Raw image formats: CRW, DNG, RAF
      * @param fileName an image file
      * @return temporaryFile the path to a temporary TIFF file
      */
@@ -135,12 +135,12 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Run GraphicsMagick convert and convert CR2 and DNG images to PPM
-     * Converting CR2 and DNG to temporary TIFFs results in Kakadu errors and 0 byte JP2s
+     * Run GraphicsMagick convert and convert CR2 images to PPM
+     * Converting CR2 to temporary TIFFs results in YCrCb colorspaces
      * @param fileName an image file
      * @return temporaryFile a temporary PPM file
      */
-    public String convertCr2AndDng(String fileName) throws Exception {
+    public String convertCr2(String fileName) throws Exception {
         String gm = "gm";
         String convert = "convert";
         String importFile = fileName + "[0]";
@@ -182,7 +182,7 @@ public class ImagePreproccessingService {
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
         String inputFile;
         String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp", "crw", "raf"));
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp", "crw", "raf", "dng"));
         if (!sourceFormat.isEmpty()) {
             fileNameExtension = sourceFormat;
         }
@@ -195,8 +195,8 @@ public class ImagePreproccessingService {
             inputFile = convertJp2(fileName);
         } else if (fileNameExtension.matches("jpeg")) {
             inputFile = convertJpeg(fileName);
-        } else if (fileNameExtension.matches("cr2") || fileNameExtension.matches("dng")) {
-            inputFile = convertCr2AndDng(fileName);
+        } else if (fileNameExtension.matches("cr2")) {
+            inputFile = convertCr2(fileName);
         } else if (fileNameExtension.matches("nef")) {
             inputFile = convertNef(fileName);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")) {

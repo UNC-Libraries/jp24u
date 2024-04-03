@@ -21,7 +21,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Service for Kakadu kduCompress
- * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2
+ * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, NEF, CRW, CR2, DNG, RAF
  * @author krwong
  */
 public class KakaduService {
@@ -55,7 +55,8 @@ public class KakaduService {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else if (originalImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = originalImageMetadata.get(ColorFieldsService.COLOR_SPACE);
-        } else if (originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
+        } else if (originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null &&
+                !originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION).contains("YCbCr")) {
             colorSpace = originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else {
             colorSpace = "sRGB";
