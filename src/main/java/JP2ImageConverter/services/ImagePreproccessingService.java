@@ -41,7 +41,7 @@ public class ImagePreproccessingService {
      */
     //It seems like only using color space creates a more color accurate temporary image.
     //Using color space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
-    public String convertCmykColorSpace(String fileName) throws Exception {
+    public String convertCmykAndYcbcrColorSpace(String fileName) throws Exception {
         String gm = "gm";
         String convert = "convert";
         String colorSpace = "-colorspace";
@@ -221,10 +221,8 @@ public class ImagePreproccessingService {
         String inputFile;
         Set<String> colorSpaces = new HashSet<>(Arrays.asList("rgb", "srgb", "rgb palette", "gray"));
 
-        if (colorSpace.toLowerCase().matches("cmyk")) {
-            inputFile = convertCmykColorSpace(fileName);
-        } else if (colorSpace.toLowerCase().matches("ycbcr")) {
-            inputFile = convertImageFormats(fileName);
+        if (colorSpace.toLowerCase().matches("cmyk") || colorSpace.toLowerCase().matches("ycbcr")) {
+            inputFile = convertCmykAndYcbcrColorSpace(fileName);
         } else if (colorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = fileName;
         } else {
