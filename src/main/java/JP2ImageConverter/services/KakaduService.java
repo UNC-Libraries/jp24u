@@ -95,10 +95,6 @@ public class KakaduService {
      * @param sourceFormat file extension/mimetype override
      */
     public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
-        if (!sourceFormat.isEmpty()) {
-            fileName = linkToOriginal(fileName, sourceFormat);
-        }
-
         // list of intermediate files to delete after JP2 is created
         List<String> intermediateFiles = new ArrayList<>();
 
