@@ -279,4 +279,13 @@ public class KakaduServiceTest {
 
         assertFalse(Files.exists(tmpFolder.resolve("04OldWelllogo.jp2")));
     }
+
+    @Test
+    public void testCreateLinkToOriginal() throws Exception {
+        String testFile = "src/test/resources/IMG_2377_nofileext";
+        String testLink = service.tmpDir + "/IMG_2377_nofileext.jpeg";
+
+        String result = service.linkToOriginal(testFile, "jpeg");
+        assertEquals(testLink, result);
+    }
 }

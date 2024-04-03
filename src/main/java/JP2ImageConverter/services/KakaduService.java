@@ -27,6 +27,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class KakaduService {
     private static final Logger log = getLogger(KakaduService.class);
 
+    public Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
+
     private ColorFieldsService colorFieldsService;
     private ImagePreproccessingService imagePreproccessingService;
 
@@ -56,7 +58,7 @@ public class KakaduService {
         } else if (originalImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = originalImageMetadata.get(ColorFieldsService.COLOR_SPACE);
         } else if (originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null &&
-                !originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION).contains("YCbCr")) {
+                !originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION).equalsIgnoreCase("ycbcr")) {
             colorSpace = originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else {
             colorSpace = "sRGB";
@@ -93,6 +95,10 @@ public class KakaduService {
      * @param sourceFormat file extension/mimetype override
      */
     public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
+        if (!sourceFormat.isEmpty()) {
+            fileName = linkToOriginal(fileName, sourceFormat);
+        }
+
         // list of intermediate files to delete after JP2 is created
         List<String> intermediateFiles = new ArrayList<>();
 
@@ -239,6 +245,15 @@ public class KakaduService {
         if (output.length() < 10000 && colorFieldsService.identifyType(outputFile).contains("Gray")) {
             Files.deleteIfExists(Path.of(outputFile));
         }
+    }
+
+    public String linkToOriginal(String fileName, String sourceFormat) throws Exception {
+        Path target = Paths.get(fileName).toAbsolutePath();
+        Path link = tmpDir.resolve(FilenameUtils.getBaseName(fileName) + "." + sourceFormat);
+        Files.delete(link);
+        Files.createSymbolicLink(link, target);
+
+        return link.toAbsolutePath().toString();
     }
 
     public void setColorFieldsService(ColorFieldsService colorFieldsService) {

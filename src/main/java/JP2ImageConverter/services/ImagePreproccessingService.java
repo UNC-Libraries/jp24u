@@ -221,8 +221,10 @@ public class ImagePreproccessingService {
         String inputFile;
         Set<String> colorSpaces = new HashSet<>(Arrays.asList("rgb", "srgb", "rgb palette", "gray"));
 
-        if (colorSpace.toLowerCase().contains("cmyk")) {
+        if (colorSpace.toLowerCase().matches("cmyk")) {
             inputFile = convertCmykColorSpace(fileName);
+        } else if (colorSpace.toLowerCase().matches("ycbcr")) {
+            inputFile = convertImageFormats(fileName);
         } else if (colorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = fileName;
         } else {
