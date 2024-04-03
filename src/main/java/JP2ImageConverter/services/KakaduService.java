@@ -139,6 +139,7 @@ public class KakaduService {
 
             if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
                 sourceFormat = sourceFormats.get(sourceFormat);
+                fileName = linkToOriginal(fileName, sourceFormat);
             } else if (!sourceFormat.isEmpty() && !sourceFormats.containsKey(sourceFormat)) {
                 throw new Exception(sourceFormat + " file type is not supported.");
             }
