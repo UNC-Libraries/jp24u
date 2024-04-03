@@ -249,7 +249,7 @@ public class KakaduService {
 
     public String linkToOriginal(String fileName, String sourceFormat) throws Exception {
         Path target = Paths.get(fileName).toAbsolutePath();
-        Path link = tmpDir.resolve(FilenameUtils.getBaseName(fileName) + "." + sourceFormat);
+        Path link = Files.createTempFile(tmpDir, FilenameUtils.getName(fileName), "." + sourceFormat);
         Files.delete(link);
         Files.createSymbolicLink(link, target);
 

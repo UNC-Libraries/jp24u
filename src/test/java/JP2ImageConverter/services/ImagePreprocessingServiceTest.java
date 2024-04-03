@@ -279,9 +279,11 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testCreateLinkToTiff() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
-        String testLink = service.tmpFilesDir + "/E101_F8_0112.tif.tif";
 
         String result = service.linkToTiff(testFile);
-        assertEquals(testLink, result);
+
+        assertTrue(result.contains(service.tmpFilesDir.toString()));
+        assertTrue(result.contains("/E101_F8_0112.tif"));
+        assertTrue(result.endsWith(".tif"));
     }
 }
