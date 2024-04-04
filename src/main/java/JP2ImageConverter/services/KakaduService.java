@@ -1,5 +1,6 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.util.CommandUtility;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
@@ -20,11 +21,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Service for Kakadu kduCompress
- * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2
+ * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, NEF, CRW, CR2, DNG, RAF
  * @author krwong
  */
 public class KakaduService {
     private static final Logger log = getLogger(KakaduService.class);
+
+    public Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
 
     private ColorFieldsService colorFieldsService;
     private ImagePreproccessingService imagePreproccessingService;
@@ -46,7 +49,7 @@ public class KakaduService {
         // Check 2 EXIF fields (ColorSpace and PhotometricInterpretation) for color space information.
         // If the preprocessed image does not have a color space, check the original image for color space information.
         // If no color space is found with metadata-extractor, set color space to sRGB.
-        if (imageType.contains("Grayscale")) {
+        if (imageType != null && imageType.contains("Grayscale")) {
             colorSpace = "Gray";
         } else if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE);
@@ -54,7 +57,8 @@ public class KakaduService {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else if (originalImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = originalImageMetadata.get(ColorFieldsService.COLOR_SPACE);
-        } else if (originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
+        } else if (originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null &&
+                !originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION).equalsIgnoreCase("ycbcr")) {
             colorSpace = originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
         } else {
             colorSpace = "sRGB";
@@ -118,9 +122,20 @@ public class KakaduService {
             sourceFormats.put("image/vnd.adobe.photoshop", "psd");
             sourceFormats.put("jp2", "jp2");
             sourceFormats.put("image/jp2", "jp2");
+            sourceFormats.put("nef", "nef");
+            sourceFormats.put("image/x-nikon-nef", "nef");
+            sourceFormats.put("crw", "crw");
+            sourceFormats.put("image/x-canon-crw", "crw");
+            sourceFormats.put("cr2", "cr2");
+            sourceFormats.put("image/x-canon-cr2", "cr2");
+            sourceFormats.put("dng", "dng");
+            sourceFormats.put("image/x-adobe-dng", "dng");
+            sourceFormats.put("raf", "raf");
+            sourceFormats.put("image/x-fujifilm-raf", "raf");
 
             if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
                 sourceFormat = sourceFormats.get(sourceFormat);
+                fileName = linkToOriginal(fileName, sourceFormat);
             } else if (!sourceFormat.isEmpty() && !sourceFormats.containsKey(sourceFormat)) {
                 throw new Exception(sourceFormat + " file type is not supported.");
             }
@@ -166,7 +181,7 @@ public class KakaduService {
             // get color space from colorFields
             String colorSpace = getColorSpace(inputFile, fileName, sourceFormat);
 
-            // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
+            // for unusual color spaces (CMYK and YcbCr): convert to temporary TIFF before kduCompress
             inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
             intermediateFiles.add(inputFile);
 
@@ -188,19 +203,8 @@ public class KakaduService {
                 command.add(jp2SpaceOptions);
             }
 
-            try {
-                ProcessBuilder builder = new ProcessBuilder(command);
-                builder.redirectErrorStream(true);
-                Process process = builder.start();
-                String cmdOutput = new String(process.getInputStream().readAllBytes());
-                log.debug(cmdOutput);
-                if (process.waitFor() != 0) {
-                    throw new Exception("Command exited with status code " + process.waitFor());
-                }
-                deleteTinyGrayVoidImages(outputFile);
-            } catch (Exception e) {
-                throw new Exception(fileName + " failed to generate jp2 file.", e);
-            }
+            CommandUtility.executeCommand(command);
+            deleteTinyGrayVoidImages(outputFile);
         } finally {
             // delete intermediate files and symlinks after JP2 generated
             for (String intermediateFile : intermediateFiles) {
@@ -238,6 +242,15 @@ public class KakaduService {
         if (output.length() < 10000 && colorFieldsService.identifyType(outputFile).contains("Gray")) {
             Files.deleteIfExists(Path.of(outputFile));
         }
+    }
+
+    public String linkToOriginal(String fileName, String sourceFormat) throws Exception {
+        Path target = Paths.get(fileName).toAbsolutePath();
+        Path link = Files.createTempFile(tmpDir, FilenameUtils.getName(fileName), "." + sourceFormat);
+        Files.delete(link);
+        Files.createSymbolicLink(link, target);
+
+        return link.toAbsolutePath().toString();
     }
 
     public void setColorFieldsService(ColorFieldsService colorFieldsService) {
