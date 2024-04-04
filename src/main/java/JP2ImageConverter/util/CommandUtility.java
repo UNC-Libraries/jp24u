@@ -5,7 +5,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
+/**
+ * Utility for executing commands
+ * @author krwong
+ */
 public class CommandUtility {
+
+    private CommandUtility() {
+    }
+
+    /**
+     * Run a given command
+     * @param command the command to be executed
+     * @return command output
+     */
     public static String executeCommand(List<String> command) throws Exception {
         String output = null;
         try {
