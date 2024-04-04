@@ -181,7 +181,7 @@ public class KakaduService {
             // get color space from colorFields
             String colorSpace = getColorSpace(inputFile, fileName, sourceFormat);
 
-            // for unusual color spaces (CMYK): convert to temporary TIFF before kduCompress
+            // for unusual color spaces (CMYK and YcbCr): convert to temporary TIFF before kduCompress
             inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
             intermediateFiles.add(inputFile);
 

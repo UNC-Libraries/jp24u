@@ -143,7 +143,7 @@ public class ImagePreproccessingService {
     public String convertCr2(String fileName) throws Exception {
         String gm = "gm";
         String convert = "convert";
-        String importFile = fileName + "[0]";
+        String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
         List<String> command = Arrays.asList(gm, convert, importFile, temporaryFile);
