@@ -51,7 +51,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/E101_F8_0112"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("E101_F8_0112.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("E101_F8_0112.tif.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/P0024_0103_01"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("P0024_0103_01.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("P0024_0103_01.tif.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -70,8 +70,7 @@ public class KakaduServiceTest {
                 "");
 
         assertTrue(Files.exists(tmpFolder.resolve("OP20459_1_TremorsKelleyandtheCowboys.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("OP20459_1_TremorsKelleyandtheCowboys.tif.tif")));
-        assertFalse(Files.exists(tmpFolder.resolve("OP20459_1_TremorsKelleyandtheCowboys.tif.tif.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -80,7 +79,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("IMG_2377.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("IMG_2377.jpeg.ppm")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -89,7 +88,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/schoolphotos1"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("schoolphotos1.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("schoolphotos1.png.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -98,7 +97,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/CARTEZOO"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("CARTEZOO.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("CARTEZOO.GIF.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -107,7 +106,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_3444"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("IMG_3444.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("IMG_3444.pct.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -116,7 +115,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/Wagoner_BW"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("Wagoner_BW.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("Wagoner_BW.bmp.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -125,7 +124,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/17"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("17.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("17.psd.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -134,52 +133,52 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/17"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("17.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("17.jp2.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
     public void testKduCompressNef() throws Exception {
-        String testFile = "src/test/resources/rawFiles/20170822_068.NEF";
+        String testFile = "src/test/resources/20170822_068.NEF";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/20170822_068"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("20170822_068.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("20170822_068.NEF.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
     public void testKduCompressCrw() throws Exception {
-        String testFile = "src/test/resources/rawFiles/CanonEOS10D.crw";
+        String testFile = "src/test/resources/CanonEOS10D.crw";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/CanonEOS10D"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("CanonEOS10D.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("CanonEOS10D.crw.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
     public void testKduCompressCr2() throws Exception {
-        String testFile = "src/test/resources/rawFiles/CanonEOS350D.CR2";
+        String testFile = "src/test/resources/CanonEOS350D.CR2";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/CanonEOS350D"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("CanonEOS350D.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("CanonEOS350D.CR2.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
     public void testKduCompressDng() throws Exception {
-        String testFile = "src/test/resources/rawFiles/DJIPhantom4.dng";
+        String testFile = "src/test/resources/DJIPhantom4.dng";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/DJIPhantom4"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("DJIPhantom4.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("DJIPhantom4.dng.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
     public void testKduCompressRaf() throws Exception {
-        String testFile = "src/test/resources/rawFiles/FujiFilmFinePixS5500.raf";
+        String testFile = "src/test/resources/FujiFilmFinePixS5500.raf";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/FujiFilmFinePixS5500"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("FujiFilmFinePixS5500.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("FujiFilmFinePixS5500.raf.tif")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -213,7 +212,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377_sfjpeg"), "jpeg");
 
         assertTrue(Files.exists(tmpFolder.resolve("IMG_2377_sfjpeg.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("IMG_2377_sfjpeg.tif.ppm")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -222,7 +221,7 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377_nofileext"), "jpeg");
 
         assertTrue(Files.exists(tmpFolder.resolve("IMG_2377_nofileext.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("IMG_2377_nofileext.ppm")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -254,9 +253,8 @@ public class KakaduServiceTest {
         service.fileListKduCompress(testFile, tmpFolder, "");
 
         assertTrue(Files.exists(tmpFolder.resolve("E101_F8_0112.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("E101_F8_0112.tif.tif")));
         assertTrue(Files.exists(tmpFolder.resolve("P0024_0066.jp2")));
-        assertFalse(Files.exists(tmpFolder.resolve("P0024_0066.tif.tif")));
+        assertEquals(2, Files.list(tmpFolder).count());
     }
 
     @Test
@@ -277,7 +275,7 @@ public class KakaduServiceTest {
         String testFile = "src/test/resources/04OldWelllogo.psd";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/04OldWelllogo"), "psd");
 
-        assertFalse(Files.exists(tmpFolder.resolve("04OldWelllogo.jp2")));
+        assertEquals(0, Files.list(tmpFolder).count());
     }
 
     @Test
