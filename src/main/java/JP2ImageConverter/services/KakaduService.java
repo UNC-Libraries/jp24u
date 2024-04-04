@@ -90,11 +90,11 @@ public class KakaduService {
 
     /**
      * Run kdu_compress and convert image to JP2
-     * @param fileName an image file
+     * @param sourceFileName an image file
      * @param outputPath destination for converted files
      * @param sourceFormat file extension/mimetype override
      */
-    public void kduCompress(String fileName, Path outputPath, String sourceFormat) throws Exception {
+    public void kduCompress(String sourceFileName, Path outputPath, String sourceFormat) throws Exception {
         // list of intermediate files to delete after JP2 is created
         List<String> intermediateFiles = new ArrayList<>();
 
@@ -133,9 +133,13 @@ public class KakaduService {
             sourceFormats.put("raf", "raf");
             sourceFormats.put("image/x-fujifilm-raf", "raf");
 
+            String fileName = sourceFileName;
             if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
                 sourceFormat = sourceFormats.get(sourceFormat);
+                // Create a symlink to the original file in order to add a file extension
                 fileName = linkToOriginal(fileName, sourceFormat);
+                // register symlink for cleanup
+                intermediateFiles.add(fileName);
             } else if (!sourceFormat.isEmpty() && !sourceFormats.containsKey(sourceFormat)) {
                 throw new Exception(sourceFormat + " file type is not supported.");
             }
