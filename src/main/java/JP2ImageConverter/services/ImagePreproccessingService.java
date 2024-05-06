@@ -153,19 +153,20 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Run GraphicsMagick convert and convert NEF images to TIF
+     * Run Exiftool to convert NEF images to JPEG
      * @param fileName an image file
-     * @return temporaryFile a temporary PPM file
+     * @return temporaryFile a temporary JPEG file
      */
-    // add -normalize to correct purple tint
     public String convertNef(String fileName) throws Exception {
-        String gm = "gm";
-        String inputFile = fileName + "[0]";
-        String convert = "convert";
-        String normalize = "-normalize";
-        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
+        String exiftool = "exiftool";
+        String b = "-b";
+        String jpgFromRaw = "-JpgFromRaw";
+        String inputFile = fileName;
+        String w = "-w";
+        String temporaryFile = String.valueOf(prepareTempJpegPath(fileName));
+        String exiftoolOutputPath = tmpFilesDir + "/%f.%e.jpeg";
 
-        List<String> command = Arrays.asList(gm, convert, normalize, inputFile, temporaryFile);
+        List<String> command = Arrays.asList(exiftool, b, jpgFromRaw, inputFile, w, exiftoolOutputPath);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
@@ -198,7 +199,9 @@ public class ImagePreproccessingService {
         } else if (fileNameExtension.matches("cr2")) {
             inputFile = convertCr2(fileName);
         } else if (fileNameExtension.matches("nef")) {
-            inputFile = convertNef(fileName);
+            // convert NEF to JPEG, then convert JPEG to PPM
+            String tempJpeg = convertNef(fileName);
+            inputFile = convertJpeg(tempJpeg);
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")) {
             inputFile = linkToTiff(fileName);
         } else {
@@ -267,5 +270,11 @@ public class ImagePreproccessingService {
         // delete temporary path so that it can be written over by whatever utility has requested a path
         Files.delete(tempPath);
         return tempPath;
+    }
+
+    private Path prepareTempJpegPath(String fileName) throws Exception {
+        Path tempJpegPath = Files.createFile(Path.of(tmpFilesDir + "/" + FilenameUtils.getName(fileName) + ".jpeg"));
+        Files.delete(tempJpegPath);
+        return tempJpegPath;
     }
 }
