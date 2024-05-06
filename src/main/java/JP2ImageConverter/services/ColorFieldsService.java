@@ -11,11 +11,8 @@ import com.drew.metadata.file.FileSystemDirectory;
 import com.drew.metadata.icc.IccDirectory;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
