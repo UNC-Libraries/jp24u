@@ -162,10 +162,7 @@ public class ImagePreproccessingService {
         String b = "-b";
         String jpgFromRaw = "-JpgFromRaw";
         String inputFile = fileName;
-        String w = "-w";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".jpeg"));
-        //String temporaryFile = "src/test/resources/20170822_068_test.NEF.jpeg";
-        String exiftoolOutputPath = tmpFilesDir + "/%f.%e.jpeg";
 
         List<String> command = Arrays.asList(exiftool, b, jpgFromRaw, inputFile);
         CommandUtility.executeCommandWriteToFile(command, temporaryFile);
@@ -273,11 +270,5 @@ public class ImagePreproccessingService {
         // delete temporary path so that it can be written over by whatever utility has requested a path
         Files.delete(tempPath);
         return tempPath;
-    }
-
-    private Path prepareTempJpegPath(String fileName) throws Exception {
-        Path tempJpegPath = Files.createFile(Path.of(tmpFilesDir + "/" + FilenameUtils.getName(fileName) + ".jpeg"));
-        Files.delete(tempJpegPath);
-        return tempJpegPath;
     }
 }

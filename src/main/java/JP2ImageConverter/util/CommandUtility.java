@@ -1,13 +1,9 @@
 package JP2ImageConverter.util;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 /**
@@ -47,31 +43,18 @@ public class CommandUtility {
         return output;
     }
 
-    public static String executeCommandWriteToFile(List<String> command, String temporaryFile) throws Exception {
-        String output = null;
+    public static void executeCommandWriteToFile(List<String> command, String temporaryFile) throws Exception {
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
             builder.redirectErrorStream(true);
-            //builder.redirectInput(new File(temporaryFile));
+            builder.redirectOutput(new File(temporaryFile));
             Process process = builder.start();
-            InputStream is = process.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String line;
 
-            while ((line = br.readLine()) != null) {
-                output = line;
-            }
             if (process.waitFor() != 0) {
-                throw new Exception("Command exited with status code " + process.waitFor() + ": " + output);
+                throw new Exception("Command exited with status code " + process.waitFor());
             }
-
-            File targetFile = new File(temporaryFile);
-            FileUtils.copyInputStreamToFile(is, targetFile);
-
         } catch (Exception e) {
             throw new Exception("Command failed: " + command, e);
         }
-
-        return output;
     }
 }
