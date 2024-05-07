@@ -159,13 +159,12 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testConvertNefToJpeg() throws Exception {
         String testFile = "src/test/resources/20170822_068.NEF";
-        String tempTif = service.tmpFilesDir + "/20170822_068.NEF.jpeg";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:null\t" +
                 "MagickIdentify:\"Dimensions: 4272x2848;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
                 "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"";
 
-        service.convertNef(testFile);
+        var tempTif = service.convertNef(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));

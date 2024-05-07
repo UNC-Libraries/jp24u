@@ -163,11 +163,12 @@ public class ImagePreproccessingService {
         String jpgFromRaw = "-JpgFromRaw";
         String inputFile = fileName;
         String w = "-w";
-        String temporaryFile = String.valueOf(prepareTempJpegPath(fileName));
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".jpeg"));
+        //String temporaryFile = "src/test/resources/20170822_068_test.NEF.jpeg";
         String exiftoolOutputPath = tmpFilesDir + "/%f.%e.jpeg";
 
-        List<String> command = Arrays.asList(exiftool, b, jpgFromRaw, inputFile, w, exiftoolOutputPath);
-        CommandUtility.executeCommand(command);
+        List<String> command = Arrays.asList(exiftool, b, jpgFromRaw, inputFile);
+        CommandUtility.executeCommandWriteToFile(command, temporaryFile);
 
         return temporaryFile;
     }
@@ -202,6 +203,7 @@ public class ImagePreproccessingService {
             // convert NEF to JPEG, then convert JPEG to PPM
             String tempJpeg = convertNef(fileName);
             inputFile = convertJpeg(tempJpeg);
+            // delete temp JPEG after temp PPM is created
             Files.deleteIfExists(Path.of(tempJpeg));
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")) {
             inputFile = linkToTiff(fileName);
