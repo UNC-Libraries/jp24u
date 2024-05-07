@@ -202,6 +202,7 @@ public class ImagePreproccessingService {
             // convert NEF to JPEG, then convert JPEG to PPM
             String tempJpeg = convertNef(fileName);
             inputFile = convertJpeg(tempJpeg);
+            Files.deleteIfExists(Path.of(tempJpeg));
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")) {
             inputFile = linkToTiff(fileName);
         } else {

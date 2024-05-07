@@ -149,11 +149,6 @@ public class KakaduService {
             // preprocess non-TIFF images and convert them to temporary TIFFs before kdu_compress
             String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
             intermediateFiles.add(inputFile);
-            // if NEF, add temp JPEG to list of intermediate files to be deleted
-            if (fileName.toLowerCase().endsWith("nef") || sourceFormat.equals("nef")) {
-                intermediateFiles.add(imagePreproccessingService.tmpFilesDir + "/" +
-                        FilenameUtils.getName(fileName) + ".jpeg");
-            }
             String output = "-o";
             String outputFile;
             String outputDefaultFilename = FilenameUtils.getBaseName(fileName) + ".jp2";
