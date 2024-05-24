@@ -153,20 +153,19 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Run GraphicsMagick convert and convert NEF images to TIF
+     * Run Exiftool to convert NEF images to JPEG
      * @param fileName an image file
-     * @return temporaryFile a temporary PPM file
+     * @return temporaryFile a temporary JPEG file
      */
-    // add -normalize to correct purple tint
     public String convertNef(String fileName) throws Exception {
-        String gm = "gm";
-        String inputFile = fileName + "[0]";
-        String convert = "convert";
-        String normalize = "-normalize";
-        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
+        String exiftool = "exiftool";
+        String b = "-b";
+        String jpgFromRaw = "-JpgFromRaw";
+        String inputFile = fileName;
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".jpeg"));
 
-        List<String> command = Arrays.asList(gm, convert, normalize, inputFile, temporaryFile);
-        CommandUtility.executeCommand(command);
+        List<String> command = Arrays.asList(exiftool, b, jpgFromRaw, inputFile);
+        CommandUtility.executeCommandWriteToFile(command, temporaryFile);
 
         return temporaryFile;
     }
@@ -198,7 +197,11 @@ public class ImagePreproccessingService {
         } else if (fileNameExtension.matches("cr2")) {
             inputFile = convertCr2(fileName);
         } else if (fileNameExtension.matches("nef")) {
-            inputFile = convertNef(fileName);
+            // convert NEF to JPEG, then convert JPEG to PPM
+            String tempJpeg = convertNef(fileName);
+            inputFile = convertJpeg(tempJpeg);
+            // delete temp JPEG after temp PPM is created
+            Files.deleteIfExists(Path.of(tempJpeg));
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")) {
             inputFile = linkToTiff(fileName);
         } else {

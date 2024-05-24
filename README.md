@@ -5,6 +5,12 @@ Image to JP2 for You!
 Given a image, the JP2ImageConverter can convert image to JP2 using the Kakadu kduCompress command. 
 It can also retrieve image metadata using EXIF fields and the ImageMagick identify command.
 
+## Dependencies
+- [ImageMagick](https://imagemagick.org/script/)
+- [GraphicsMagick 1.3.x](http://www.graphicsmagick.org/)
+- [Exiftool 12.40](https://exiftool.org/)
+- [Kakadu 8.3.0](https://kakadusoftware.com/)
+
 ## Image Conversion
 ### Image Formats
 The JP2ImageConverter supports the following image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, 
