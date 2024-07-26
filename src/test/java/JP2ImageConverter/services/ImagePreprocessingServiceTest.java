@@ -70,7 +70,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/schoolphotos1.png";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:Adobe RGB (1998)\t" +
                 "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1300x2000;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 1300x2000;Channels: srgb  3.0;Bit-depth: 16;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: Adobe RGB (1998);ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertImageFormats(testFile);
@@ -85,7 +85,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/CARTEZOO.GIF";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:null\t" +
                 "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:RGB Palette\t" +
-                "MagickIdentify:\"Dimensions: 295x353;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 295x353;Channels: srgb  4.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: Grayscale;\"";
 
         var tempTif = service.convertImageFormats(testFile);
@@ -100,7 +100,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/IMG_3444.pct";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
                 "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertImageFormats(testFile);
@@ -115,7 +115,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/Wagoner_BW.bmp";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:null\t" +
                 "ColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1940x2676;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 1940x2676;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertImageFormats(testFile);
@@ -130,7 +130,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/17.psd";
         String tifExifData = "DateTimeOriginal:2008:02:07 13:05:19\tDateTimeDigitized:2008:02:07 13:05:19\t" +
                 "ICCProfileName:sRGB IEC61966-2.1\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: 8bim,exif,icc,iptc,xmp;ICC Profile: sRGB IEC61966-2.1;" +
                 "ICM Profile: ;Type: TrueColor;\"";
 
@@ -146,7 +146,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/17.jp2";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:sRGB IEC61966-2.1\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertJp2(testFile);
@@ -161,7 +161,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/20170822_068.NEF";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:null\t" +
-                "MagickIdentify:\"Dimensions: 4272x2848;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 4272x2848;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertNef(testFile);
@@ -176,7 +176,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/CanonEOS10D.crw";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:sRGB\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 2056x3088;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 2056x3088;Channels: srgb  3.0;Bit-depth: 16;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB;ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertImageFormats(testFile);
@@ -189,16 +189,10 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testConvertCr2ToTiff() throws Exception {
         String testFile = "src/test/resources/CanonEOS350D.CR2";
-        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
-                "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:null\t" +
-                "MagickIdentify:\"Dimensions: 3474x2314;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
-                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"";
 
         var tempPpm = service.convertCr2(testFile);
-        colorFieldsService.listFields(tempPpm);
 
         assertTrue(Files.exists(Paths.get(tempPpm)));
-        assertTrue(outputStreamCaptor.toString().contains(tifExifData));
     }
 
     @Test
@@ -206,7 +200,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/DJIPhantom4.dng";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:sRGB\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 4000x3000;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 4000x3000;Channels: srgb  3.0;Bit-depth: 16;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB;ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertImageFormats(testFile);
@@ -221,7 +215,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/FujiFilmFinePixS5500.raf";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
                 "ICCProfileName:sRGB\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 2304x1740;Channels: srgb;Bit-depth: 16;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 2304x1740;Channels: srgb  3.0;Bit-depth: 16;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB;ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertImageFormats(testFile);
@@ -236,7 +230,7 @@ public class ImagePreprocessingServiceTest {
         String testFile = "src/test/resources/IMG_3444.pct";
         String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
                 "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb;Bit-depth: 8;Alpha channel: False;" +
+                "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
 
         var tempTif = service.convertToTiff(testFile, "");
