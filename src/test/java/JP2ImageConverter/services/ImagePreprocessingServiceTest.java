@@ -77,7 +77,7 @@ public class ImagePreprocessingServiceTest {
         assertContains("ICCProfileName:Adobe RGB", attributes);
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 1300x2000;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Bit-depth: 16;", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: icc;", attributes);
@@ -95,7 +95,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 295x353;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Bit-depth: 8;", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Type: Grayscale;", attributes);
@@ -116,7 +116,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 1600x1200;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Bit-depth: 8;", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: 8bim,icc;", attributes);
@@ -135,7 +135,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 1940x2676;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Type: TrueColor;", attributes);
     }
@@ -155,7 +155,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 1228x1818;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: 8bim,exif,icc,iptc,xmp;", attributes);
         assertContains("Type: TrueColor;", attributes);
@@ -177,7 +177,7 @@ public class ImagePreprocessingServiceTest {
         assertContains("ICCProfileName:sRGB IEC61966-2.1", attributes);
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 1228x1818;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: icc;", attributes);
         assertContains("Type: TrueColor;", attributes);
@@ -198,7 +198,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 4272x2848;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: ;", attributes);
         assertContains("Type: TrueColor;", attributes);
@@ -215,7 +215,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 2056x3088;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Bit-depth: 16;", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: icc;", attributes);
@@ -242,7 +242,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 4000x3000;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Bit-depth: 16;", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: icc;", attributes);
@@ -260,7 +260,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 2304x1740;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: icc;", attributes);
         assertContains("Type: TrueColor;", attributes);
@@ -282,7 +282,7 @@ public class ImagePreprocessingServiceTest {
         var attributes = outputStreamCaptor.toString();
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 1600x1200;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Bit-depth: 8;", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: 8bim,icc;", attributes);

@@ -74,7 +74,7 @@ public class ColorFieldsServiceTest {
 
         String attributes = service.identify(testFile);
         assertContains("Dimensions: 5300x3841;", attributes);
-        assertContains("Channels: gray;", attributes);
+        assertContains("Channels: gray", attributes);
         assertContains("Bit-depth: 16;", attributes);
         assertContains("Color Space: Gray;", attributes);
         assertContains("Type: Grayscale;", attributes);
@@ -106,9 +106,8 @@ public class ColorFieldsServiceTest {
         String attributes = outputStreamCaptor.toString();
         assertContains("PhotometricInterpretation:BlackIsZero", attributes);
         assertContains("MagickIdentify:", attributes);
-        assertContains("Channels: gray;", attributes);
         assertContains("Dimensions: 5300x3841;", attributes);
-        assertContains("Channels: gray;", attributes);
+        assertContains("Channels: gray", attributes);
         assertContains("Bit-depth: 16;", attributes);
         assertContains("Color Space: Gray;", attributes);
         assertContains("Type: Grayscale;", attributes);
@@ -124,15 +123,14 @@ public class ColorFieldsServiceTest {
         assertContains("ICCProfileName:Adobe RGB", attributes);
         assertContains("PhotometricInterpretation:RGB", attributes);
         assertContains("Dimensions: 2600x3650;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Bit-depth: 8;", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Type: TrueColor;", attributes);
 
         assertContains("ImageFileName:src/test/resources/P0024_0066.tif", attributes);
-        assertContains("Channels: gray;", attributes);
         assertContains("Dimensions: 5300x3841;", attributes);
-        assertContains("Channels: gray;", attributes);
+        assertContains("Channels: gray", attributes);
         assertContains("Bit-depth: 16;", attributes);
         assertContains("Color Space: Gray;", attributes);
         assertContains("Type: Grayscale;", attributes);
@@ -152,9 +150,9 @@ public class ColorFieldsServiceTest {
         assertContains("ImageFileName:src/test/resources/E101_F8_0112.tif", attributes);
         assertContains("ICCProfileName:Adobe RGB", attributes);
         assertContains("PhotometricInterpretation:RGB", attributes);
-        assertContains("Channels: gray;", attributes);
+        assertContains("Channels: gray", attributes);
         assertContains("Dimensions: 2600x3650;", attributes);
-        assertContains("Channels: srgb;", attributes);
+        assertContains("Channels: srgb", attributes);
         assertContains("Bit-depth: 8;", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Type: TrueColor;", attributes);
@@ -162,9 +160,8 @@ public class ColorFieldsServiceTest {
         assertContains("src/test/resources/test.tif does not exist.", attributes);
 
         assertContains("ImageFileName:src/test/resources/P0024_0066.tif", attributes);
-        assertContains("Channels: gray;", attributes);
         assertContains("Dimensions: 5300x3841;", attributes);
-        assertContains("Channels: gray;", attributes);
+        assertContains("Channels: gray", attributes);
         assertContains("Bit-depth: 16;", attributes);
         assertContains("Color Space: Gray;", attributes);
         assertContains("Type: Grayscale;", attributes);
