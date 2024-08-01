@@ -12,3 +12,4 @@ buildNumber.properties
 *.jp2
 .idea
 *.iml
+.DS_Store

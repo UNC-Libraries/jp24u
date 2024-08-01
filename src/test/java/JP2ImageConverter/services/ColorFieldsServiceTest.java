@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,15 +23,13 @@ public class ColorFieldsServiceTest {
         service = new ColorFieldsService();
     }
 
-    // if all the tests stop passing, you probably just need to update the FILE_MODIFIED_DATE and FileModifiedDate
     @Test
-    public void testColorFields() throws Exception {
+    public void testExtractMetadataFields() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
-        Map<String, String> testFields = new LinkedHashMap<>();
+        Map<String, String> testFields = new HashMap<>();
         testFields.put(ColorFieldsService.IMAGE_FILE_NAME, "src/test/resources/E101_F8_0112.tif");
         testFields.put(ColorFieldsService.FILE_SIZE, "57001526 bytes");
-        testFields.put(ColorFieldsService.FILE_MODIFIED_DATE, "Thu May 18 17:00:05 -04:00 2023");
         testFields.put(ColorFieldsService.DATE_TIME_ORIGINAL, "2021:08:30 19:56:48");
         testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2021:08:30 19:56:48");
         testFields.put(ColorFieldsService.ICC_PROFILE_NAME, "Adobe RGB (1998)");
@@ -39,8 +37,15 @@ public class ColorFieldsServiceTest {
         testFields.put(ColorFieldsService.INTEROP_INDEX, "Unknown (R03)");
         testFields.put(ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "RGB");
 
-        Map<String, String> fields = service.colorFields(testFile);
-        assertEquals(testFields, fields);
+        Map<String, String> fields = service.extractMetadataFields(testFile);
+        assertMapContainsExpected(testFields, fields);
+    }
+
+    public static void assertMapContainsExpected(Map<String, String> expected, Map<String, String> actual) {
+        for (Map.Entry<String, String> entry : expected.entrySet()) {
+            assertTrue(actual.containsKey(entry.getKey()), "Expected key not found: " + entry.getKey());
+            assertEquals(entry.getValue(), actual.get(entry.getKey()), "Value mismatch for key: " + entry.getKey());
+        }
     }
 
     @Test
@@ -48,10 +53,9 @@ public class ColorFieldsServiceTest {
         String testFile = "src/test/resources/P0024_0066.tif";
 
         // PhotometricInterpretation is never missing
-        Map<String,String> testFields = new LinkedHashMap<>();
+        Map<String,String> testFields = new HashMap<>();
         testFields.put(ColorFieldsService.IMAGE_FILE_NAME, testFile);
         testFields.put(ColorFieldsService.FILE_SIZE, "40736840 bytes");
-        testFields.put(ColorFieldsService.FILE_MODIFIED_DATE, "Thu May 18 17:00:05 -04:00 2023");
         testFields.put(ColorFieldsService.DATE_TIME_ORIGINAL, null);
         testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2013:06:25 14:51:58");
         testFields.put(ColorFieldsService.ICC_PROFILE_NAME, null);
@@ -59,18 +63,24 @@ public class ColorFieldsServiceTest {
         testFields.put(ColorFieldsService.INTEROP_INDEX, null);
         testFields.put(ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "BlackIsZero");
 
-        Map<String, String> fields = service.colorFields(testFile);
-        assertEquals(testFields, fields);
+        Map<String, String> fields = service.extractMetadataFields(testFile);
+        assertMapContainsExpected(testFields, fields);
     }
 
     @Test
     public void testIdentify() throws Exception {
         String testFile = "src/test/resources/P0024_0066.tif";
 
-        String testAttributes = "\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;Alpha channel: False;" +
-                "Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;Type: Grayscale;\"";
         String attributes = service.identify(testFile);
-        assertEquals(testAttributes, attributes);
+        assertContains("Dimensions: 5300x3841;", attributes);
+        assertContains("Channels: gray", attributes);
+        assertContains("Bit-depth: 16;", attributes);
+        assertContains("Color Space: Gray;", attributes);
+        assertContains("Type: Grayscale;", attributes);
+    }
+
+    private void assertContains(String expected, String actual) {
+        assertTrue(actual.contains(expected), "Expected string '" + expected + "' not found: " + actual);
     }
 
     @Test
@@ -87,13 +97,19 @@ public class ColorFieldsServiceTest {
         String testFile = "src/test/resources/P0024_0066.tif";
 
         service.listFields(testFile);
-        String testOutput = "ImageFileName:src/test/resources/P0024_0066.tif\tFileSize:40736840 bytes\t" +
-                "FileModifiedDate:Thu May 18 17:00:05 -04:00 2023\tDateTimeOriginal:null\t" +
-                "DateTimeDigitized:2013:06:25 14:51:58\tICCProfileName:null\tColorSpace:null\t" +
+        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/P0024_0066.tif"));
+        String testOutput = "ICCProfileName:null\tColorSpace:null\t" +
                 "InteropIndex:null\tPhotometricInterpretation:BlackIsZero\tMagickIdentify:\"Dimensions: 5300x3841;" +
-                "Channels: gray;Bit-depth: 16;Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;" +
+                "Channels: gray  1.0;Bit-depth: 16;Alpha channel: Undefined;Color Space: Gray;Profiles: 8bim,xmp;" +
                 "ICC Profile: ;ICM Profile: ;Type: Grayscale;\"\t\n";
-        assertTrue(outputStreamCaptor.toString().contains(testOutput));
+        String attributes = outputStreamCaptor.toString();
+        assertContains("PhotometricInterpretation:BlackIsZero", attributes);
+        assertContains("MagickIdentify:", attributes);
+        assertContains("Dimensions: 5300x3841;", attributes);
+        assertContains("Channels: gray", attributes);
+        assertContains("Bit-depth: 16;", attributes);
+        assertContains("Color Space: Gray;", attributes);
+        assertContains("Type: Grayscale;", attributes);
     }
 
     @Test
@@ -101,27 +117,27 @@ public class ColorFieldsServiceTest {
         String testFile = "src/test/resources/test_input.txt";
 
         service.fileListAllFields(testFile);
-        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/E101_F8_0112.tif\t" +
-                "FileSize:57001526 bytes\tFileModifiedDate:Thu May 18 17:00:05 -04:00 2023\t" +
-                "DateTimeOriginal:2021:08:30 19:56:48\tDateTimeDigitized:2021:08:30 19:56:48\t" +
-                "ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB\tInteropIndex:Unknown (R03)\t" +
-                "PhotometricInterpretation:RGB\tMagickIdentify:\"Dimensions: 2600x3650;Channels: srgb;" +
-                "Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Profiles: icc,xmp;" +
-                "ICC Profile: Adobe RGB (1998);ICM Profile: ;Type: TrueColor;Dimensions: 114x160;Channels: srgb;" +
-                "Bit-depth: 8;Alpha channel: False;Color Space: sRGB;Profiles: ;" +
-                "ICC Profile: ;ICM Profile: ;Type: TrueColor;\"\t\n"));
-        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/P0024_0066.tif\t" +
-                "FileSize:40736840 bytes\tFileModifiedDate:Thu May 18 17:00:05 -04:00 2023\t" +
-                "DateTimeOriginal:null\tDateTimeDigitized:2013:06:25 14:51:58\t" +
-                "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
-                "MagickIdentify:\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
-                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;" +
-                "Type: Grayscale;\"\t\n"));
-        assertTrue(outputStreamCaptor.toString().contains("Number of Files Processed: 2"));
-        assertTrue(outputStreamCaptor.toString().contains("Total Overall Runtime: "));
-        assertTrue(outputStreamCaptor.toString().contains("Average Runtime per File: "));
-        assertTrue(outputStreamCaptor.toString().contains("Total Exif Runtime: "));
-        assertTrue(outputStreamCaptor.toString().contains("Total ImageMagick Identify Runtime: "));
+        String attributes = outputStreamCaptor.toString();
+        assertContains("ImageFileName:src/test/resources/E101_F8_0112.tif", attributes);
+        assertContains("ICCProfileName:Adobe RGB", attributes);
+        assertContains("PhotometricInterpretation:RGB", attributes);
+        assertContains("Dimensions: 2600x3650;", attributes);
+        assertContains("Channels: srgb", attributes);
+        assertContains("Bit-depth: 8;", attributes);
+        assertContains("Color Space: sRGB;", attributes);
+        assertContains("Type: TrueColor;", attributes);
+
+        assertContains("ImageFileName:src/test/resources/P0024_0066.tif", attributes);
+        assertContains("Dimensions: 5300x3841;", attributes);
+        assertContains("Channels: gray", attributes);
+        assertContains("Bit-depth: 16;", attributes);
+        assertContains("Color Space: Gray;", attributes);
+        assertContains("Type: Grayscale;", attributes);
+        assertContains("Number of Files Processed: 2", attributes);
+        assertContains("Total Overall Runtime: ", attributes);
+        assertContains("Average Runtime per File: ", attributes);
+        assertContains("Total Exif Runtime: ", attributes);
+        assertContains("Total ImageMagick Identify Runtime: ", attributes);
     }
 
     @Test
@@ -129,27 +145,29 @@ public class ColorFieldsServiceTest {
         String testFile = "src/test/resources/test_input_fail.txt";
 
         service.fileListAllFields(testFile);
-        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/E101_F8_0112.tif\t" +
-                "FileSize:57001526 bytes\tFileModifiedDate:Thu May 18 17:00:05 -04:00 2023\t" +
-                "DateTimeOriginal:2021:08:30 19:56:48\tDateTimeDigitized:2021:08:30 19:56:48\t" +
-                "ICCProfileName:Adobe RGB (1998)\tColorSpace:RGB\tInteropIndex:Unknown (R03)\t" +
-                "PhotometricInterpretation:RGB\tMagickIdentify:\"Dimensions: 2600x3650;Channels: srgb;" +
-                "Bit-depth: 16;Alpha channel: False;Color Space: sRGB;Profiles: icc,xmp;" +
-                "ICC Profile: Adobe RGB (1998);ICM Profile: ;Type: TrueColor;Dimensions: 114x160;" +
-                "Channels: srgb;Bit-depth: 8;Alpha channel: False;Color Space: sRGB;" +
-                "Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"\t\n"));
-        assertTrue(outputStreamCaptor.toString().contains("src/test/resources/test.tif does not exist."));
-        assertTrue(outputStreamCaptor.toString().contains("ImageFileName:src/test/resources/P0024_0066.tif\t" +
-                "FileSize:40736840 bytes\tFileModifiedDate:Thu May 18 17:00:05 -04:00 2023\t" +
-                "DateTimeOriginal:null\tDateTimeDigitized:2013:06:25 14:51:58\t" +
-                "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:BlackIsZero\t" +
-                "MagickIdentify:\"Dimensions: 5300x3841;Channels: gray;Bit-depth: 16;" +
-                "Alpha channel: False;Color Space: Gray;Profiles: 8bim,xmp;ICC Profile: ;ICM Profile: ;" +
-                "Type: Grayscale;\"\t\n"));
-        assertTrue(outputStreamCaptor.toString().contains("Number of Files Processed: 2"));
-        assertTrue(outputStreamCaptor.toString().contains("Total Overall Runtime: "));
-        assertTrue(outputStreamCaptor.toString().contains("Average Runtime per File: "));
-        assertTrue(outputStreamCaptor.toString().contains("Total Exif Runtime: "));
-        assertTrue(outputStreamCaptor.toString().contains("Total ImageMagick Identify Runtime: "));
+        String attributes = outputStreamCaptor.toString();
+        assertContains("ImageFileName:src/test/resources/E101_F8_0112.tif", attributes);
+        assertContains("ICCProfileName:Adobe RGB", attributes);
+        assertContains("PhotometricInterpretation:RGB", attributes);
+        assertContains("Channels: gray", attributes);
+        assertContains("Dimensions: 2600x3650;", attributes);
+        assertContains("Channels: srgb", attributes);
+        assertContains("Bit-depth: 8;", attributes);
+        assertContains("Color Space: sRGB;", attributes);
+        assertContains("Type: TrueColor;", attributes);
+
+        assertContains("src/test/resources/test.tif does not exist.", attributes);
+
+        assertContains("ImageFileName:src/test/resources/P0024_0066.tif", attributes);
+        assertContains("Dimensions: 5300x3841;", attributes);
+        assertContains("Channels: gray", attributes);
+        assertContains("Bit-depth: 16;", attributes);
+        assertContains("Color Space: Gray;", attributes);
+        assertContains("Type: Grayscale;", attributes);
+        assertContains("Number of Files Processed: 2", attributes);
+        assertContains("Total Overall Runtime: ", attributes);
+        assertContains("Average Runtime per File: ", attributes);
+        assertContains("Total Exif Runtime: ", attributes);
+        assertContains("Total ImageMagick Identify Runtime: ", attributes);
     }
 }

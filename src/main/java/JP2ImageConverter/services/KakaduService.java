@@ -26,6 +26,40 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class KakaduService {
     private static final Logger log = getLogger(KakaduService.class);
+    private final static Map<String, String> SOURCE_FORMATS = new HashMap<>();
+    // accepted file types are listed in sourceFormats below
+    static {
+        SOURCE_FORMATS.put("tiff", "tiff");
+        SOURCE_FORMATS.put("tif", "tiff");
+        SOURCE_FORMATS.put("image/tiff", "tiff");
+        SOURCE_FORMATS.put("jpeg", "jpeg");
+        SOURCE_FORMATS.put("jpg", "jpeg");
+        SOURCE_FORMATS.put("image/jpeg", "jpeg");
+        SOURCE_FORMATS.put("png", "png");
+        SOURCE_FORMATS.put("image/png", "png");
+        SOURCE_FORMATS.put("gif", "gif");
+        SOURCE_FORMATS.put("image/gif", "gif");
+        SOURCE_FORMATS.put("pict", "pct");
+        SOURCE_FORMATS.put("pct", "pct");
+        SOURCE_FORMATS.put("pic", "pct");
+        SOURCE_FORMATS.put("bmp", "bmp");
+        SOURCE_FORMATS.put("image/bmp", "bmp");
+        SOURCE_FORMATS.put("psd", "psd");
+        SOURCE_FORMATS.put("image/psd", "psd");
+        SOURCE_FORMATS.put("image/vnd.adobe.photoshop", "psd");
+        SOURCE_FORMATS.put("jp2", "jp2");
+        SOURCE_FORMATS.put("image/jp2", "jp2");
+        SOURCE_FORMATS.put("nef", "nef");
+        SOURCE_FORMATS.put("image/x-nikon-nef", "nef");
+        SOURCE_FORMATS.put("crw", "crw");
+        SOURCE_FORMATS.put("image/x-canon-crw", "crw");
+        SOURCE_FORMATS.put("cr2", "cr2");
+        SOURCE_FORMATS.put("image/x-canon-cr2", "cr2");
+        SOURCE_FORMATS.put("dng", "dng");
+        SOURCE_FORMATS.put("image/x-adobe-dng", "dng");
+        SOURCE_FORMATS.put("raf", "raf");
+        SOURCE_FORMATS.put("image/x-fujifilm-raf", "raf");
+    }
 
     public Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
 
@@ -34,15 +68,15 @@ public class KakaduService {
 
     /**
      * Get color space from EXIF fields
-     * @param preprocessedImage a preprocessed image
+     * @param preprocessedImageMetadata Extracted metadata from the preprocessed image
+     * @param originalImageMetadata Extracted metadata from the original image
      * @param originalImage the original input image
-     * @param sourceFormat file extension/mimetype
      * @return colorSpace
      */
-    public String getColorSpace(String preprocessedImage, String originalImage, String sourceFormat) throws Exception {
+    public String getColorSpace(Map<String, String> preprocessedImageMetadata,
+                                Map<String, String> originalImageMetadata,
+                                String originalImage) {
         String colorSpace;
-        var preprocessedImageMetadata = extractMetadata(preprocessedImage, "");
-        var originalImageMetadata = extractMetadata(originalImage, sourceFormat);
         var imageType = colorFieldsService.identifyType(originalImage);
 
         // Identify image type for grayscale images and set color space to gray.
@@ -80,12 +114,12 @@ public class KakaduService {
      * @param sourceFormat file extension/mimetype override
      * @return imageMetadata
      */
-    private Map<String, String> extractMetadata(String fileName, String sourceFormat) throws Exception {
+    protected Map<String, String> extractMetadata(String fileName, String sourceFormat) throws Exception {
         String extension = sourceFormat.isEmpty() ? FilenameUtils.getExtension(fileName).toLowerCase() : sourceFormat;
         if (extension.equals("jp2") || extension.equals("pct") || extension.equals("ppm")) {
             return Collections.emptyMap();
         }
-        return colorFieldsService.colorFields(fileName);
+        return colorFieldsService.extractMetadataFields(fileName);
     }
 
     /**
@@ -100,49 +134,11 @@ public class KakaduService {
 
         try {
             // override source file type detection with user-inputted image file type
-            // accepted file types are listed in sourceFormats below
-            Map<String, String> sourceFormats = new HashMap<>();
-            sourceFormats.put("tiff", "tiff");
-            sourceFormats.put("tif", "tiff");
-            sourceFormats.put("image/tiff", "tiff");
-            sourceFormats.put("jpeg", "jpeg");
-            sourceFormats.put("jpg", "jpeg");
-            sourceFormats.put("image/jpeg", "jpeg");
-            sourceFormats.put("png", "png");
-            sourceFormats.put("image/png", "png");
-            sourceFormats.put("gif", "gif");
-            sourceFormats.put("image/gif", "gif");
-            sourceFormats.put("pict", "pct");
-            sourceFormats.put("pct", "pct");
-            sourceFormats.put("pic", "pct");
-            sourceFormats.put("bmp", "bmp");
-            sourceFormats.put("image/bmp", "bmp");
-            sourceFormats.put("psd", "psd");
-            sourceFormats.put("image/psd", "psd");
-            sourceFormats.put("image/vnd.adobe.photoshop", "psd");
-            sourceFormats.put("jp2", "jp2");
-            sourceFormats.put("image/jp2", "jp2");
-            sourceFormats.put("nef", "nef");
-            sourceFormats.put("image/x-nikon-nef", "nef");
-            sourceFormats.put("crw", "crw");
-            sourceFormats.put("image/x-canon-crw", "crw");
-            sourceFormats.put("cr2", "cr2");
-            sourceFormats.put("image/x-canon-cr2", "cr2");
-            sourceFormats.put("dng", "dng");
-            sourceFormats.put("image/x-adobe-dng", "dng");
-            sourceFormats.put("raf", "raf");
-            sourceFormats.put("image/x-fujifilm-raf", "raf");
-
             String fileName = sourceFileName;
-            if (!sourceFormat.isEmpty() && sourceFormats.containsKey(sourceFormat)) {
-                sourceFormat = sourceFormats.get(sourceFormat);
-                // Create a symlink to the original file in order to add a file extension
-                fileName = linkToOriginal(fileName, sourceFormat);
-                // register symlink for cleanup
-                intermediateFiles.add(fileName);
-            } else if (!sourceFormat.isEmpty() && !sourceFormats.containsKey(sourceFormat)) {
-                throw new Exception(sourceFormat + " file type is not supported.");
-            }
+            sourceFormat = getSourceFormat(fileName, sourceFormat);
+
+            // Create a symlink to the original file in order to add a file extension
+            fileName = linkToOriginal(fileName, sourceFormat, intermediateFiles);
 
             String kduCompress = "kdu_compress";
             String input = "-i";
@@ -182,12 +178,15 @@ public class KakaduService {
             String jp2SpaceOptions;
             String noPalette;
 
-            // get color space from colorFields
-            String colorSpace = getColorSpace(inputFile, fileName, sourceFormat);
-
-            // for unusual color spaces (CMYK and YcbCr): convert to temporary TIFF before kduCompress
-            inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
-            intermediateFiles.add(inputFile);
+            // Perform corrections to the input image
+            var originalImageMetadata = extractMetadata(fileName, sourceFormat);
+            var preprocessedImageMetadata = originalImageMetadata;
+            if (!fileName.equals(inputFile)) {
+                preprocessedImageMetadata = extractMetadata(inputFile, "");
+            }
+            String colorSpace = getColorSpace(preprocessedImageMetadata, originalImageMetadata, fileName);
+            String orientation = originalImageMetadata.get(ColorFieldsService.ORIENTATION);
+            inputFile = correctInputImage(inputFile, fileName, sourceFormat, colorSpace, orientation, intermediateFiles);
 
             List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
                     clevels, clayers, cprecincts, stiles, corder, orggenplt, orgtparts, cblk, cusesop, cuseeph,
@@ -215,6 +214,54 @@ public class KakaduService {
                 Files.deleteIfExists(Path.of(intermediateFile));
             }
         }
+    }
+
+    private String getSourceFormat(String fileName, String sourceFormat) {
+        String format;
+        if (sourceFormat == null || sourceFormat.isEmpty()) {
+            format = FilenameUtils.getExtension(fileName).toLowerCase();
+        } else {
+            format = sourceFormat;
+        }
+        if (format == null || format.isEmpty()) {
+            throw new IllegalArgumentException("Source format could not be determined for " + fileName);
+        }
+        if (!SOURCE_FORMATS.containsKey(format)) {
+            throw new IllegalArgumentException("JP2 conversion for the following file format not supported: " + format);
+        }
+        return SOURCE_FORMATS.get(format);
+    }
+
+    /**
+     * Performs corrections on the input image, such as fixing the color space and orientation
+     * @param inputFile
+     * @param fileName
+     * @param sourceFormat
+     * @param colorSpace
+     * @param orientation
+     * @param intermediateFiles
+     * @return
+     * @throws Exception
+     */
+    private String correctInputImage(String inputFile, String fileName, String sourceFormat, String colorSpace,
+                                     String orientation, List<String> intermediateFiles) throws Exception {
+        var fileBeforeColorConversion = inputFile;
+        // for unusual color spaces (CMYK and YcbCr): convert to temporary TIFF before kduCompress
+        inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
+        if (fileBeforeColorConversion.equals(inputFile)) {
+            // Create a temporary TIFF with the correct orientation if no color space conversion was done
+            // and the orientation is different from the default.
+            var format = sourceFormat != null && !sourceFormat.isEmpty() ?
+                    sourceFormat : SOURCE_FORMATS.get(FilenameUtils.getExtension(fileName));
+            if (orientation != null && format != null && format.equals("tiff")
+                    && !ColorFieldsService.ORIENTATION_DEFAULT.equals(orientation)) {
+                inputFile = imagePreproccessingService.correctOrientation(fileName);
+                intermediateFiles.add(inputFile);
+            }
+        } else {
+            intermediateFiles.add(inputFile);
+        }
+        return inputFile;
     }
 
     /**
@@ -248,13 +295,21 @@ public class KakaduService {
         }
     }
 
-    public String linkToOriginal(String fileName, String sourceFormat) throws Exception {
+    public String linkToOriginal(String fileName, String sourceFormat, List<String> intermediateFiles) throws Exception {
+        String extension = FilenameUtils.getExtension(fileName);
+        // Skip creating link if the extension matches the source format or is already in the source formats list
+        if (extension.equals(sourceFormat) || SOURCE_FORMATS.containsKey(extension)) {
+            return fileName;
+        }
         Path target = Paths.get(fileName).toAbsolutePath();
         Path link = Files.createTempFile(tmpDir, FilenameUtils.getName(fileName), "." + sourceFormat);
         Files.delete(link);
         Files.createSymbolicLink(link, target);
+        var linkPath = link.toAbsolutePath().toString();
+        // register symlink for cleanup
+        intermediateFiles.add(linkPath);
 
-        return link.toAbsolutePath().toString();
+        return linkPath;
     }
 
     public void setColorFieldsService(ColorFieldsService colorFieldsService) {

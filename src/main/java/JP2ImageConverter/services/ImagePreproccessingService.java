@@ -24,6 +24,7 @@ public class ImagePreproccessingService {
 
     public Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
     public Path tmpFilesDir = tmpDir.resolve("JP2ImageConverter");
+    private static final String AUTO_ORIENT = "-auto-orient";
 
     public ImagePreproccessingService() {
         try {
@@ -50,7 +51,7 @@ public class ImagePreproccessingService {
         String profileOptions = "\"*\"";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
-        List<String> command = Arrays.asList(gm, convert, fileName, colorSpace, colorSpaceOptions,
+        List<String> command = Arrays.asList(gm, convert, AUTO_ORIENT, fileName, colorSpace, colorSpaceOptions,
                 profile, profileOptions, temporaryFile);
         CommandUtility.executeCommand(command);
 
@@ -72,7 +73,7 @@ public class ImagePreproccessingService {
         String convert = "convert";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
-        List<String> command = Arrays.asList(gm, convert, inputFile, temporaryFile);
+        List<String> command = Arrays.asList(gm, convert, AUTO_ORIENT, inputFile, temporaryFile);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
@@ -94,7 +95,7 @@ public class ImagePreproccessingService {
         String colorspaceOptions = "sRGB";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
-        List<String> command = Arrays.asList(convert, importFile, colorspace, colorspaceOptions, temporaryFile);
+        List<String> command = Arrays.asList(convert, AUTO_ORIENT, importFile, colorspace, colorspaceOptions, temporaryFile);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
@@ -111,7 +112,7 @@ public class ImagePreproccessingService {
         String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
-        List<String> command = Arrays.asList(convert, importFile, temporaryFile);
+        List<String> command = Arrays.asList(convert, AUTO_ORIENT, importFile, temporaryFile);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
@@ -128,7 +129,7 @@ public class ImagePreproccessingService {
         String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
-        List<String> command = Arrays.asList(convert, importFile, temporaryFile);
+        List<String> command = Arrays.asList(convert, AUTO_ORIENT, importFile, temporaryFile);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
@@ -146,7 +147,7 @@ public class ImagePreproccessingService {
         String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
-        List<String> command = Arrays.asList(gm, convert, importFile, temporaryFile);
+        List<String> command = Arrays.asList(gm, convert, AUTO_ORIENT, importFile, temporaryFile);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
@@ -166,6 +167,10 @@ public class ImagePreproccessingService {
 
         List<String> command = Arrays.asList(exiftool, b, jpgFromRaw, inputFile);
         CommandUtility.executeCommandWriteToFile(command, temporaryFile);
+
+        // Next, copy over orientation info from the original NEF to the new JPEG
+        List<String> command2 = Arrays.asList(exiftool, "-overwrite_original", "-tagsfromfile", inputFile, "-orientation", temporaryFile);
+        CommandUtility.executeCommand(command2);
 
         return temporaryFile;
     }
@@ -234,6 +239,24 @@ public class ImagePreproccessingService {
         }
 
         return inputFile;
+    }
+
+    /**
+     * Create a temporary image file with correct orientation
+     * @param fileName an image file
+     * @return path to a temporary image file
+     * @throws Exception
+     */
+    public String correctOrientation(String fileName) throws Exception {
+        String gm = "gm";
+        String convert = "convert";
+        String extension = FilenameUtils.getExtension(fileName);
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, "." + extension));
+
+        List<String> command = Arrays.asList(gm, convert, AUTO_ORIENT, fileName, temporaryFile);
+        CommandUtility.executeCommand(command);
+
+        return temporaryFile;
     }
 
     /**
