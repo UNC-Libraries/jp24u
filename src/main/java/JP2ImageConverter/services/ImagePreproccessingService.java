@@ -238,6 +238,24 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Create a temporary image file with correct orientation
+     * @param fileName an image file
+     * @return path to a temporary image file
+     * @throws Exception
+     */
+    public String correctOrientation(String fileName) throws Exception {
+        String gm = "gm";
+        String convert = "convert";
+        String extension = FilenameUtils.getExtension(fileName);
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, "." + extension));
+
+        List<String> command = Arrays.asList(gm, convert, AUTO_ORIENT, fileName, temporaryFile);
+        CommandUtility.executeCommand(command);
+
+        return temporaryFile;
+    }
+
+    /**
      * Create symbolic link for TIFF
      * @param fileName an image file
      * @return link a path to a TIFF image file

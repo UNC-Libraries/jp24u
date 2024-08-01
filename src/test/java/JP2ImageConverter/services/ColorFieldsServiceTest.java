@@ -23,9 +23,8 @@ public class ColorFieldsServiceTest {
         service = new ColorFieldsService();
     }
 
-    // if all the tests stop passing, you probably just need to update the FILE_MODIFIED_DATE and FileModifiedDate
     @Test
-    public void testColorFields() throws Exception {
+    public void testExtractMetadataFields() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
         Map<String, String> testFields = new HashMap<>();
@@ -38,7 +37,7 @@ public class ColorFieldsServiceTest {
         testFields.put(ColorFieldsService.INTEROP_INDEX, "Unknown (R03)");
         testFields.put(ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "RGB");
 
-        Map<String, String> fields = service.colorFields(testFile);
+        Map<String, String> fields = service.extractMetadataFields(testFile);
         assertMapContainsExpected(testFields, fields);
     }
 
@@ -64,7 +63,7 @@ public class ColorFieldsServiceTest {
         testFields.put(ColorFieldsService.INTEROP_INDEX, null);
         testFields.put(ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "BlackIsZero");
 
-        Map<String, String> fields = service.colorFields(testFile);
+        Map<String, String> fields = service.extractMetadataFields(testFile);
         assertMapContainsExpected(testFields, fields);
     }
 

@@ -44,13 +44,15 @@ public class ColorFieldsService {
     public static final String INTEROP_INDEX = "InteropIndex";
     public static final String PHOTOMETRIC_INTERPRETATION = "PhotometricInterpretation";
     public static final String MAGICK_IDENTIFY = "MagickIdentify";
+    public static final String ORIENTATION = "Orientation";
+    public static final String ORIENTATION_DEFAULT = "Top, left side (Horizontal / normal)";
 
     /**
      * Use metadata-extractor to return list of EXIF and ICC Profile fields
      * @param fileName an image file
      * @return map of color fields
      */
-    public Map<String,String> colorFields(String fileName) throws Exception {
+    public Map<String,String> extractMetadataFields(String fileName) throws Exception {
         String fileSize = null;
         String fileModifiedDate = null;
         String dateTimeOriginal = null;
@@ -59,6 +61,7 @@ public class ColorFieldsService {
         String colorSpace = null;
         String interopIndex = null;
         String photometricInterpretation = null;
+        String orientation = null;
 
         File imageFile = new File(fileName);
         try {
@@ -112,6 +115,9 @@ public class ColorFieldsService {
                     photometricInterpretation =
                             exifIFD0Directory.getDescription(ExifIFD0Directory.TAG_PHOTOMETRIC_INTERPRETATION).trim();
                 }
+                if (exifIFD0Directory.containsTag(ExifInteropDirectory.TAG_ORIENTATION)) {
+                    orientation = exifIFD0Directory.getDescription(ExifIFD0Directory.TAG_ORIENTATION).trim();
+                }
             }
         } catch (ImageProcessingException | IOException e) {
             log.error("Error reading image metadata for file {}", fileName, e);
@@ -119,7 +125,7 @@ public class ColorFieldsService {
         }
 
         // image metadata: ImageFileName, FileSize, FileModifiedDate, DateTimeOriginal, DateTimeDigitized,
-        // ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation
+        // ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation, Orientation
         Map<String, String> imageMetadata = new LinkedHashMap<>();
         imageMetadata.put(IMAGE_FILE_NAME, fileName);
         imageMetadata.put(FILE_SIZE, fileSize);
@@ -130,6 +136,7 @@ public class ColorFieldsService {
         imageMetadata.put(COLOR_SPACE, colorSpace);
         imageMetadata.put(INTEROP_INDEX, interopIndex);
         imageMetadata.put(PHOTOMETRIC_INTERPRETATION, photometricInterpretation);
+        imageMetadata.put(ORIENTATION, orientation);
 
         return imageMetadata;
     }
@@ -182,7 +189,7 @@ public class ColorFieldsService {
     public List<Long> listFields(String fileName) throws Exception {
         // get EXIF fields and ImageMagick attributes
         Instant exifStart = Instant.now();
-        Map<String, String> imageMetadata = colorFields(fileName);
+        Map<String, String> imageMetadata = extractMetadataFields(fileName);
         Instant exifEnd = Instant.now();
 
         Instant imageMagickStart = Instant.now();

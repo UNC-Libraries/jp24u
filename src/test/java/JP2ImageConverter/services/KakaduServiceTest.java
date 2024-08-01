@@ -27,8 +27,6 @@ public class KakaduServiceTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        System.setOut(new PrintStream(outputStreamCaptor));
-
         colorFieldsService = new ColorFieldsService();
         imagePreproccessingService = new ImagePreproccessingService();
         imagePreproccessingService.tmpFilesDir = tmpFolder;
@@ -41,7 +39,8 @@ public class KakaduServiceTest {
     public void testRetrieveColorSpace() throws Exception {
         // EXIF ColorSpace is null, EXIF PhotometricInterpretation is gray
         String testFile = "src/test/resources/P0024_0066.tif";
-        String colorSpace = service.getColorSpace(testFile, testFile, "tiff");
+        var originalImageMetadata = service.extractMetadata(testFile, "tiff");
+        String colorSpace = service.getColorSpace(originalImageMetadata, originalImageMetadata, testFile);
         assertEquals("Gray", colorSpace);
     }
 
@@ -287,5 +286,33 @@ public class KakaduServiceTest {
         assertTrue(result.contains(service.tmpDir.toString()));
         assertTrue(result.contains("/IMG_2377_nofileext"));
         assertTrue(result.endsWith(".jpeg"));
+    }
+
+    @Test
+    public void testKduCompressRotatedTiff() throws Exception {
+        System.setOut(new PrintStream(outputStreamCaptor));
+        String testFile = "src/test/resources/rotated.tiff";
+        colorFieldsService.listFields(testFile);
+        String output = outputStreamCaptor.toString();
+        assertContains("2574x3083", output);
+
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/rotated"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("rotated.jp2")));
+        assertEquals(1, Files.list(tmpFolder).count());
+        var errorOriginal = System.err;
+        try {
+            System.setErr(new PrintStream(outputStreamCaptor));
+            colorFieldsService.listFields(tmpFolder.resolve("rotated.jp2").toString());
+        } finally {
+            System.setErr(errorOriginal);
+        }
+        output = outputStreamCaptor.toString();
+        // Dimensions after rotation
+        assertContains("3083x2574", output);
+    }
+
+    private void assertContains(String expected, String actual) {
+        assertTrue(actual.contains(expected), "Expected string '" + expected + "' not found: " + actual);
     }
 }
