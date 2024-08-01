@@ -9,6 +9,8 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -188,7 +190,7 @@ public class KakaduServiceTest {
             service.kduCompress(testFile, Paths.get(tmpFolder + "/test_input"), "");
             fail();
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("JP2 conversion for the following file format not supported: txt"));
+            assertContains("JP2 conversion for the following file format not supported: txt", e.getMessage());
         }
     }
 
@@ -230,7 +232,7 @@ public class KakaduServiceTest {
             service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377_nofileext"), "");
             fail();
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("JP2 conversion for the following file format not supported: "));
+            assertContains("Source format could not be determined for", e.getMessage());
         }
     }
 
@@ -242,7 +244,7 @@ public class KakaduServiceTest {
             service.kduCompress(testFile, Paths.get(tmpFolder + "/E101_F8_0112"), "test");
             fail();
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("test file type is not supported."));
+            assertContains("test file type is not supported.", e.getMessage());
         }
     }
 
@@ -264,8 +266,8 @@ public class KakaduServiceTest {
             service.fileListKduCompress(testFile, tmpFolder, "");
             fail();
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("src/test/resources/test.tif does not exist. " +
-                    "Not processing file list further."));
+            assertContains("src/test/resources/test.tif does not exist. Not processing file list further.",
+                    e.getMessage());
         }
     }
 
@@ -281,11 +283,24 @@ public class KakaduServiceTest {
     public void testCreateLinkToOriginal() throws Exception {
         String testFile = "src/test/resources/IMG_2377_nofileext";
 
-        String result = service.linkToOriginal(testFile, "jpeg");
+        var intermediateFiles = new ArrayList<String>();
+        String result = service.linkToOriginal(testFile, "jpeg", intermediateFiles);
 
         assertTrue(result.contains(service.tmpDir.toString()));
         assertTrue(result.contains("/IMG_2377_nofileext"));
         assertTrue(result.endsWith(".jpeg"));
+        assertTrue(intermediateFiles.contains(result));
+    }
+
+    @Test
+    public void testCreateLinkToOriginalSourceFormatMatchesExtension() throws Exception {
+        String testFile = "src/test/resources/IMG_2377.jpeg";
+
+        var intermediateFiles = new ArrayList<String>();
+        String result = service.linkToOriginal(testFile, "jpeg", intermediateFiles);
+
+        assertEquals(testFile, result);
+        assertTrue(intermediateFiles.isEmpty());
     }
 
     @Test
@@ -310,6 +325,34 @@ public class KakaduServiceTest {
         output = outputStreamCaptor.toString();
         // Dimensions after rotation
         assertContains("3083x2574", output);
+    }
+
+    @Test
+    public void testKduCompressRotatedJpg() throws Exception {
+        System.setOut(new PrintStream(outputStreamCaptor));
+        String testFile = "src/test/resources/albright_football_0082.jpg";
+        colorFieldsService.listFields(testFile);
+        String output = outputStreamCaptor.toString();
+        assertContains("4256x2832", output);
+
+        try {
+            service.kduCompress(testFile, Paths.get(tmpFolder + "/albright_football_0082"), "");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        assertTrue(Files.exists(tmpFolder.resolve("albright_football_0082.jp2")));
+        assertEquals(1, Files.list(tmpFolder).count());
+        var errorOriginal = System.err;
+        try {
+            System.setErr(new PrintStream(outputStreamCaptor));
+            colorFieldsService.listFields(tmpFolder.resolve("albright_football_0082.jp2").toString());
+        } finally {
+            System.setErr(errorOriginal);
+        }
+        output = outputStreamCaptor.toString();
+        // Dimensions after rotation
+        assertContains("2832x4256", output);
     }
 
     private void assertContains(String expected, String actual) {

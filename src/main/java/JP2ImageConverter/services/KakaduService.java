@@ -135,15 +135,10 @@ public class KakaduService {
         try {
             // override source file type detection with user-inputted image file type
             String fileName = sourceFileName;
-            if (!sourceFormat.isEmpty() && SOURCE_FORMATS.containsKey(sourceFormat)) {
-                sourceFormat = SOURCE_FORMATS.get(sourceFormat);
-                // Create a symlink to the original file in order to add a file extension
-                fileName = linkToOriginal(fileName, sourceFormat);
-                // register symlink for cleanup
-                intermediateFiles.add(fileName);
-            } else if (!sourceFormat.isEmpty() && !SOURCE_FORMATS.containsKey(sourceFormat)) {
-                throw new Exception(sourceFormat + " file type is not supported.");
-            }
+            sourceFormat = getSourceFormat(fileName, sourceFormat);
+
+            // Create a symlink to the original file in order to add a file extension
+            fileName = linkToOriginal(fileName, sourceFormat, intermediateFiles);
 
             String kduCompress = "kdu_compress";
             String input = "-i";
@@ -221,6 +216,22 @@ public class KakaduService {
         }
     }
 
+    private String getSourceFormat(String fileName, String sourceFormat) {
+        String format;
+        if (sourceFormat == null || sourceFormat.isEmpty()) {
+            format = FilenameUtils.getExtension(fileName).toLowerCase();
+        } else {
+            format = sourceFormat;
+        }
+        if (format == null || format.isEmpty()) {
+            throw new IllegalArgumentException("Source format could not be determined for " + fileName);
+        }
+        if (!SOURCE_FORMATS.containsKey(format)) {
+            throw new IllegalArgumentException("JP2 conversion for the following file format not supported: " + format);
+        }
+        return SOURCE_FORMATS.get(format);
+    }
+
     /**
      * Performs corrections on the input image, such as fixing the color space and orientation
      * @param inputFile
@@ -284,13 +295,21 @@ public class KakaduService {
         }
     }
 
-    public String linkToOriginal(String fileName, String sourceFormat) throws Exception {
+    public String linkToOriginal(String fileName, String sourceFormat, List<String> intermediateFiles) throws Exception {
+        String extension = FilenameUtils.getExtension(fileName);
+        // Skip creating link if the extension matches the source format or is already in the source formats list
+        if (extension.equals(sourceFormat) || SOURCE_FORMATS.containsKey(extension)) {
+            return fileName;
+        }
         Path target = Paths.get(fileName).toAbsolutePath();
         Path link = Files.createTempFile(tmpDir, FilenameUtils.getName(fileName), "." + sourceFormat);
         Files.delete(link);
         Files.createSymbolicLink(link, target);
+        var linkPath = link.toAbsolutePath().toString();
+        // register symlink for cleanup
+        intermediateFiles.add(linkPath);
 
-        return link.toAbsolutePath().toString();
+        return linkPath;
     }
 
     public void setColorFieldsService(ColorFieldsService colorFieldsService) {
