@@ -169,7 +169,7 @@ public class ImagePreproccessingService {
         CommandUtility.executeCommandWriteToFile(command, temporaryFile);
 
         // Next, copy over orientation info from the original NEF to the new JPEG
-        List<String> command2 = Arrays.asList(exiftool, "-tagsfromfile", inputFile, "-orientation", temporaryFile);
+        List<String> command2 = Arrays.asList(exiftool, "-overwrite_original", "-tagsfromfile", inputFile, "-orientation", temporaryFile);
         CommandUtility.executeCommand(command2);
 
         return temporaryFile;

@@ -244,7 +244,7 @@ public class KakaduServiceTest {
             service.kduCompress(testFile, Paths.get(tmpFolder + "/E101_F8_0112"), "test");
             fail();
         } catch (Exception e) {
-            assertContains("test file type is not supported.", e.getMessage());
+            assertContains("JP2 conversion for the following file format not supported: test", e.getMessage());
         }
     }
 

@@ -200,7 +200,7 @@ public class ImagePreprocessingServiceTest {
         assertContains("Dimensions: 4272x2848;", attributes);
         assertContains("Channels: srgb", attributes);
         assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: ;", attributes);
+        assertContains("Profiles: exif;", attributes);
         assertContains("Type: TrueColor;", attributes);
     }
 
