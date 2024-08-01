@@ -50,7 +50,7 @@ public class ColorFieldsService {
     /**
      * Use metadata-extractor to return list of EXIF and ICC Profile fields
      * @param fileName an image file
-     * @return map of color fields
+     * @return map of metadata fields
      */
     public Map<String,String> extractMetadataFields(String fileName) throws Exception {
         String fileSize = null;
