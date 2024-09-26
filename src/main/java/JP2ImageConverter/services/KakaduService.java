@@ -104,6 +104,11 @@ public class KakaduService {
             colorSpace = "Gray";
         }
 
+        // If the original image has the ICCProfile AToB0, set the color space to aToB0
+        if (originalImageMetadata.get(ColorFieldsService.A_TO_B0) != null) {
+            colorSpace = "aToB0";
+        }
+
         return colorSpace;
     }
 
