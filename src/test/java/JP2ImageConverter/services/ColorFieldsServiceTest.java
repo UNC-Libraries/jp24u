@@ -34,6 +34,7 @@ public class ColorFieldsServiceTest {
         testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2021:08:30 19:56:48");
         testFields.put(ColorFieldsService.ICC_PROFILE_NAME, "Adobe RGB (1998)");
         testFields.put(ColorFieldsService.COLOR_SPACE, "RGB");
+        testFields.put(ColorFieldsService.A_TO_B0, null);
         testFields.put(ColorFieldsService.INTEROP_INDEX, "Unknown (R03)");
         testFields.put(ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "RGB");
 
@@ -60,6 +61,7 @@ public class ColorFieldsServiceTest {
         testFields.put(ColorFieldsService.DATE_TIME_DIGITIZED, "2013:06:25 14:51:58");
         testFields.put(ColorFieldsService.ICC_PROFILE_NAME, null);
         testFields.put(ColorFieldsService.COLOR_SPACE, null);
+        testFields.put(ColorFieldsService.A_TO_B0, null);
         testFields.put(ColorFieldsService.INTEROP_INDEX, null);
         testFields.put(ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "BlackIsZero");
 

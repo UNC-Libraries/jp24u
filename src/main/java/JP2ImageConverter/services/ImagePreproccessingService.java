@@ -35,14 +35,14 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * For images with CMYK color space
+     * For images with unusual colorspaces and unsupported ICC Profiles
      * Run GraphicsMagick convert and convert TIFF to temporary TIFF
      * @param fileName an image file
      * @return temporaryFile a temporary TIFF file
      */
     //It seems like only using color space creates a more color accurate temporary image.
     //Using color space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
-    public String convertCmykAndYcbcrColorSpace(String fileName) throws Exception {
+    public String convertUnusualColorSpace(String fileName) throws Exception {
         String gm = "gm";
         String convert = "convert";
         String colorSpace = "-colorspace";
@@ -220,7 +220,7 @@ public class ImagePreproccessingService {
     /**
      * Determine image color space and preprocess if needed
      * for unusual color spaces: convert to temporary TIFF and set color space to RGB before kdu_compress
-     * currently supported color spaces: RGB, sRGB, RGB Palette, Gray, CMYK
+     * currently supported color spaces: RGB, sRGB, RGB Palette, Gray, CMYK, AToB0 (technically an ICC Profile)
      * @param colorSpace an image color space
      * @param fileName an image file
      * @return inputFile a path to a TIFF image file
@@ -229,8 +229,9 @@ public class ImagePreproccessingService {
         String inputFile;
         Set<String> colorSpaces = new HashSet<>(Arrays.asList("rgb", "srgb", "rgb palette", "gray"));
 
-        if (colorSpace.toLowerCase().matches("cmyk") || colorSpace.toLowerCase().matches("ycbcr")) {
-            inputFile = convertCmykAndYcbcrColorSpace(fileName);
+        if (colorSpace.toLowerCase().matches("cmyk") || colorSpace.toLowerCase().matches("ycbcr")
+            || colorSpace.toLowerCase().matches("atob0")) {
+            inputFile = convertUnusualColorSpace(fileName);
         } else if (colorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = fileName;
         } else {

@@ -36,7 +36,7 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testConvertCmykImageWithIccProfile() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        var tempTif = service.convertCmykAndYcbcrColorSpace(testFile);
+        var tempTif = service.convertUnusualColorSpace(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -48,7 +48,7 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testConvertCmykImageWithoutIccProfile() throws Exception {
         String testFile = "src/test/resources/Surgery.tif";
-        var tempTif = service.convertCmykAndYcbcrColorSpace(testFile);
+        var tempTif = service.convertUnusualColorSpace(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));

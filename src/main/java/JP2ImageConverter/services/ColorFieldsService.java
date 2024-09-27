@@ -41,6 +41,7 @@ public class ColorFieldsService {
     public static final String DATE_TIME_DIGITIZED = "DateTimeDigitized";
     public static final String ICC_PROFILE_NAME = "ICCProfileName";
     public static final String COLOR_SPACE = "ColorSpace";
+    public static final String A_TO_B0 = "AToB0";
     public static final String INTEROP_INDEX = "InteropIndex";
     public static final String PHOTOMETRIC_INTERPRETATION = "PhotometricInterpretation";
     public static final String MAGICK_IDENTIFY = "MagickIdentify";
@@ -59,6 +60,7 @@ public class ColorFieldsService {
         String dateTimeDigitized = null;
         String iccProfileName = null;
         String colorSpace = null;
+        String aToB0 = null;
         String interopIndex = null;
         String photometricInterpretation = null;
         String orientation = null;
@@ -67,7 +69,7 @@ public class ColorFieldsService {
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
 
-            // ICC Profile Tag(s): ICCProfileName, ColorSpace
+            // ICC Profile Tag(s): ICCProfileName, ColorSpace, AToB0
             if (metadata.containsDirectoryOfType(IccDirectory.class)) {
                 IccDirectory iccDirectory = metadata.getFirstDirectoryOfType(IccDirectory.class);
                 if (iccDirectory.containsTag(IccDirectory.TAG_TAG_desc)) {
@@ -75,6 +77,9 @@ public class ColorFieldsService {
                 }
                 if (iccDirectory.containsTag(IccDirectory.TAG_COLOR_SPACE)) {
                     colorSpace = iccDirectory.getDescription(IccDirectory.TAG_COLOR_SPACE).trim();
+                }
+                if (iccDirectory.containsTag(IccDirectory.TAG_TAG_A2B0)) {
+                    aToB0 = iccDirectory.getDescription(IccDirectory.TAG_TAG_A2B0).trim();
                 }
             }
 
@@ -125,7 +130,7 @@ public class ColorFieldsService {
         }
 
         // image metadata: ImageFileName, FileSize, FileModifiedDate, DateTimeOriginal, DateTimeDigitized,
-        // ICCProfileName, ColorSpace, InteropIndex, PhotometricInterpretation, Orientation
+        // ICCProfileName, ColorSpace, AToB0, InteropIndex, PhotometricInterpretation, Orientation
         Map<String, String> imageMetadata = new LinkedHashMap<>();
         imageMetadata.put(IMAGE_FILE_NAME, fileName);
         imageMetadata.put(FILE_SIZE, fileSize);
@@ -134,6 +139,7 @@ public class ColorFieldsService {
         imageMetadata.put(DATE_TIME_DIGITIZED, dateTimeDigitized);
         imageMetadata.put(ICC_PROFILE_NAME, iccProfileName);
         imageMetadata.put(COLOR_SPACE, colorSpace);
+        imageMetadata.put(A_TO_B0, aToB0);
         imageMetadata.put(INTEROP_INDEX, interopIndex);
         imageMetadata.put(PHOTOMETRIC_INTERPRETATION, photometricInterpretation);
         imageMetadata.put(ORIENTATION, orientation);
