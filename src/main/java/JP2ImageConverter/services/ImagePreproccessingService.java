@@ -176,9 +176,28 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Convert a PCD image to a temporary TIFF
+     * @param fileName filename of the pcd file
+     * @return a temporary JPEG file
+     * @throws Exception
+     */
+    public String convertPcd(String fileName) throws Exception {
+        String gm = "gm";
+        // 6 is the index of the highest resolution for this format
+        String inputFile = fileName + "[6]";
+        String convert = "convert";
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
+
+        List<String> command = Arrays.asList(gm, convert, AUTO_ORIENT, inputFile, temporaryFile);
+        CommandUtility.executeCommand(command);
+
+        return temporaryFile;
+    }
+
+    /**
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
-     * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, CRW, CR2, DNG, RAF
+     * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, CRW, CR2, DNG, RAF, PCD
      * @param fileName an image file
      * @param sourceFormat file extension/mimetype override
      * @return inputFile a path to a TIFF/PPM image file
@@ -201,6 +220,8 @@ public class ImagePreproccessingService {
             inputFile = convertJpeg(fileName);
         } else if (fileNameExtension.matches("cr2")) {
             inputFile = convertCr2(fileName);
+        } else if (fileNameExtension.matches("pcd")) {
+            inputFile = convertPcd(fileName);
         } else if (fileNameExtension.matches("nef")) {
             // convert NEF to JPEG, then convert JPEG to PPM
             String tempJpeg = convertNef(fileName);

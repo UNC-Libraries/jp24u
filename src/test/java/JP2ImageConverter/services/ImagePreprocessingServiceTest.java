@@ -232,6 +232,22 @@ public class ImagePreprocessingServiceTest {
     }
 
     @Test
+    public void testConvertPcdToTiff() throws Exception {
+        String testFile = "src/test/resources/98-337.03.PCD";
+
+        var tempTif = service.convertPcd(testFile);
+        colorFieldsService.listFields(tempTif);
+
+        assertTrue(Files.exists(Paths.get(tempTif)));
+        var attributes = outputStreamCaptor.toString();
+        assertContains("MagickIdentify:", attributes);
+        assertContains("Dimensions: 4096x6144;", attributes);
+        assertContains("Channels: srgb", attributes);
+        assertContains("Color Space: sRGB;", attributes);
+        assertContains("Type: TrueColor;", attributes);
+    }
+
+    @Test
     public void testConvertDngToTiff() throws Exception {
         String testFile = "src/test/resources/DJIPhantom4.dng";
 
