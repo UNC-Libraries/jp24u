@@ -42,6 +42,7 @@ public class KakaduService {
         SOURCE_FORMATS.put("pict", "pct");
         SOURCE_FORMATS.put("pct", "pct");
         SOURCE_FORMATS.put("pic", "pct");
+        SOURCE_FORMATS.put("image/x-pict", "pct");
         SOURCE_FORMATS.put("bmp", "bmp");
         SOURCE_FORMATS.put("image/bmp", "bmp");
         SOURCE_FORMATS.put("psd", "psd");
