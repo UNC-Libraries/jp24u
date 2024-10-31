@@ -66,6 +66,15 @@ public class ImagePreprocessingServiceTest {
     }
 
     @Test
+    public void testConvertRw2ToPpm() throws Exception {
+        String testFile = "src/test/resources/test.rw2";
+
+        var tempPpm = service.convertRw2(testFile);
+
+        assertTrue(Files.exists(Paths.get(tempPpm)));
+    }
+
+    @Test
     public void testConvertPngToTiff() throws Exception {
         String testFile = "src/test/resources/schoolphotos1.png";
 
