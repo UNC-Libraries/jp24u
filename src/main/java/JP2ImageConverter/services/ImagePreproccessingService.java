@@ -190,9 +190,23 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Convert a RW2 image to a temporary PPM
+     * @param fileName filename of the rw2 file
+     * @return a temporary PPM file
+     * @throws Exception
+     */
+    public String convertRw2(String fileName) throws Exception {
+        String temporaryFile = prepareTempPath(fileName, ".ppm").toString();
+        List<String> dcrawCommand = Arrays.asList(DCRAW, "-c", "-w", fileName);
+        CommandUtility.executeCommandWriteToFile(dcrawCommand, temporaryFile);
+
+        return temporaryFile;
+    }
+
+    /**
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
-     * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, CRW, CR2, DNG, RAF, PCD
+     * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, CRW, CR2, DNG, RAF, PCD, RW2
      * @param fileName an image file
      * @param sourceFormat file extension/mimetype override
      * @return inputFile a path to a TIFF/PPM image file
@@ -200,7 +214,7 @@ public class ImagePreproccessingService {
     public String convertToTiff(String fileName, String sourceFormat) throws Exception {
         String inputFile;
         String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp", "crw", "raf", "dng", "raw", "rw2"));
+        Set<String> imageFormats = new HashSet<>(Arrays.asList("png", "gif", "pct", "bmp", "crw", "raf", "dng"));
         if (!sourceFormat.isEmpty()) {
             fileNameExtension = sourceFormat;
         }
@@ -217,6 +231,8 @@ public class ImagePreproccessingService {
             inputFile = convertCr2(fileName);
         } else if (fileNameExtension.matches("pcd")) {
             inputFile = convertPcd(fileName);
+        } else if (fileNameExtension.matches("rw2")) {
+            inputFile = convertRw2(fileName);
         } else if (fileNameExtension.matches("nef")) {
             // convert NEF to JPEG, then convert JPEG to PPM
             String tempJpeg = convertNef(fileName);

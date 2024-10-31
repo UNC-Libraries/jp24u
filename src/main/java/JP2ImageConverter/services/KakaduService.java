@@ -61,6 +61,8 @@ public class KakaduService {
         SOURCE_FORMATS.put("image/x-fujifilm-raf", "raf");
         SOURCE_FORMATS.put("pcd", "pcd");
         SOURCE_FORMATS.put("image/x-photo-cd", "pcd");
+        SOURCE_FORMATS.put("rw2", "rw2");
+        SOURCE_FORMATS.put("image/x-panasonic-rw2", "rw2");
     }
 
     public Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
