@@ -138,6 +138,15 @@ public class KakaduServiceTest {
     }
 
     @Test
+    public void testKduCompressTifWithInvalidIccProfile() throws Exception {
+        String testFile = "src/test/resources/invalid_icc_profile.tif";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/invalid_icc_profile"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("invalid_icc_profile.jp2")));
+        assertEquals(1, Files.list(tmpFolder).count());
+    }
+
+    @Test
     public void testKduCompressNef() throws Exception {
         String testFile = "src/test/resources/20170822_068.NEF";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/20170822_068"), "");

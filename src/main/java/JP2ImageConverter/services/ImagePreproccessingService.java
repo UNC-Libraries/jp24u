@@ -290,6 +290,14 @@ public class ImagePreproccessingService {
         return temporaryFile;
     }
 
+    public String handleIccProfile(String fileName) throws Exception {
+        // For now, we will just strip out the ICC Profile
+        var temporaryFile = prepareTempPath(fileName, ".tif").toString();
+        var clearProfileCommand = Arrays.asList(EXIFTOOL, "-icc_profile=", fileName, "-o", temporaryFile);
+        CommandUtility.executeCommand(clearProfileCommand);
+        return temporaryFile;
+    }
+
     /**
      * Create symbolic link for TIFF
      * @param fileName an image file

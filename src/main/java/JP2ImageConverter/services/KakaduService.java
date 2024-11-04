@@ -216,13 +216,34 @@ public class KakaduService {
                 command.add(jp2SpaceOptions);
             }
 
-            CommandUtility.executeCommand(command);
+            performKakaduCommandWithRecovery(command, intermediateFiles, true);
             deleteTinyGrayVoidImages(outputFile);
         } finally {
             // delete intermediate files and symlinks after JP2 generated
             for (String intermediateFile : intermediateFiles) {
                 Files.deleteIfExists(Path.of(intermediateFile));
             }
+        }
+    }
+
+    private void performKakaduCommandWithRecovery(List<String> command, List<String> intermediateFiles, boolean retry) throws Exception {
+        try {
+            log.debug("Performing kakadu command: {}", command);
+            CommandUtility.executeCommand(command);
+        } catch (Exception e) {
+            var message = e.getMessage();
+            if (retry) {
+                if (message.contains("ICC profile") && message.contains("reproduction curve appears to have been truncated")) {
+                    log.warn("Invalid ICC profile, retrying without ICC profile: {}", message);
+                    var inputIndex = command.indexOf("-i") + 1;
+                    var modifiedTmpPath = imagePreproccessingService.handleIccProfile(command.get(inputIndex));
+                    command.set(inputIndex, modifiedTmpPath);
+                    intermediateFiles.add(modifiedTmpPath);
+                    performKakaduCommandWithRecovery(command, intermediateFiles, false);
+                    return;
+                }
+            }
+            throw e;
         }
     }
 
