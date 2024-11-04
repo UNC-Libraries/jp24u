@@ -21,7 +21,7 @@ public class CommandUtility {
      * @return command output
      */
     public static String executeCommand(List<String> command) throws Exception {
-        String output = null;
+        StringBuilder output = new StringBuilder();
         try {
             ProcessBuilder builder = new ProcessBuilder(command);
             builder.redirectErrorStream(true);
@@ -31,16 +31,16 @@ public class CommandUtility {
             String line;
 
             while ((line = br.readLine()) != null) {
-                output = line;
+                output.append(line).append(System.lineSeparator());
             }
             if (process.waitFor() != 0) {
                 throw new Exception("Command exited with status code " + process.waitFor() + ": " + output);
             }
         } catch (Exception e) {
-            throw new Exception("Command failed: " + command, e);
+            throw new Exception("Command failed: " + command + System.lineSeparator() + "Output: " + output, e);
         }
 
-        return output;
+        return output.toString();
     }
 
     public static void executeCommandWriteToFile(List<String> command, String temporaryFile) throws Exception {
