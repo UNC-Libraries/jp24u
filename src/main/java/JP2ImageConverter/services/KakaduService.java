@@ -1,5 +1,6 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.errors.CommandException;
 import JP2ImageConverter.util.CommandUtility;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -230,11 +231,11 @@ public class KakaduService {
         try {
             log.debug("Performing kakadu command: {}", command);
             CommandUtility.executeCommand(command);
-        } catch (Exception e) {
-            var message = e.getMessage();
+        } catch (CommandException e) {
+            var output = e.getOutput();
             if (retry) {
-                if (message.contains("ICC profile") && message.contains("reproduction curve appears to have been truncated")) {
-                    log.warn("Invalid ICC profile, retrying without ICC profile: {}", message);
+                if (output.contains("ICC profile") && output.contains("reproduction curve appears to have been truncated")) {
+                    log.warn("Invalid ICC profile, retrying without ICC profile: {}", e.getMessage());
                     var inputIndex = command.indexOf("-i") + 1;
                     var modifiedTmpPath = imagePreproccessingService.handleIccProfile(command.get(inputIndex));
                     command.set(inputIndex, modifiedTmpPath);
