@@ -120,7 +120,7 @@ public class KakaduService {
             colorSpace = "aToB0";
         }
 
-        return Map.of(COLOR_SPACE, colorSpace, COLOR_TYPE, imageType == null? "" : imageType);
+        return Map.of(COLOR_SPACE, colorSpace, COLOR_TYPE, imageType == null? "" : imageType.trim());
     }
 
     /**
