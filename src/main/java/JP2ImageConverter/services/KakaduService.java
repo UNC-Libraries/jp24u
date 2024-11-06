@@ -17,7 +17,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import static JP2ImageConverter.services.ColorFieldsService.PHOTOMETRIC_INTERPRETATION;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -27,6 +29,9 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class KakaduService {
     private static final Logger log = getLogger(KakaduService.class);
+    public static final String COLOR_SPACE = "ColorSpace";
+    public static final String COLOR_TYPE = "Type";
+
     private final static Map<String, String> SOURCE_FORMATS = new HashMap<>();
     // accepted file types are listed in sourceFormats below
     static {
@@ -79,7 +84,7 @@ public class KakaduService {
      * @param originalImage the original input image
      * @return colorSpace
      */
-    public String getColorSpace(Map<String, String> preprocessedImageMetadata,
+    public Map<String, String> getColorInfo(Map<String, String> preprocessedImageMetadata,
                                 Map<String, String> originalImageMetadata,
                                 String originalImage) {
         String colorSpace;
@@ -93,13 +98,13 @@ public class KakaduService {
             colorSpace = "Gray";
         } else if (preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = preprocessedImageMetadata.get(ColorFieldsService.COLOR_SPACE);
-        } else if (preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null) {
-            colorSpace = preprocessedImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
+        } else if (preprocessedImageMetadata.get(PHOTOMETRIC_INTERPRETATION) != null) {
+            colorSpace = preprocessedImageMetadata.get(PHOTOMETRIC_INTERPRETATION);
         } else if (originalImageMetadata.get(ColorFieldsService.COLOR_SPACE) != null) {
             colorSpace = originalImageMetadata.get(ColorFieldsService.COLOR_SPACE);
-        } else if (originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION) != null &&
-                !originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION).equalsIgnoreCase("ycbcr")) {
-            colorSpace = originalImageMetadata.get(ColorFieldsService.PHOTOMETRIC_INTERPRETATION);
+        } else if (originalImageMetadata.get(PHOTOMETRIC_INTERPRETATION) != null &&
+                !originalImageMetadata.get(PHOTOMETRIC_INTERPRETATION).equalsIgnoreCase("ycbcr")) {
+            colorSpace = originalImageMetadata.get(PHOTOMETRIC_INTERPRETATION);
         } else {
             colorSpace = "sRGB";
         }
@@ -115,7 +120,7 @@ public class KakaduService {
             colorSpace = "aToB0";
         }
 
-        return colorSpace;
+        return Map.of(COLOR_SPACE, colorSpace, COLOR_TYPE, imageType == null? "" : imageType);
     }
 
     /**
@@ -195,9 +200,9 @@ public class KakaduService {
             if (!fileName.equals(inputFile)) {
                 preprocessedImageMetadata = extractMetadata(inputFile, "");
             }
-            String colorSpace = getColorSpace(preprocessedImageMetadata, originalImageMetadata, fileName);
-            String orientation = originalImageMetadata.get(ColorFieldsService.ORIENTATION);
-            inputFile = correctInputImage(inputFile, fileName, sourceFormat, colorSpace, orientation, intermediateFiles);
+            var colorInfo = getColorInfo(preprocessedImageMetadata, originalImageMetadata, fileName);
+            var colorSpace = colorInfo.get(COLOR_SPACE);
+            inputFile = correctInputImage(inputFile, fileName, sourceFormat, colorInfo, preprocessedImageMetadata, intermediateFiles);
 
             List<String> command = new ArrayList<>(Arrays.asList(kduCompress, input, inputFile, output, outputFile,
                     clevels, clayers, cprecincts, stiles, corder, orggenplt, orgtparts, cblk, cusesop, cuseeph,
@@ -270,29 +275,39 @@ public class KakaduService {
      * @param fileName
      * @param sourceFormat
      * @param colorSpace
-     * @param orientation
+     * @param metadata extracted metadata from the source image
      * @param intermediateFiles
      * @return
      * @throws Exception
      */
-    private String correctInputImage(String inputFile, String fileName, String sourceFormat, String colorSpace,
-                                     String orientation, List<String> intermediateFiles) throws Exception {
+    private String correctInputImage(String inputFile, String fileName, String sourceFormat, Map<String, String> colorInfo,
+                                     Map<String, String> metadata, List<String> intermediateFiles) throws Exception {
         var fileBeforeColorConversion = inputFile;
+        var orientation = metadata.get(ColorFieldsService.ORIENTATION);
         // for unusual color spaces (CMYK and YcbCr): convert to temporary TIFF before kduCompress
-        inputFile = imagePreproccessingService.convertColorSpaces(colorSpace, inputFile);
-        if (fileBeforeColorConversion.equals(inputFile)) {
-            // Create a temporary TIFF with the correct orientation if no color space conversion was done
-            // and the orientation is different from the default.
-            var format = sourceFormat != null && !sourceFormat.isEmpty() ?
-                    sourceFormat : SOURCE_FORMATS.get(FilenameUtils.getExtension(fileName));
-            if (orientation != null && format != null && format.equals("tiff")
-                    && !ColorFieldsService.ORIENTATION_DEFAULT.equals(orientation)) {
-                inputFile = imagePreproccessingService.correctOrientation(fileName);
-                intermediateFiles.add(inputFile);
-            }
-        } else {
+        inputFile = imagePreproccessingService.convertColorSpaces(colorInfo.get(COLOR_SPACE), inputFile);
+        if (!fileBeforeColorConversion.equals(inputFile)) {
+            intermediateFiles.add(inputFile);
+            return inputFile;
+        }
+        // Strip alpha channel from grayscale images incorrectly identified as sRGB
+        if ((Objects.equals(metadata.get(PHOTOMETRIC_INTERPRETATION), "RGB")
+                || Objects.equals(metadata.get(ColorFieldsService.COLOR_SPACE), "RGB"))
+                && colorInfo.get(COLOR_TYPE).contains("GrayscaleAlpha")) {
+            inputFile = imagePreproccessingService.removeAlphaChannel(inputFile);
+            intermediateFiles.add(inputFile);
+            return inputFile;
+        }
+        // Create a temporary TIFF with the correct orientation if no color space conversion was done
+        // and the orientation is different from the default.
+        var format = sourceFormat != null && !sourceFormat.isEmpty() ?
+                sourceFormat : SOURCE_FORMATS.get(FilenameUtils.getExtension(fileName));
+        if (orientation != null && format != null && format.equals("tiff")
+                && !ColorFieldsService.ORIENTATION_DEFAULT.equals(orientation)) {
+            inputFile = imagePreproccessingService.correctOrientation(fileName);
             intermediateFiles.add(inputFile);
         }
+
         return inputFile;
     }
 
@@ -323,6 +338,7 @@ public class KakaduService {
     public void deleteTinyGrayVoidImages(String outputFile) throws Exception {
         File output = new File(outputFile);
         if (output.length() < 10000 && colorFieldsService.identifyType(outputFile).contains("Gray")) {
+            log.warn("Deleting tiny gray image: {}", outputFile);
             Files.deleteIfExists(Path.of(outputFile));
         }
     }

@@ -38,12 +38,13 @@ public class KakaduServiceTest {
     }
 
     @Test
-    public void testRetrieveColorSpace() throws Exception {
+    public void testRetrieveColorInfo() throws Exception {
         // EXIF ColorSpace is null, EXIF PhotometricInterpretation is gray
         String testFile = "src/test/resources/P0024_0066.tif";
         var originalImageMetadata = service.extractMetadata(testFile, "tiff");
-        String colorSpace = service.getColorSpace(originalImageMetadata, originalImageMetadata, testFile);
-        assertEquals("Gray", colorSpace);
+        var info = service.getColorInfo(originalImageMetadata, originalImageMetadata, testFile);
+        assertEquals("Gray", info.get(KakaduService.COLOR_SPACE));
+        assertEquals("Grayscale", info.get(KakaduService.COLOR_TYPE));
     }
 
     @Test
@@ -143,6 +144,15 @@ public class KakaduServiceTest {
         service.kduCompress(testFile, Paths.get(tmpFolder + "/invalid_icc_profile"), "");
 
         assertTrue(Files.exists(tmpFolder.resolve("invalid_icc_profile.jp2")));
+        assertEquals(1, Files.list(tmpFolder).count());
+    }
+
+    @Test
+    public void testKduCompressTifWithSrgbAndTypeGray() throws Exception {
+        String testFile = "src/test/resources/obama_smoking.tiff";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/obama_smoking"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("obama_smoking.jp2")));
         assertEquals(1, Files.list(tmpFolder).count());
     }
 

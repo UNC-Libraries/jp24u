@@ -204,6 +204,21 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Removes the alpha channel from the provided image
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
+    public String removeAlphaChannel(String fileName) throws Exception {
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
+
+        List<String> command = Arrays.asList(CONVERT, AUTO_ORIENT, "-alpha", "off", fileName, temporaryFile);
+        CommandUtility.executeCommand(command);
+
+        return temporaryFile;
+    }
+
+    /**
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, CRW, CR2, DNG, RAF, PCD, RW2
