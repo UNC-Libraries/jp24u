@@ -90,7 +90,7 @@ public class ColorFieldsServiceTest {
         String testFile = "src/test/resources/P0024_0066.tif";
 
         String testImageType = "Grayscale";
-        String imageType = service.identifyType(testFile);
+        String imageType = service.identifyType(testFile).trim();
         assertEquals(testImageType, imageType);
     }
 

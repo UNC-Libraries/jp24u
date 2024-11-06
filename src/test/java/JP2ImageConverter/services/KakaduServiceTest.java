@@ -44,7 +44,7 @@ public class KakaduServiceTest {
         var originalImageMetadata = service.extractMetadata(testFile, "tiff");
         var info = service.getColorInfo(originalImageMetadata, originalImageMetadata, testFile);
         assertEquals("Gray", info.get(KakaduService.COLOR_SPACE));
-        assertEquals("Grayscale", info.get(KakaduService.COLOR_TYPE));
+        assertEquals("Grayscale", info.get(KakaduService.COLOR_TYPE).trim());
     }
 
     @Test
