@@ -67,7 +67,7 @@ public class ImagePreprocessingServiceTest {
 
     @Test
     public void testConvertRw2ToPpm() throws Exception {
-        String testFile = "src/test/resources/test.rw2";
+        String testFile = "src/test/resources/test.RW2";
 
         var tempPpm = service.convertRw2(testFile);
 
