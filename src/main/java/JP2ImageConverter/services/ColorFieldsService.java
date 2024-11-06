@@ -1,5 +1,6 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.errors.CommandException;
 import JP2ImageConverter.util.CommandUtility;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -180,11 +181,11 @@ public class ColorFieldsService {
 
         try {
             colorspace = CommandUtility.executeCommand(command);
-        } catch (Exception e) {
+        } catch (CommandException e) {
             log.warn("Colorspace not identified: {}", e.getMessage());
         }
 
-        return colorspace;
+        return colorspace != null ? colorspace.trim() : null;
     }
 
     /**
