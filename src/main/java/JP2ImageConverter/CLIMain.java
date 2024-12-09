@@ -18,4 +18,9 @@ public class CLIMain {
         int exitCode = new CommandLine(new CLIMain()).execute(args);
         System.exit(exitCode);
     }
+
+    public static int runCommand(String[] args) {
+        int exitCode = new CommandLine(new CLIMain()).execute(args);
+        return exitCode;
+    }
 }
