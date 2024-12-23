@@ -85,6 +85,15 @@ public class KakaduServiceTest {
     }
 
     @Test
+    public void testKduCompressColorFilterArrayJpeg() throws Exception {
+        String testFile = "src/test/resources/DSC_0052.jpeg";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/DSC_0052"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("DSC_0052.jp2")));
+        assertEquals(1, Files.list(tmpFolder).count());
+    }
+
+    @Test
     public void testKduCompressPng() throws Exception {
         String testFile = "src/test/resources/schoolphotos1.png";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/schoolphotos1"), "");
