@@ -275,7 +275,8 @@ public class ImagePreproccessingService {
     public String convertColorSpaces(String colorSpace, String fileName) throws Exception {
         String inputFile;
         Set<String> colorSpaces = new HashSet<>(Arrays.asList("rgb", "srgb", "rgb palette", "gray"));
-        Set<String> unusualColorSpaces = new HashSet<>(Arrays.asList("cmyk", "ycbcr", "atob0", "color filter array"));
+        Set<String> unusualColorSpaces = new HashSet<>(Arrays.asList("cmyk", "ycbcr", "atob0", "color filter array",
+                "cielab"));
 
         if (unusualColorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = convertUnusualColorSpace(fileName);
