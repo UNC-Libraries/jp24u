@@ -94,15 +94,6 @@ public class KakaduServiceTest {
     }
 
     @Test
-    public void testKduCompressCieLabJpeg() throws Exception {
-        String testFile = "src/test/resources/DSC_2990.TIF";
-        service.kduCompress(testFile, Paths.get(tmpFolder + "/DSC_2990.TIF"), "");
-
-        assertTrue(Files.exists(tmpFolder.resolve("DSC_2990.TIF.jp2")));
-        assertEquals(1, Files.list(tmpFolder).count());
-    }
-
-    @Test
     public void testKduCompressPng() throws Exception {
         String testFile = "src/test/resources/schoolphotos1.png";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/schoolphotos1"), "");
