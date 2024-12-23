@@ -48,16 +48,32 @@ public class ImagePreproccessingService {
     //It seems like only using color space creates a more color accurate temporary image.
     //Using color space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
     public String convertUnusualColorSpace(String fileName) throws Exception {
-        String gm = "gm";
-        String convert = "convert";
         String colorSpace = "-colorspace";
         String colorSpaceOptions = "rgb";
         String profile = "+profile";
         String profileOptions = "\"*\"";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
-        List<String> command = Arrays.asList(gm, convert, AUTO_ORIENT, fileName, colorSpace, colorSpaceOptions,
+        List<String> command = Arrays.asList(GM, CONVERT, AUTO_ORIENT, fileName, colorSpace, colorSpaceOptions,
                 profile, profileOptions, temporaryFile);
+        CommandUtility.executeCommand(command);
+
+        return temporaryFile;
+    }
+
+    /**
+     * For images with CIELab color space
+     * Run ImageMagick convert and convert TIFF to temporary TIFF (GraphicsMagick and dcraw don't support CIELab)
+     * @param fileName an image file
+     * @return temporaryFile a temporary TIFF file
+     */
+    public String convertCieLabColorSpace(String fileName) throws Exception {
+        String temporaryFile = prepareTempPath(fileName, ".tif").toString();
+        String colorSpace = "-colorspace";
+        String colorSpaceOptions = "sRGB";
+
+        List<String> command = Arrays.asList(CONVERT, AUTO_ORIENT, fileName, colorSpace, colorSpaceOptions,
+                temporaryFile);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
@@ -275,10 +291,11 @@ public class ImagePreproccessingService {
     public String convertColorSpaces(String colorSpace, String fileName) throws Exception {
         String inputFile;
         Set<String> colorSpaces = new HashSet<>(Arrays.asList("rgb", "srgb", "rgb palette", "gray"));
-        Set<String> unusualColorSpaces = new HashSet<>(Arrays.asList("cmyk", "ycbcr", "atob0", "color filter array",
-                "cielab"));
+        Set<String> unusualColorSpaces = new HashSet<>(Arrays.asList("cmyk", "ycbcr", "atob0", "color filter array"));
 
-        if (unusualColorSpaces.contains(colorSpace.toLowerCase())) {
+        if (colorSpace.toLowerCase().contains("cielab")) {
+            inputFile = convertCieLabColorSpace(fileName);
+        } else if (unusualColorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = convertUnusualColorSpace(fileName);
         } else if (colorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = fileName;
