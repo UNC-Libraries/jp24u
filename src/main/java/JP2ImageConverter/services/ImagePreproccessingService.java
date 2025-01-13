@@ -168,11 +168,11 @@ public class ImagePreproccessingService {
     }
 
     /**
-     * Run Exiftool to convert NEF images to JPEG
-     * @param fileName an image file
+     * Run Exiftool to convert NEF and NRW images to JPEG
+     * @param fileName an NEF or NRW image file
      * @return temporaryFile a temporary JPEG file
      */
-    public String convertNef(String fileName) throws Exception {
+    public String convertNefAndNrw(String fileName) throws Exception {
         String b = "-b";
         String jpgFromRaw = "-JpgFromRaw";
         String inputFile = fileName;
@@ -181,7 +181,7 @@ public class ImagePreproccessingService {
         List<String> command = Arrays.asList(EXIFTOOL, b, jpgFromRaw, inputFile);
         CommandUtility.executeCommandWriteToFile(command, temporaryFile);
 
-        // Next, copy over orientation info from the original NEF to the new JPEG
+        // Next, copy over orientation info from the original NEF/NRW to the new JPEG
         List<String> command2 = Arrays.asList(EXIFTOOL, "-overwrite_original", "-tagsfromfile", inputFile, "-orientation", temporaryFile);
         CommandUtility.executeCommand(command2);
 
@@ -237,7 +237,7 @@ public class ImagePreproccessingService {
     /**
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
-     * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, CRW, CR2, DNG, RAF, PCD, RW2
+     * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, NRW, CRW, CR2, DNG, RAF, PCD, RW2
      * @param fileName an image file
      * @param sourceFormat file extension/mimetype override
      * @return inputFile a path to a TIFF/PPM image file
@@ -264,9 +264,9 @@ public class ImagePreproccessingService {
             inputFile = convertPcd(fileName);
         } else if (fileNameExtension.matches("rw2")) {
             inputFile = convertRw2(fileName);
-        } else if (fileNameExtension.matches("nef")) {
-            // convert NEF to JPEG, then convert JPEG to PPM
-            String tempJpeg = convertNef(fileName);
+        } else if (fileNameExtension.matches("nef") || fileNameExtension.matches("nrw")) {
+            // convert NEF/NRW to JPEG, then convert JPEG to PPM
+            String tempJpeg = convertNefAndNrw(fileName);
             inputFile = convertJpeg(tempJpeg);
             // delete temp JPEG after temp PPM is created
             Files.deleteIfExists(Path.of(tempJpeg));

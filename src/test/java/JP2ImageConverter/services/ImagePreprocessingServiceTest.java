@@ -200,7 +200,7 @@ public class ImagePreprocessingServiceTest {
                 "MagickIdentify:\"Dimensions: 4272x2848;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"";
 
-        var tempTif = service.convertNef(testFile);
+        var tempTif = service.convertNefAndNrw(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -208,6 +208,23 @@ public class ImagePreprocessingServiceTest {
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 4272x2848;", attributes);
         assertContains("Channels: srgb", attributes);
+        assertContains("Color Space: sRGB;", attributes);
+        assertContains("Profiles: exif;", attributes);
+        assertContains("Type: TrueColor;", attributes);
+    }
+
+    @Test
+    public void testConvertNrwToJpeg() throws Exception {
+        String testFile = "src/test/resources/20170726_010.NRW";
+
+        var tempJpeg = service.convertNefAndNrw(testFile);
+        colorFieldsService.listFields(tempJpeg);
+
+        assertTrue(Files.exists(Paths.get(tempJpeg)));
+        var attributes = outputStreamCaptor.toString();
+        assertContains("MagickIdentify:", attributes);
+        assertContains("Dimensions: 4000x3000;", attributes);
+        assertContains("Channels: srgb  3.0", attributes);
         assertContains("Color Space: sRGB;", attributes);
         assertContains("Profiles: exif;", attributes);
         assertContains("Type: TrueColor;", attributes);
