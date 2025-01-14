@@ -36,7 +36,7 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testConvertCmykImageWithIccProfile() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        var tempTif = service.convertUnusualColorSpace(testFile);
+        var tempTif = service.setColorSpaceRemoveProfileWithIm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -48,7 +48,7 @@ public class ImagePreprocessingServiceTest {
     @Test
     public void testConvertCmykImageWithoutIccProfile() throws Exception {
         String testFile = "src/test/resources/Surgery.tif";
-        var tempTif = service.convertUnusualColorSpace(testFile);
+        var tempTif = service.setColorSpaceRemoveProfileWithIm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -60,7 +60,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertJpegtoPpm() throws Exception {
         String testFile = "src/test/resources/IMG_2377.jpeg";
 
-        var tempPpm = service.convertJpeg(testFile);
+        var tempPpm = service.convertToPpmWithIm(testFile);
 
         assertTrue(Files.exists(Paths.get(tempPpm)));
     }
@@ -69,7 +69,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertRw2ToPpm() throws Exception {
         String testFile = "src/test/resources/test.RW2";
 
-        var tempPpm = service.convertRw2(testFile);
+        var tempPpm = service.convertToPpmWithDcraw(testFile);
 
         assertTrue(Files.exists(Paths.get(tempPpm)));
     }
@@ -78,7 +78,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertPngToTiff() throws Exception {
         String testFile = "src/test/resources/schoolphotos1.png";
 
-        var tempTif = service.convertImageFormats(testFile);
+        var tempTif = service.convertToTifWithGm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -97,7 +97,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertGifToTiff() throws Exception {
         String testFile = "src/test/resources/CARTEZOO.GIF";
 
-        var tempTif = service.convertImageFormats(testFile);
+        var tempTif = service.convertToTifWithGm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -118,7 +118,7 @@ public class ImagePreprocessingServiceTest {
                 "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
 
-        var tempTif = service.convertImageFormats(testFile);
+        var tempTif = service.convertToTifWithGm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -137,7 +137,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertBmpToTiff() throws Exception {
         String testFile = "src/test/resources/Wagoner_BW.bmp";
 
-        var tempTif = service.convertImageFormats(testFile);
+        var tempTif = service.convertToTifWithGm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -157,7 +157,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertPsdToTiff() throws Exception {
         String testFile = "src/test/resources/17.psd";
 
-        var tempTif = service.convertPsd(testFile);
+        var tempTif = service.flattenSetColorspaceConvertToTifWithIm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -178,7 +178,7 @@ public class ImagePreprocessingServiceTest {
                 "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
 
-        var tempTif = service.convertJp2(testFile);
+        var tempTif = service.convertToTifWithIm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -200,7 +200,7 @@ public class ImagePreprocessingServiceTest {
                 "MagickIdentify:\"Dimensions: 4272x2848;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
                 "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"";
 
-        var tempTif = service.convertNefAndNrw(testFile);
+        var tempTif = service.convertToJpgWithExiftool(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -217,7 +217,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertNrwToJpeg() throws Exception {
         String testFile = "src/test/resources/20170726_010.NRW";
 
-        var tempJpeg = service.convertNefAndNrw(testFile);
+        var tempJpeg = service.convertToJpgWithExiftool(testFile);
         colorFieldsService.listFields(tempJpeg);
 
         assertTrue(Files.exists(Paths.get(tempJpeg)));
@@ -234,7 +234,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertCrwToTiff() throws Exception {
         String testFile = "src/test/resources/CanonEOS10D.crw";
 
-        var tempTif = service.convertImageFormats(testFile);
+        var tempTif = service.convertToTifWithGm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -252,7 +252,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertCr2ToTiff() throws Exception {
         String testFile = "src/test/resources/CanonEOS350D.CR2";
 
-        var tempPpm = service.convertCr2(testFile);
+        var tempPpm = service.convertToPpmWithGm(testFile);
 
         assertTrue(Files.exists(Paths.get(tempPpm)));
     }
@@ -261,7 +261,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertPcdToTiff() throws Exception {
         String testFile = "src/test/resources/98-337.03.PCD";
 
-        var tempTif = service.convertPcd(testFile);
+        var tempTif = service.convertToTifHighestResolutionWithGm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -277,7 +277,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertDngToTiff() throws Exception {
         String testFile = "src/test/resources/DJIPhantom4.dng";
 
-        var tempTif = service.convertImageFormats(testFile);
+        var tempTif = service.convertToTifWithGm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));
@@ -295,7 +295,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertRafToTiff() throws Exception {
         String testFile = "src/test/resources/FujiFilmFinePixS5500.raf";
 
-        var tempTif = service.convertImageFormats(testFile);
+        var tempTif = service.convertToTifWithGm(testFile);
         colorFieldsService.listFields(tempTif);
 
         assertTrue(Files.exists(Paths.get(tempTif)));

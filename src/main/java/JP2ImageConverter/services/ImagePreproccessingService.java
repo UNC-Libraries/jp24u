@@ -47,7 +47,7 @@ public class ImagePreproccessingService {
      */
     //It seems like only using color space creates a more color accurate temporary image.
     //Using color space and ICC Profile or just the ICC Profile create a temporary image with slightly different colors.
-    public String convertUnusualColorSpace(String fileName) throws Exception {
+    public String setColorSpaceRemoveProfileWithIm(String fileName) throws Exception {
         String colorSpace = "-colorspace";
         String colorSpaceOptions = "rgb";
         String profile = "+profile";
@@ -67,7 +67,7 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return temporaryFile a temporary TIFF file
      */
-    public String convertCieLabColorSpace(String fileName) throws Exception {
+    public String setColorSpaceWithIm(String fileName) throws Exception {
         String temporaryFile = prepareTempPath(fileName, ".tif").toString();
         String colorSpace = "-colorspace";
         String colorSpaceOptions = "sRGB";
@@ -88,7 +88,7 @@ public class ImagePreproccessingService {
      */
     // formats accepted by kakadu: TIFF (including BigTIFF), RAW (big-endian), RAWL (little-endian), BMP (they lied), PBM, PGM and PPM
     // formats accepted by metadata-extractor: JPEG, TIFF, WebP, WAV, AVI, PSD, PNG, BMP, GIF, ICO, PCX, QuickTime, MP4, Camera Raw
-    public String convertImageFormats(String fileName) throws Exception {
+    public String convertToTifWithGm(String fileName) throws Exception {
         String inputFile = fileName + "[0]";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
@@ -104,7 +104,7 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return temporaryFile a temporary TIFF file
      */
-    public String convertPsd(String fileName) throws Exception {
+    public String flattenSetColorspaceConvertToTifWithIm(String fileName) throws Exception {
         String importFile = fileName + "[0]";
         // if converting the [0] flattened layer doesn't work, try removing the [0] and adding -flatten to the command
         // String importFile = fileName;
@@ -125,7 +125,7 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return temporaryFile a temporary TIFF file
      */
-    public String convertJp2(String fileName) throws Exception {
+    public String convertToTifWithIm(String fileName) throws Exception {
         String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
@@ -141,7 +141,7 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return temporaryFile a temporary PPM file
      */
-    public String convertJpeg(String fileName) throws Exception {
+    public String convertToPpmWithIm(String fileName) throws Exception {
         String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
@@ -157,7 +157,7 @@ public class ImagePreproccessingService {
      * @param fileName an image file
      * @return temporaryFile a temporary PPM file
      */
-    public String convertCr2(String fileName) throws Exception {
+    public String convertToPpmWithGm(String fileName) throws Exception {
         String importFile = fileName;
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".ppm"));
 
@@ -172,7 +172,7 @@ public class ImagePreproccessingService {
      * @param fileName an NEF or NRW image file
      * @return temporaryFile a temporary JPEG file
      */
-    public String convertNefAndNrw(String fileName) throws Exception {
+    public String convertToJpgWithExiftool(String fileName) throws Exception {
         String b = "-b";
         String jpgFromRaw = "-JpgFromRaw";
         String inputFile = fileName;
@@ -194,7 +194,7 @@ public class ImagePreproccessingService {
      * @return a temporary JPEG file
      * @throws Exception
      */
-    public String convertPcd(String fileName) throws Exception {
+    public String convertToTifHighestResolutionWithGm(String fileName) throws Exception {
         // 6 is the index of the highest resolution for this format
         String inputFile = fileName + "[6]";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
@@ -211,7 +211,7 @@ public class ImagePreproccessingService {
      * @return a temporary PPM file
      * @throws Exception
      */
-    public String convertRw2(String fileName) throws Exception {
+    public String convertToPpmWithDcraw(String fileName) throws Exception {
         String temporaryFile = prepareTempPath(fileName, ".ppm").toString();
         List<String> dcrawCommand = Arrays.asList(DCRAW, "-c", "-w", fileName);
         CommandUtility.executeCommandWriteToFile(dcrawCommand, temporaryFile);
@@ -251,23 +251,23 @@ public class ImagePreproccessingService {
         }
 
         if (imageFormats.contains(fileNameExtension)) {
-            inputFile = convertImageFormats(fileName);
+            inputFile = convertToTifWithGm(fileName);
         } else if (fileNameExtension.matches("psd")) {
-            inputFile = convertPsd(fileName);
+            inputFile = flattenSetColorspaceConvertToTifWithIm(fileName);
         } else if (fileNameExtension.matches("jp2")) {
-            inputFile = convertJp2(fileName);
+            inputFile = convertToTifWithIm(fileName);
         } else if (fileNameExtension.matches("jpeg")) {
-            inputFile = convertJpeg(fileName);
+            inputFile = convertToPpmWithIm(fileName);
         } else if (fileNameExtension.matches("cr2")) {
-            inputFile = convertCr2(fileName);
+            inputFile = convertToPpmWithGm(fileName);
         } else if (fileNameExtension.matches("pcd")) {
-            inputFile = convertPcd(fileName);
+            inputFile = convertToTifHighestResolutionWithGm(fileName);
         } else if (fileNameExtension.matches("rw2")) {
-            inputFile = convertRw2(fileName);
+            inputFile = convertToPpmWithDcraw(fileName);
         } else if (fileNameExtension.matches("nef") || fileNameExtension.matches("nrw")) {
             // convert NEF/NRW to JPEG, then convert JPEG to PPM
-            String tempJpeg = convertNefAndNrw(fileName);
-            inputFile = convertJpeg(tempJpeg);
+            String tempJpeg = convertToJpgWithExiftool(fileName);
+            inputFile = convertToPpmWithIm(tempJpeg);
             // delete temp JPEG after temp PPM is created
             Files.deleteIfExists(Path.of(tempJpeg));
         } else if (fileNameExtension.matches("tiff") || fileNameExtension.matches("tif")) {
@@ -294,9 +294,9 @@ public class ImagePreproccessingService {
         Set<String> unusualColorSpaces = new HashSet<>(Arrays.asList("cmyk", "ycbcr", "atob0", "color filter array"));
 
         if (colorSpace.toLowerCase().contains("cielab")) {
-            inputFile = convertCieLabColorSpace(fileName);
+            inputFile = setColorSpaceWithIm(fileName);
         } else if (unusualColorSpaces.contains(colorSpace.toLowerCase())) {
-            inputFile = convertUnusualColorSpace(fileName);
+            inputFile = setColorSpaceRemoveProfileWithIm(fileName);
         } else if (colorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = fileName;
         } else {
