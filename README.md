@@ -14,7 +14,7 @@ It can also retrieve image metadata using EXIF fields and the ImageMagick identi
 ## Image Conversion
 ### Image Formats
 The JP2ImageConverter supports the following image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, 
-NEF, CRW, CR2, DNG, RAF.
+NEF, NRW, CRW, CR2, DNG, RAF, RW2.
 
 Kakadu kduCompress struggles to convert non-TIFF images. To work around this, we preprocess images in other formats.
 This involves converting non-TIFF images to temporary TIFF files. 

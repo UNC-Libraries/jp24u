@@ -174,6 +174,15 @@ public class KakaduServiceTest {
     }
 
     @Test
+    public void testKduCompressNrw() throws Exception {
+        String testFile = "src/test/resources/20170726_010.NRW";
+        service.kduCompress(testFile, Paths.get(tmpFolder + "/20170726_010"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("20170726_010.jp2")));
+        assertEquals(1, Files.list(tmpFolder).count());
+    }
+
+    @Test
     public void testKduCompressCrw() throws Exception {
         String testFile = "src/test/resources/CanonEOS10D.crw";
         service.kduCompress(testFile, Paths.get(tmpFolder + "/CanonEOS10D"), "");

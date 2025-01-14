@@ -24,7 +24,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Service for Kakadu kduCompress
- * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, NEF, CRW, CR2, DNG, RAF, PCD
+ * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, NEF, NRW, CRW, CR2, DNG, RAF, PCD
  * @author krwong
  */
 public class KakaduService {
@@ -58,6 +58,8 @@ public class KakaduService {
         SOURCE_FORMATS.put("image/jp2", "jp2");
         SOURCE_FORMATS.put("nef", "nef");
         SOURCE_FORMATS.put("image/x-nikon-nef", "nef");
+        SOURCE_FORMATS.put("nrw", "nrw");
+        SOURCE_FORMATS.put("image/x-nikon-nrw", "nrw");
         SOURCE_FORMATS.put("crw", "crw");
         SOURCE_FORMATS.put("image/x-canon-crw", "crw");
         SOURCE_FORMATS.put("cr2", "cr2");
@@ -274,7 +276,7 @@ public class KakaduService {
      * @param inputFile
      * @param fileName
      * @param sourceFormat
-     * @param colorSpace
+     * @param colorInfo
      * @param metadata extracted metadata from the source image
      * @param intermediateFiles
      * @return
