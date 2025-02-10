@@ -1,20 +1,35 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.util.CommandUtility;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 public class KakaduServiceTest {
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
@@ -22,18 +37,27 @@ public class KakaduServiceTest {
     @TempDir
     public Path tmpFolder;
 
+    private AutoCloseable closeable;
+
     private KakaduService service;
     private ColorFieldsService colorFieldsService;
     private ImagePreproccessingService imagePreproccessingService;
 
     @BeforeEach
     public void setup() throws Exception {
+        closeable = openMocks(this);
+
         colorFieldsService = new ColorFieldsService();
         imagePreproccessingService = new ImagePreproccessingService();
         imagePreproccessingService.tmpFilesDir = tmpFolder;
         service = new KakaduService();
         service.setColorFieldsService(colorFieldsService);
         service.setImagePreproccessingService(imagePreproccessingService);
+    }
+
+    @AfterEach
+    public void close() throws Exception {
+        closeable.close();
     }
 
     @Test
@@ -389,6 +413,74 @@ public class KakaduServiceTest {
         output = outputStreamCaptor.toString();
         // Dimensions after rotation
         assertContains("2832x4256", output);
+    }
+
+    @Test
+    public void testKduCompressYCbCrTif() throws Exception {
+        String mockedTif = String.valueOf(new File( tmpFolder + "/mockedImage.tif"));
+        Map<String, String> imageMetadata = Map.of(ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "YCbCr");
+        ColorFieldsService colorFieldsService = mock(ColorFieldsService.class);
+        when(colorFieldsService.extractMetadataFields(anyString())).thenReturn(imageMetadata);
+        when(colorFieldsService.identifyType(anyString())).thenReturn("RGB");
+        ImagePreproccessingService imagePreproccessingService = mock(ImagePreproccessingService.class);
+        when(imagePreproccessingService.convertToTiff(anyString(), anyString())).thenReturn(mockedTif);
+        when(imagePreproccessingService.convertColorSpaces(anyString(), anyString())).thenReturn(mockedTif);
+
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            File mockedJp2 = new File(tmpFolder + "/mockedImage.jp2");
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(String.valueOf(mockedJp2));
+
+            KakaduService service = new KakaduService();
+            service.setColorFieldsService(colorFieldsService);
+            service.setImagePreproccessingService(imagePreproccessingService);
+            service.kduCompress(mockedTif, tmpFolder.resolve("mockedImage"), "");
+
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("kdu_compress", "-i", mockedTif, "-o", mockedJp2.toString(),
+                            "Clevels=6", "Clayers=6",
+                            "Cprecincts={256,256},{256,256},{128,128}", "Stiles={512,512}", "Corder=RPCL",
+                            "ORGgen_plt=yes", "ORGtparts=R", "Cblk={64,64}", "Cuse_sop=yes", "Cuse_eph=yes",
+                            "-flush_period", "1024", "-rate", "3", "-no_weights"))));
+
+            verify(imagePreproccessingService, times(1)).convertToTiff(anyString(), anyString());
+            verify(imagePreproccessingService, times(1))
+                    .convertColorSpaces(anyString(), anyString());
+        }
+    }
+
+    @Test
+    public void testKduCompressOptimizePaletteTif() throws Exception {
+        String mockedTif = String.valueOf(new File( tmpFolder + "/mockedImage.tif"));
+        Map<String, String> imageMetadata = Map.of(ColorFieldsService.COLOR_SPACE, "RGB");
+        ColorFieldsService colorFieldsService = mock(ColorFieldsService.class);
+        when(colorFieldsService.extractMetadataFields(anyString())).thenReturn(imageMetadata);
+        when(colorFieldsService.identifyType(anyString())).thenReturn("RGB");
+        ImagePreproccessingService imagePreproccessingService = mock(ImagePreproccessingService.class);
+        when(imagePreproccessingService.convertToTiff(anyString(), anyString())).thenReturn(mockedTif);
+        when(imagePreproccessingService.convertColorSpaces(anyString(), anyString())).thenReturn(mockedTif);
+
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            File mockedJp2 = new File(tmpFolder + "/mockedImage.jp2");
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn("use -no_palette to avoid nasty palettization effects")
+                    .thenReturn(String.valueOf(mockedJp2));
+
+            KakaduService service = new KakaduService();
+            service.setColorFieldsService(colorFieldsService);
+            service.setImagePreproccessingService(imagePreproccessingService);
+            service.kduCompress(mockedTif, tmpFolder.resolve("mockedImage"), "");
+
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("kdu_compress", "-i", mockedTif, "-o", mockedJp2.toString(),
+                            "Clevels=6", "Clayers=6",
+                            "Cprecincts={256,256},{256,256},{128,128}", "Stiles={512,512}", "Corder=RPCL",
+                            "ORGgen_plt=yes", "ORGtparts=R", "Cblk={64,64}", "Cuse_sop=yes", "Cuse_eph=yes",
+                            "-flush_period", "1024", "-rate", "3", "-no_weights"))));
+            verify(imagePreproccessingService, times(1)).convertToTiff(anyString(), anyString());
+            verify(imagePreproccessingService, times(1))
+                    .convertColorSpaces(anyString(), anyString());
+        }
     }
 
     private void assertContains(String expected, String actual) {
