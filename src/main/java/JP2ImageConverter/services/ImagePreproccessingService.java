@@ -295,6 +295,10 @@ public class ImagePreproccessingService {
 
         if (colorSpace.toLowerCase().contains("cielab")) {
             inputFile = setColorSpaceWithIm(fileName);
+        } else if (colorSpace.toLowerCase().contains("ycbcr") && FilenameUtils.isExtension(fileName, "tif")) {
+            // rarely, Kakadu can't parse a TIFF with a YCbCr photometric interpretation even after correction
+            // convert the TIFF to a PPM before JP2 generation
+            inputFile = convertToPpmWithGm(fileName);
         } else if (unusualColorSpaces.contains(colorSpace.toLowerCase())) {
             inputFile = setColorSpaceRemoveProfileWithIm(fileName);
         } else if (colorSpaces.contains(colorSpace.toLowerCase())) {
