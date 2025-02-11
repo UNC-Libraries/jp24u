@@ -294,7 +294,8 @@ public class KakaduService {
         var orientation = metadata.get(ColorFieldsService.ORIENTATION);
         // convert unusual color spaces to temporary TIFF before kduCompress
         // unusual color spaces: CMYK, YcbCr, AtoB0, Color Filter Array, CIELab
-        inputFile = imagePreproccessingService.convertColorSpaces(colorInfo.get(COLOR_SPACE), inputFile);
+        inputFile = imagePreproccessingService.convertColorSpaces(colorInfo.get(COLOR_SPACE),
+                colorInfo.get(COLOR_TYPE), inputFile);
         if (!fileBeforeColorConversion.equals(inputFile)) {
             intermediateFiles.add(inputFile);
             return inputFile;

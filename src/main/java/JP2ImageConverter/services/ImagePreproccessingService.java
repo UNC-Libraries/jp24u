@@ -235,6 +235,23 @@ public class ImagePreproccessingService {
     }
 
     /**
+     * Using GraphicsMagick, set the type to TrueColor and colorspace to sRGB for the provided image
+     * For images with type "Palette" and colorspace "RGB Palette"
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
+    public String setTypeAndColorspaceWithGm(String fileName) throws Exception {
+        String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
+
+        List<String> command = Arrays.asList(GM, CONVERT, AUTO_ORIENT, "-type", "TrueColor",
+                "-colorspace", "sRGB", fileName,temporaryFile);
+        CommandUtility.executeCommand(command);
+
+        return temporaryFile;
+    }
+
+    /**
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, NRW, CRW, CR2, DNG, RAF, PCD, RW2
@@ -285,15 +302,18 @@ public class ImagePreproccessingService {
      * for unusual color spaces: convert to temporary TIFF and set color space to RGB before kdu_compress
      * currently supported color spaces: RGB, sRGB, RGB Palette, Gray, CMYK, AToB0 (technically an ICC Profile)
      * @param colorSpace an image color space
+     * @param type an image type
      * @param fileName an image file
      * @return inputFile a path to a TIFF image file
      */
-    public String convertColorSpaces(String colorSpace, String fileName) throws Exception {
+    public String convertColorSpaces(String colorSpace, String type, String fileName) throws Exception {
         String inputFile;
         Set<String> colorSpaces = new HashSet<>(Arrays.asList("rgb", "srgb", "rgb palette", "gray"));
         Set<String> unusualColorSpaces = new HashSet<>(Arrays.asList("cmyk", "ycbcr", "atob0", "color filter array"));
 
-        if (colorSpace.toLowerCase().contains("cielab")) {
+        if (colorSpace.toLowerCase().contains("rgb palette") && type.toLowerCase().contains("palette")) {
+            inputFile = setTypeAndColorspaceWithGm(fileName);
+        } else if (colorSpace.toLowerCase().contains("cielab")) {
             inputFile = setColorSpaceWithIm(fileName);
         } else if (colorSpace.toLowerCase().contains("ycbcr") && FilenameUtils.isExtension(fileName, "tif")) {
             // rarely, Kakadu can't parse a TIFF with a YCbCr photometric interpretation even after correction
