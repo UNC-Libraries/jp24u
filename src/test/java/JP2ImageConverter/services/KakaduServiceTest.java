@@ -424,7 +424,7 @@ public class KakaduServiceTest {
         when(colorFieldsService.identifyType(anyString())).thenReturn("TrueColor");
         ImagePreproccessingService imagePreproccessingService = mock(ImagePreproccessingService.class);
         when(imagePreproccessingService.convertToTiff(anyString(), anyString())).thenReturn(mockedTif);
-        when(imagePreproccessingService.convertColorSpaces(anyString(), anyString())).thenReturn(mockedTif);
+        when(imagePreproccessingService.convertColorSpaces(anyString(), anyString(), anyString())).thenReturn(mockedTif);
 
         try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
             String mockedJp2 = tmpFolder.resolve("mockedImage.jp2").toString();
@@ -445,7 +445,7 @@ public class KakaduServiceTest {
             verify(imagePreproccessingService, times(1))
                     .convertToTiff(mockedTif, "tiff");
             verify(imagePreproccessingService, times(1))
-                    .convertColorSpaces("YCbCr", mockedTif);
+                    .convertColorSpaces("YCbCr", "TrueColor", mockedTif);
         }
     }
 
@@ -458,7 +458,7 @@ public class KakaduServiceTest {
         when(colorFieldsService.identifyType(anyString())).thenReturn("TrueColor");
         ImagePreproccessingService imagePreproccessingService = mock(ImagePreproccessingService.class);
         when(imagePreproccessingService.convertToTiff(anyString(), anyString())).thenReturn(mockedTif);
-        when(imagePreproccessingService.convertColorSpaces(anyString(), anyString())).thenReturn(mockedTif);
+        when(imagePreproccessingService.convertColorSpaces(anyString(), anyString(), anyString())).thenReturn(mockedTif);
 
         try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
             String mockedJp2 = tmpFolder.resolve("mockedImage.jp2").toString();
@@ -477,9 +477,10 @@ public class KakaduServiceTest {
                             "Cprecincts={256,256},{256,256},{128,128}", "Stiles={512,512}", "Corder=RPCL",
                             "ORGgen_plt=yes", "ORGtparts=R", "Cblk={64,64}", "Cuse_sop=yes", "Cuse_eph=yes",
                             "-flush_period", "1024", "-rate", "3", "-no_weights"))));
-            verify(imagePreproccessingService, times(1)).convertToTiff(mockedTif, "tiff");
             verify(imagePreproccessingService, times(1))
-                    .convertColorSpaces("RGB", mockedTif);
+                    .convertToTiff(mockedTif, "tiff");
+            verify(imagePreproccessingService, times(1))
+                    .convertColorSpaces("RGB", "TrueColor", mockedTif);
         }
     }
 
@@ -492,7 +493,7 @@ public class KakaduServiceTest {
         when(colorFieldsService.identifyType(anyString())).thenReturn("Palette");
         ImagePreproccessingService imagePreproccessingService = mock(ImagePreproccessingService.class);
         when(imagePreproccessingService.convertToTiff(anyString(), anyString())).thenReturn(mockedTif);
-        when(imagePreproccessingService.convertColorSpaces(anyString(), anyString())).thenReturn(mockedTif);
+        when(imagePreproccessingService.convertColorSpaces(anyString(), anyString(), anyString())).thenReturn(mockedTif);
 
         try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
             String mockedJp2 = tmpFolder.resolve("mockedImage.jp2").toString();
@@ -508,8 +509,10 @@ public class KakaduServiceTest {
                             "Clevels=6", "Clayers=6", "Cprecincts={256,256},{256,256},{128,128}", "" +
                             "Stiles={512,512}", "Corder=RPCL", "ORGgen_plt=yes", "ORGtparts=R", "Cblk={64,64}",
                             "Cuse_sop=yes", "Cuse_eph=yes", "-flush_period", "1024", "-rate", "3", "-no_weights"))));
-            verify(imagePreproccessingService, times(1)).convertToTiff(mockedTif, "tiff");
-            verify(imagePreproccessingService, times(1)).convertColorSpaces("RGB Palette", "Palette", mockedTif);
+            verify(imagePreproccessingService, times(1))
+                    .convertToTiff(mockedTif, "tiff");
+            verify(imagePreproccessingService, times(1))
+                    .convertColorSpaces("RGB Palette", "Palette", mockedTif);
         }
     }
 
