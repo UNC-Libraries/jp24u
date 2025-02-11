@@ -249,6 +249,12 @@ public class KakaduService {
                     intermediateFiles.add(modifiedTmpPath);
                     performKakaduCommandWithRecovery(command, intermediateFiles, false);
                     return;
+                } else if (output.contains("no_palette") && output.contains("to avoid nasty palettization effects")) {
+                    // rarely, there is a TIFF that requires -no_palatte to generate a JP2
+                    log.warn("Optimizing palette error, retrying with -no_palette: {}", e.getMessage());
+                    command.add("-no_palette");
+                    performKakaduCommandWithRecovery(command, intermediateFiles, false);
+                    return;
                 }
             }
             throw e;
