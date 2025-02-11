@@ -353,7 +353,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertColorspace() throws Exception {
         String testFile = "src/test/resources/IMG_3444.pct.tif";
 
-        String result = service.convertColorSpaces("rgb", testFile);
+        String result = service.convertColorSpaces("rgb", "truecolor", testFile);
 
         assertEquals(testFile, result);
     }
@@ -362,7 +362,7 @@ public class ImagePreprocessingServiceTest {
     public void testConvertUnusualColorspace() throws Exception {
         String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
 
-        String result = service.convertColorSpaces("cmyk", testFile);
+        String result = service.convertColorSpaces("cmyk", "colorseparation", testFile);
 
         assertTrue(Files.exists(Paths.get(result)));
     }
