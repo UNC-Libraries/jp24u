@@ -1,5 +1,6 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.kakadu.KakaduCompressService;
 import JP2ImageConverter.util.CommandUtility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,14 +10,12 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,6 +41,7 @@ public class KakaduServiceTest {
     private KakaduService service;
     private ColorFieldsService colorFieldsService;
     private ImagePreproccessingService imagePreproccessingService;
+    private KakaduCompressService kakaduCompressService;
 
     @BeforeEach
     public void setup() throws Exception {
@@ -50,9 +50,11 @@ public class KakaduServiceTest {
         colorFieldsService = new ColorFieldsService();
         imagePreproccessingService = new ImagePreproccessingService();
         imagePreproccessingService.tmpFilesDir = tmpFolder;
+        kakaduCompressService = new KakaduCompressService();
         service = new KakaduService();
         service.setColorFieldsService(colorFieldsService);
         service.setImagePreproccessingService(imagePreproccessingService);
+        service.setKakaduCompressService(kakaduCompressService);
     }
 
     @AfterEach
@@ -514,6 +516,24 @@ public class KakaduServiceTest {
             verify(imagePreproccessingService, times(1))
                     .convertColorSpaces("RGB Palette", "Palette", mockedTif);
         }
+    }
+
+    @Test
+    public void testKduCompress1() throws Exception {
+        String testFile = "src/test/resources/P0024_0103_01.tif";
+        service.kakaduKduCompress(testFile, Paths.get(tmpFolder + "/P0024_0103_01"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("P0024_0103_01.jp2")));
+        assertEquals(1, Files.list(tmpFolder).count());
+    }
+
+    @Test
+    public void testKduCompress2() throws Exception {
+        String testFile = "src/test/resources/P0024_0103_01.tif";
+        service.kakaduCompress(testFile, Paths.get(tmpFolder + "/P0024_0103_01"), "");
+
+        assertTrue(Files.exists(tmpFolder.resolve("P0024_0103_01.jp2")));
+        assertEquals(1, Files.list(tmpFolder).count());
     }
 
     private void assertContains(String expected, String actual) {

@@ -1,5 +1,9 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.kakadu.KakaduCompressService;
+import kdu_jni.KduException;
+import kdu_jni.Kdu_global;
+
 import JP2ImageConverter.errors.CommandException;
 import JP2ImageConverter.util.CommandUtility;
 import org.apache.commons.io.FilenameUtils;
@@ -20,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static JP2ImageConverter.services.ColorFieldsService.PHOTOMETRIC_INTERPRETATION;
+import static JP2ImageConverter.util.CLIConstants.outputLogger;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -78,6 +83,7 @@ public class KakaduService {
 
     private ColorFieldsService colorFieldsService;
     private ImagePreproccessingService imagePreproccessingService;
+    private KakaduCompressService kakaduCompressService;
 
     /**
      * Get color space from EXIF fields
@@ -224,6 +230,8 @@ public class KakaduService {
                 command.add(jp2SpaceOptions);
             }
 
+            outputLogger.info(command.toString());
+
             performKakaduCommandWithRecovery(command, intermediateFiles, true);
             deleteTinyGrayVoidImages(outputFile);
         } finally {
@@ -258,6 +266,22 @@ public class KakaduService {
                 }
             }
             throw e;
+        }
+    }
+
+    public void kakaduKduCompress(String sourceFileName, Path outputPath, String sourceFormat) {
+        try {
+            Kdu_global.Kdu_get_core_version();
+        } catch (KduException e) {
+            e.getMessage();
+        }
+    }
+
+    public void kakaduCompress(String sourceFileName, Path outputPath, String sourceFormat) {
+        try {
+            kakaduCompressService.kakaduKduCompress(sourceFileName, outputPath);
+        } catch (Exception e) {
+            e.getMessage();
         }
     }
 
@@ -376,5 +400,9 @@ public class KakaduService {
 
     public void setImagePreproccessingService(ImagePreproccessingService imagePreproccessingService) {
         this.imagePreproccessingService = imagePreproccessingService;
+    }
+
+    public void setKakaduCompressService(KakaduCompressService kakaduCompressService) {
+        this.kakaduCompressService = kakaduCompressService;
     }
 }
