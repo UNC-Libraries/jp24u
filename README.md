@@ -33,3 +33,9 @@ Images with a CMYK color space are first converted to a temporary TIFF file befo
 - `jp24u list_all -f <filename>`: retrieve image color fields and attributes for a list of files
 - `jp24u kdu_compress -f <filename> -o <outputPath>`: run kduCompress on an image file, set output path
 - `jp24u -sf <sourceFormat>`: override source file type detection
+
+## Shaded jar
+To build the project as a shaded jar with dependencies, use the following Maven command:
+```
+mvn clean package -P shade
+```
