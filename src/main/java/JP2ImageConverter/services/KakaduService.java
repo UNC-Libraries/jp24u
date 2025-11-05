@@ -24,7 +24,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Service for Kakadu kduCompress
- * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, NEF, NRW, CRW, CR2, DNG, RAF, PCD
+ * Supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, NEF, NRW, CRW, CR2, DNG, RAF, PCD, HEIC
  * @author krwong
  */
 public class KakaduService {
@@ -72,6 +72,10 @@ public class KakaduService {
         SOURCE_FORMATS.put("image/x-photo-cd", "pcd");
         SOURCE_FORMATS.put("rw2", "rw2");
         SOURCE_FORMATS.put("image/x-panasonic-rw2", "rw2");
+        SOURCE_FORMATS.put("heic", "heic");
+        SOURCE_FORMATS.put("image/heic", "heic");
+        SOURCE_FORMATS.put("heif", "heic");
+        SOURCE_FORMATS.put("image/heif", "heic");
     }
 
     public Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
