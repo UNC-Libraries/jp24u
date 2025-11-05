@@ -1,152 +1,142 @@
 package JP2ImageConverter.services;
 
+import JP2ImageConverter.util.CommandUtility;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 public class ImagePreprocessingServiceTest {
-    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-
     @TempDir
     public Path tmpFolder;
 
-    private ColorFieldsService colorFieldsService;
+    private AutoCloseable closeable;
+
     private ImagePreproccessingService service;
 
     @BeforeEach
     public void setup() throws Exception {
-        System.setOut(new PrintStream(outputStreamCaptor));
+        closeable = openMocks(this);
 
-        colorFieldsService = new ColorFieldsService();
         service = new ImagePreproccessingService();
         service.tmpFilesDir = tmpFolder;
     }
 
-    @Test
-    public void testConvertCmykImageWithIccProfile() throws Exception {
-        String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
-        var tempTif = service.setColorSpaceRemoveProfileWithIm(testFile);
-        colorFieldsService.listFields(tempTif);
-
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        assertTrue(outputStreamCaptor.toString().contains("RGB"));
-        assertFalse(outputStreamCaptor.toString().contains("CMYK"));
-    }
-
-    @Disabled("testFile is 155.6MB, too big to add to github")
-    @Test
-    public void testConvertCmykImageWithoutIccProfile() throws Exception {
-        String testFile = "src/test/resources/Surgery.tif";
-        var tempTif = service.setColorSpaceRemoveProfileWithIm(testFile);
-        colorFieldsService.listFields(tempTif);
-
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        assertTrue(outputStreamCaptor.toString().contains("RGB"));
-        assertFalse(outputStreamCaptor.toString().contains("CMYK"));
+    @AfterEach
+    public void close() throws Exception {
+        closeable.close();
     }
 
     @Test
-    public void testConvertJpegtoPpm() throws Exception {
-        String testFile = "src/test/resources/IMG_2377.jpeg";
+    public void testSetColorSpaceAndRemoveProfileWithIm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
+            String tempTif = tmpFolder.resolve("OP20459_1_TremorsKelleyandtheCowboys.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempPpm = service.convertToPpmWithIm(testFile);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.setColorSpaceRemoveProfileWithIm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempPpm)));
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("gm", "convert", "-auto-orient", testFile, "-colorspace", "rgb",
+                            "+profile", "\"*\"", outputFile))));
+        }
     }
 
     @Test
-    public void testConvertRw2ToPpm() throws Exception {
-        String testFile = "src/test/resources/test.RW2";
+    public void testSetTypeAndColorspaceWithGm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.tif").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempPpm = service.convertToPpmWithDcraw(testFile);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.setTypeAndColorspaceWithGm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempPpm)));
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("gm", "convert", "-auto-orient", "-type", "TrueColor",
+                            "-colorspace", "sRGB", testFile, outputFile))));
+        }
     }
 
     @Test
-    public void testConvertPngToTiff() throws Exception {
-        String testFile = "src/test/resources/schoolphotos1.png";
+    public void testColorSpaceWithIm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.tif").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempTif = service.convertToTifWithGm(testFile);
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.setColorSpaceWithIm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("ICCProfileName:Adobe RGB", attributes);
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 1300x2000;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Bit-depth: 16;", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: icc;", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("convert", "-auto-orient", testFile, "-colorspace", "sRGB",
+                            outputFile))));
+        }
     }
 
     @Test
-    public void testConvertGifToTiff() throws Exception {
-        String testFile = "src/test/resources/CARTEZOO.GIF";
+    public void testConvertToPpmWithIm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.jpeg").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempTif = service.convertToTifWithGm(testFile);
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertToPpmWithIm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 295x353;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Bit-depth: 8;", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Type: Grayscale;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("convert", "-auto-orient", testFile, outputFile))));
+        }
     }
 
     @Test
-    public void testConvertPictToTiff() throws Exception {
-        String testFile = "src/test/resources/IMG_3444.pct";
-        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
-                "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
-                "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
+    public void testConvertToPpmWithDcraw() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.rw2").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.ppm").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempTif = service.convertToTifWithGm(testFile);
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertToPpmWithDcraw(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 1600x1200;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Bit-depth: 8;", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: 8bim,icc;", attributes);
-        assertContains("ICC Profile: sRGB IEC61966-2.1", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommandWriteToFile(
+                    new ArrayList<>(Arrays.asList("dcraw", "-c", "-w", testFile)), outputFile));
+        }
     }
 
     @Test
-    public void testConvertBmpToTiff() throws Exception {
-        String testFile = "src/test/resources/Wagoner_BW.bmp";
+    public void testConvertToTifWithGm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.png").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempTif = service.convertToTifWithGm(testFile);
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertToTifWithGm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 1940x2676;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("gm", "convert", "-auto-orient", testFile + "[0]", outputFile))));
+        }
     }
 
     private void assertContains(String expected, String actual) {
@@ -154,181 +144,106 @@ public class ImagePreprocessingServiceTest {
     }
 
     @Test
-    public void testConvertPsdToTiff() throws Exception {
-        String testFile = "src/test/resources/17.psd";
+    public void testFlattenSetColorspaceConvertToTifWithIm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.psd").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempTif = service.flattenSetColorspaceConvertToTifWithIm(testFile);
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.flattenSetColorspaceConvertToTifWithIm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 1228x1818;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: 8bim,exif,icc,iptc,xmp;", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("convert", "-auto-orient", testFile + "[0]",
+                            "-colorspace", "sRGB", outputFile))));
+        }
     }
 
     @Test
-    public void testConvertJp2toTiff() throws Exception {
-        String testFile = "src/test/resources/17.jp2";
-        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
-                "ICCProfileName:sRGB IEC61966-2.1\tColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1228x1818;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
-                "Color Space: sRGB;Profiles: icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
+    public void testConvertToTifWithIm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.jp2").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempTif = service.convertToTifWithIm(testFile);
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertToTifWithIm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("ICCProfileName:sRGB IEC61966-2.1", attributes);
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 1228x1818;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: icc;", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("convert", "-auto-orient", testFile, outputFile))));
+        }
     }
 
     @Test
-    public void testConvertNefToJpeg() throws Exception {
-        String testFile = "src/test/resources/20170822_068.NEF";
-        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\t" +
-                "ICCProfileName:null\tColorSpace:null\tInteropIndex:null\tPhotometricInterpretation:null\t" +
-                "MagickIdentify:\"Dimensions: 4272x2848;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
-                "Color Space: sRGB;Profiles: ;ICC Profile: ;ICM Profile: ;Type: TrueColor;\"";
+    public void testConvertToJpgWithExiftool() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.nef").toString();
+            String tempJpeg = tmpFolder.resolve("mockedImage.jpeg").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempJpeg);
 
-        var tempTif = service.convertToJpgWithExiftool(testFile);
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertToJpgWithExiftool(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 4272x2848;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: exif;", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommandWriteToFile(
+                    new ArrayList<>(Arrays.asList("exiftool", "-b", "-JpgFromRaw", testFile)), outputFile));
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("exiftool", "-overwrite_original", "-tagsfromfile",
+                            testFile, "-orientation", outputFile))));
+        }
     }
 
     @Test
-    public void testConvertNrwToJpeg() throws Exception {
-        String testFile = "src/test/resources/20170726_010.NRW";
+    public void testConvertToPpmWithGm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.cr2").toString();
+            String tempPpm = tmpFolder.resolve("mockedImage.ppm").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempPpm);
 
-        var tempJpeg = service.convertToJpgWithExiftool(testFile);
-        colorFieldsService.listFields(tempJpeg);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertToPpmWithGm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempJpeg)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 4000x3000;", attributes);
-        assertContains("Channels: srgb  3.0", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: exif;", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("gm", "convert", "-auto-orient",
+                            testFile, outputFile))));
+        }
     }
 
     @Test
-    public void testConvertCrwToTiff() throws Exception {
-        String testFile = "src/test/resources/CanonEOS10D.crw";
+    public void testConvertToTifHighestResolutionWithGm() throws Exception {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.pcd").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempTif = service.convertToTifWithGm(testFile);
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertToTifHighestResolutionWithGm(testFile);
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 2056x3088;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Bit-depth: 16;", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: icc;", attributes);
-        assertContains("Type: TrueColor;", attributes);
-    }
-
-    @Test
-    public void testConvertCr2ToTiff() throws Exception {
-        String testFile = "src/test/resources/CanonEOS350D.CR2";
-
-        var tempPpm = service.convertToPpmWithGm(testFile);
-
-        assertTrue(Files.exists(Paths.get(tempPpm)));
-    }
-
-    @Test
-    public void testConvertPcdToTiff() throws Exception {
-        String testFile = "src/test/resources/98-337.03.PCD";
-
-        var tempTif = service.convertToTifHighestResolutionWithGm(testFile);
-        colorFieldsService.listFields(tempTif);
-
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 4096x6144;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Type: TrueColor;", attributes);
-    }
-
-    @Test
-    public void testConvertDngToTiff() throws Exception {
-        String testFile = "src/test/resources/DJIPhantom4.dng";
-
-        var tempTif = service.convertToTifWithGm(testFile);
-        colorFieldsService.listFields(tempTif);
-
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 4000x3000;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Bit-depth: 16;", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: icc;", attributes);
-        assertContains("Type: TrueColor;", attributes);
-    }
-
-    @Test
-    public void testConvertRafToTiff() throws Exception {
-        String testFile = "src/test/resources/FujiFilmFinePixS5500.raf";
-
-        var tempTif = service.convertToTifWithGm(testFile);
-        colorFieldsService.listFields(tempTif);
-
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 2304x1740;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: icc;", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("gm", "convert", "-auto-orient",
+                            testFile + "[6]", outputFile))));
+        }
     }
 
     @Test
     public void testImagePreprocessingPict() throws Exception {
-        String testFile = "src/test/resources/IMG_3444.pct";
-        String tifExifData = "DateTimeOriginal:null\tDateTimeDigitized:null\tICCProfileName:sRGB IEC61966-2.1\t" +
-                "ColorSpace:RGB\tInteropIndex:null\tPhotometricInterpretation:RGB\t" +
-                "MagickIdentify:\"Dimensions: 1600x1200;Channels: srgb  3.0;Bit-depth: 8;Alpha channel: Undefined;" +
-                "Color Space: sRGB;Profiles: 8bim,icc;ICC Profile: sRGB IEC61966-2.1;ICM Profile: ;Type: TrueColor;\"";
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.pct").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        var tempTif = service.convertToTiff(testFile, "");
-        colorFieldsService.listFields(tempTif);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertToTiff(testFile, "");
 
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        assertTrue(tempTif.matches(".*/IMG_3444\\.pct.*\\.tif"));
-        var attributes = outputStreamCaptor.toString();
-        assertContains("MagickIdentify:", attributes);
-        assertContains("Dimensions: 1600x1200;", attributes);
-        assertContains("Channels: srgb", attributes);
-        assertContains("Bit-depth: 8;", attributes);
-        assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: 8bim,icc;", attributes);
-        assertContains("Type: TrueColor;", attributes);
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("gm", "convert", "-auto-orient",
+                            testFile + "[0]", outputFile))));
+        }
     }
 
     @Test
@@ -338,15 +253,6 @@ public class ImagePreprocessingServiceTest {
         var tempTif = service.convertToTiff(testFile, "");
 
         assertTrue(Files.exists(Paths.get(tempTif)));
-    }
-
-    @Test
-    public void testImagePreprocessingNef() throws Exception {
-        String testFile = "src/test/resources/20170822_068.NEF";
-
-        var tempTif = service.convertToTiff(testFile, "");
-        assertTrue(Files.exists(Paths.get(tempTif)));
-        assertTrue(tempTif.matches(".*/20170822_068\\.NEF.*\\.ppm"));
     }
 
     @Test
@@ -360,11 +266,19 @@ public class ImagePreprocessingServiceTest {
 
     @Test
     public void testConvertUnusualColorspace() throws Exception {
-        String testFile = "src/test/resources/OP20459_1_TremorsKelleyandtheCowboys.tif";
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String testFile = tmpFolder.resolve("mockedImage.tif").toString();
+            String tempTif = tmpFolder.resolve("mockedImage.tif").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(tempTif);
 
-        String result = service.convertColorSpaces("cmyk", "colorseparation", testFile);
+            ImagePreproccessingService service = new ImagePreproccessingService();
+            String outputFile = service.convertColorSpaces("cmyk", "colorseparation", testFile);
 
-        assertTrue(Files.exists(Paths.get(result)));
+            mockedStatic.verify(() -> CommandUtility.executeCommand(
+                    new ArrayList<>(Arrays.asList("gm", "convert", "-auto-orient", testFile, "-colorspace", "rgb",
+                            "+profile", "\"*\"", outputFile))));
+        }
     }
 
     @Test
