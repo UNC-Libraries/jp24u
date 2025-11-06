@@ -60,11 +60,24 @@ public class KakaduServiceTest {
     @Test
     public void testRetrieveColorInfo() throws Exception {
         // EXIF ColorSpace is null, EXIF PhotometricInterpretation is gray
-        String testFile = "src/test/resources/P0024_0066.tif";
-        var originalImageMetadata = service.extractMetadata(testFile, "tiff");
-        var info = service.getColorInfo(originalImageMetadata, originalImageMetadata, testFile);
-        assertEquals("Gray", info.get(KakaduService.COLOR_SPACE));
-        assertEquals("Grayscale", info.get(KakaduService.COLOR_TYPE));
+        String testFile = tmpFolder.resolve("mockedImage.tif").toString();
+        Map<String, String> imageMetadata = Map.of(ColorFieldsService.COLOR_SPACE, "Gray",
+                ColorFieldsService.PHOTOMETRIC_INTERPRETATION, "BlackIsZero");
+        ColorFieldsService colorFieldsService = mock(ColorFieldsService.class);
+        when(colorFieldsService.extractMetadataFields(anyString())).thenReturn(imageMetadata);
+        when(colorFieldsService.identifyType(anyString())).thenReturn("Grayscale");
+
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn("Grayscale");
+
+            KakaduService service = new KakaduService();
+            service.setColorFieldsService(colorFieldsService);
+            service.setImagePreproccessingService(imagePreproccessingService);
+            var info = service.getColorInfo(imageMetadata, imageMetadata, testFile);
+            assertEquals("Gray", info.get(KakaduService.COLOR_SPACE));
+            assertEquals("Grayscale", info.get(KakaduService.COLOR_TYPE));
+        }
     }
 
     @Test
