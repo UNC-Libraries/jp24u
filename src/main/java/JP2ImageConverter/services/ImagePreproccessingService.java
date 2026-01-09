@@ -255,7 +255,7 @@ public class ImagePreproccessingService {
      * Determine image format and preprocess if needed
      * for non-TIFF image formats: convert to temporary TIFF/PPM before kdu_compress
      * currently supported image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, NEF, NRW, CRW, CR2, DNG, RAF, PCD,
-     *      RW2, HEIC
+     *      RW2, HEIC, JP2, JPF
      * @param fileName an image file
      * @param sourceFormat file extension/mimetype override
      * @return inputFile a path to a TIFF/PPM image file
@@ -272,7 +272,8 @@ public class ImagePreproccessingService {
             inputFile = convertToTifWithGm(fileName);
         } else if (fileNameExtension.matches("psd")) {
             inputFile = flattenSetColorspaceConvertToTifWithIm(fileName);
-        } else if (fileNameExtension.matches("jp2") || fileNameExtension.matches("heic")) {
+        } else if (fileNameExtension.matches("jp2") || fileNameExtension.matches("heic")
+                || fileNameExtension.matches("jpf")) {
             inputFile = convertToTifWithIm(fileName);
         } else if (fileNameExtension.matches("jpeg")) {
             inputFile = convertToPpmWithIm(fileName);
