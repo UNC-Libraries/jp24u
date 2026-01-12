@@ -1,8 +1,8 @@
-# JP2 Image Converter
+# JP24U
 
 Image to JP2 for You!
 
-Given a image, the JP2ImageConverter can convert image to JP2 using the Kakadu kduCompress command. 
+Given a image, JP24U can convert image to JP2 using the Kakadu kduCompress command. 
 It can also retrieve image metadata using EXIF fields and the ImageMagick identify command.
 
 ## Dependencies
@@ -13,11 +13,11 @@ It can also retrieve image metadata using EXIF fields and the ImageMagick identi
 
 ## Image Conversion
 ### Image Formats
-The JP2ImageConverter supports the following image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, 
-NEF, NRW, CRW, CR2, DNG, RAF, RW2.
+The JP2ImageConverter supports the following image formats: TIFF, JPEG, PNG, GIF, PICT, BMP, PSD, JP2, JPF,
+NEF, NRW, CRW, CR2, DNG, RAF, RW2, HEIC.
 
 Kakadu kduCompress struggles to convert non-TIFF images. To work around this, we preprocess images in other formats.
-This involves converting non-TIFF images to temporary TIFF files. 
+This involves converting non-TIFF images to temporary TIFF files or temporary PPM files. 
 GIF images have an additional `-no_palette` argument in the kduCompress command to avoid pixelization.
 
 ### Color Spaces

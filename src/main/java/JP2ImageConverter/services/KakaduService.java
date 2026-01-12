@@ -56,6 +56,8 @@ public class KakaduService {
         SOURCE_FORMATS.put("image/vnd.adobe.photoshop", "psd");
         SOURCE_FORMATS.put("jp2", "jp2");
         SOURCE_FORMATS.put("image/jp2", "jp2");
+        SOURCE_FORMATS.put("jpf", "jpf");
+        SOURCE_FORMATS.put("image/jpx", "jpf");
         SOURCE_FORMATS.put("nef", "nef");
         SOURCE_FORMATS.put("image/x-nikon-nef", "nef");
         SOURCE_FORMATS.put("nrw", "nrw");
