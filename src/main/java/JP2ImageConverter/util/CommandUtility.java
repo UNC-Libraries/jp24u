@@ -1,8 +1,10 @@
 package JP2ImageConverter.util;
 
 import JP2ImageConverter.errors.CommandException;
+import JP2ImageConverter.errors.CommandTimeoutException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.slf4j.Logger;
@@ -10,9 +12,7 @@ import org.slf4j.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -35,24 +35,36 @@ public class CommandUtility {
      * @return command output
      */
     public static String executeCommand(List<String> command) {
-        log.debug("Executing command: {}", String.join(" ", command));
+        log.debug("Executing command with timeout {}s: {}", MAX_TIMEOUT_SECONDS, String.join(" ", command));
         CommandLine cmdLine = CommandLine.parse(command.getFirst());
         cmdLine.addArguments(command.subList(1, command.size()).toArray(new String[0]));
 
         DefaultExecutor executor = DefaultExecutor.builder().get();
-        var watchdog = ExecuteWatchdog.builder()
-                .setTimeout(Duration.of(MAX_TIMEOUT_SECONDS, ChronoUnit.SECONDS))
-                .get();
-        executor.setWatchdog(watchdog);
+        ExecuteWatchdog watchdog = null;
+        if (MAX_TIMEOUT_SECONDS > 0) {
+            watchdog = EscalatingExecuteWatchdog.create(Duration.ofSeconds(MAX_TIMEOUT_SECONDS));
+            executor.setWatchdog(watchdog);
+        }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        executor.setStreamHandler(new PumpStreamHandler(outputStream));
+        ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+        executor.setStreamHandler(new PumpStreamHandler(outputStream, errorStream));
 
         try {
             executor.execute(cmdLine);
             return outputStream.toString();
+        } catch (ExecuteException e) {
+            String output = outputStream.toString();
+            int exitValue = e.getExitValue();
+
+            if (watchdog != null && watchdog.killedProcess()) {
+                throw new CommandTimeoutException("Command timed out after " + MAX_TIMEOUT_SECONDS + " seconds",
+                        command, output);
+            }
+            throw new CommandException("Command failed to execute", command, output, exitValue, e);
         } catch (IOException e) {
-            throw new CommandException("Command failed to execute", command, outputStream.toString(), e);
+            String output = outputStream + "\n" + errorStream;
+            throw new CommandException("Command failed to execute", command, output, e);
         }
     }
 
@@ -61,25 +73,33 @@ public class CommandUtility {
      * @param command
      */
     public static void executeCommandWriteToFile(List<String> command, String temporaryFile) {
-        log.debug("Executing command: {}", String.join(" ", command));
+        log.debug("Executing command with timeout {}s: {}", MAX_TIMEOUT_SECONDS, String.join(" ", command));
         CommandLine cmdLine = CommandLine.parse(command.getFirst());
         cmdLine.addArguments(command.subList(1, command.size()).toArray(new String[0]));
 
         DefaultExecutor executor = DefaultExecutor.builder().get();
-        var watchdog = ExecuteWatchdog.builder()
-                .setTimeout(Duration.of(MAX_TIMEOUT_SECONDS, ChronoUnit.SECONDS))
-                .get();
-        executor.setWatchdog(watchdog);
+        ExecuteWatchdog watchdog = null;
+        if (MAX_TIMEOUT_SECONDS > 0) {
+            watchdog = EscalatingExecuteWatchdog.create(Duration.ofSeconds(MAX_TIMEOUT_SECONDS));
+            executor.setWatchdog(watchdog);
+        }
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        executor.setStreamHandler(new PumpStreamHandler(byteArrayOutputStream));
+        ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
-        try {
+        try (FileOutputStream outputStream = new FileOutputStream(temporaryFile)) {
+            executor.setStreamHandler(new PumpStreamHandler(outputStream, errorStream));
             executor.execute(cmdLine);
-            OutputStream outputStream = new FileOutputStream(temporaryFile);
-            byteArrayOutputStream.writeTo(outputStream);
+        } catch (ExecuteException e) {
+            int exitValue = e.getExitValue();
+
+            if (watchdog != null && watchdog.killedProcess()) {
+                throw new CommandTimeoutException("Command timed out after " + MAX_TIMEOUT_SECONDS + " seconds",
+                        command, temporaryFile + "\n" + errorStream);
+            }
+            throw new CommandException("Command failed to execute", command, temporaryFile + "\n" + errorStream,
+                    exitValue, e);
         } catch (IOException e) {
-            throw new CommandException("Command failed to execute", command, byteArrayOutputStream.toString(), e);
+            throw new CommandException("Command failed to execute", command, temporaryFile + "\n" + errorStream, e);
         }
     }
 }
