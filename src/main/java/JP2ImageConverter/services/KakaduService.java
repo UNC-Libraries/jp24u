@@ -168,7 +168,10 @@ public class KakaduService {
             String input = "-i";
             // preprocess non-TIFF images and convert them to temporary TIFFs before kdu_compress
             String inputFile = imagePreproccessingService.convertToTiff(fileName, sourceFormat);
-            intermediateFiles.add(inputFile);
+            // Only add the temporary TIFF to intermediate files if it is different from the original file
+            if (!fileName.equals(inputFile)) {
+                intermediateFiles.add(inputFile);
+            }
             String output = "-o";
             String outputFile;
             String outputDefaultFilename = FilenameUtils.getBaseName(fileName) + ".jp2";
