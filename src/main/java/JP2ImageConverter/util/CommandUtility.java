@@ -37,7 +37,7 @@ public class CommandUtility {
     public static String executeCommand(List<String> command) {
         log.debug("Executing command with timeout {}s: {}", MAX_TIMEOUT_SECONDS, String.join(" ", command));
         CommandLine cmdLine = CommandLine.parse(command.getFirst());
-        cmdLine.addArguments(command.subList(1, command.size()).toArray(new String[0]));
+        command.subList(1, command.size()).forEach(arg -> cmdLine.addArgument(arg, false));
 
         DefaultExecutor executor = DefaultExecutor.builder().get();
         ExecuteWatchdog watchdog = null;
@@ -52,7 +52,7 @@ public class CommandUtility {
 
         try {
             executor.execute(cmdLine);
-            return outputStream.toString();
+            return outputStream + "\n" + errorStream;
         } catch (ExecuteException e) {
             String output = outputStream.toString();
             int exitValue = e.getExitValue();

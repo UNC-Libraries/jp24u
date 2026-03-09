@@ -18,8 +18,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -221,25 +221,19 @@ public class KakaduServiceTest {
     public void testKduCompressFail() throws Exception {
         String testFile = "src/test/resources/test_input.txt";
 
-        try {
-            service.kduCompress(testFile, Paths.get(tmpFolder + "/test_input"), "");
-            fail();
-        } catch (Exception e) {
-            assertContains("JP2 conversion for the following file format not supported: txt", e.getMessage());
-        }
+        var e = assertThrows(Exception.class,
+                () -> service.kduCompress(testFile, Paths.get(tmpFolder + "/test_input"), ""));
+        assertContains("JP2 conversion for the following file format not supported: txt", e.getMessage());
     }
 
     @Test
     public void testNonExistentOutputPathFail() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
-        try {
-            service.kduCompress(testFile, Paths.get("folder/E101_F8_0112"), "");
-            fail();
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("folder/E101_F8_0112 does not exist."));
-            assertFalse(Files.exists(Paths.get("folder/E101_F8_0112.jp2")));
-        }
+        var e = assertThrows(Exception.class,
+                () -> service.kduCompress(testFile, Paths.get("folder/E101_F8_0112"), ""));
+        assertTrue(e.getMessage().contains("folder/E101_F8_0112 does not exist."));
+        assertFalse(Files.exists(Paths.get("folder/E101_F8_0112.jp2")));
     }
 
     @Test
@@ -277,34 +271,31 @@ public class KakaduServiceTest {
     @Test
     public void testNoSourceFormatWithNoFileExtensionFail() throws Exception {
         String testFile = "src/test/resources/IMG_2377_nofileext";
-        try {
-            service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377_nofileext"), "");
-            fail();
-        } catch (Exception e) {
-            assertContains("Source format could not be determined for", e.getMessage());
-        }
+        var e = assertThrows(Exception.class,
+                () -> service.kduCompress(testFile, Paths.get(tmpFolder + "/IMG_2377_nofileext"), ""));
+
+        assertContains("Source format could not be determined for", e.getMessage());
     }
 
     @Test
     public void testUnrecognizedSourceFormatFail() throws Exception {
         String testFile = "src/test/resources/E101_F8_0112.tif";
 
-        try {
-            service.kduCompress(testFile, Paths.get(tmpFolder + "/E101_F8_0112"), "test");
-            fail();
-        } catch (Exception e) {
-            assertContains("JP2 conversion for the following file format not supported: test", e.getMessage());
-        }
+        var e = assertThrows(Exception.class,
+                () -> service.kduCompress(testFile, Paths.get(tmpFolder + "/E101_F8_0112"), "test"));
+        assertContains("JP2 conversion for the following file format not supported: test", e.getMessage());
     }
 
     @Test
     public void testListofFilesWithNonexistentFileKduCompress() throws Exception {
         String testFile = "src/test/resources/test_input_fail.txt";
 
-        try {
-            service.fileListKduCompress(testFile, tmpFolder, "");
-            fail();
-        } catch (Exception e) {
+        try (MockedStatic<CommandUtility> mockedStatic = Mockito.mockStatic(CommandUtility.class)) {
+            String mockedJp2 = tmpFolder.resolve("mockedImage.jp2").toString();
+            mockedStatic.when(() -> CommandUtility.executeCommand(anyList()))
+                    .thenReturn(mockedJp2);
+            var e = assertThrows(Exception.class,
+                    () -> service.fileListKduCompress(testFile, tmpFolder, ""));
             assertContains("src/test/resources/test.tif does not exist. Not processing file list further.",
                     e.getMessage());
         }
@@ -312,7 +303,9 @@ public class KakaduServiceTest {
 
     @Test
     public void testDeleteTinyGrayVoidImage() throws Exception {
-        String testFile = "src/test/resources/04OldWelllogo.psd";
+        Path testFilePath = tmpFolder.resolve("04OldWelllogo.psd");
+        Files.copy(Paths.get("src/test/resources/04OldWelllogo.psd"), testFilePath);
+        String testFile = testFilePath.toString();
         Map<String, String> imageMetadata = Map.of(ColorFieldsService.COLOR_SPACE, "Gray");
         ColorFieldsService colorFieldsService = mock(ColorFieldsService.class);
         when(colorFieldsService.extractMetadataFields(anyString())).thenReturn(imageMetadata);
@@ -341,6 +334,7 @@ public class KakaduServiceTest {
                     .convertToTiff(testFile, "psd");
             verify(imagePreproccessingService, times(1))
                     .convertColorSpaces("Gray", "TrueColor", testFile);
+            assertTrue(Files.exists(Paths.get(testFile)));
         }
     }
 
@@ -370,7 +364,9 @@ public class KakaduServiceTest {
 
     @Test
     public void testKduCompressRotatedJpg() throws Exception {
-        String testFile = "src/test/resources/albright_football_0082.jpg";
+        Path testFilePath = tmpFolder.resolve("albright_football_0082.jpg");
+        Files.copy(Paths.get("src/test/resources/albright_football_0082.jpg"), testFilePath);
+        String testFile = testFilePath.toString();
         Map<String, String> imageMetadata = Map.of(ColorFieldsService.COLOR_SPACE, "RGB",
                 ColorFieldsService.ORIENTATION_DEFAULT, "Right side, top (Rotate 90 CW)");
         ColorFieldsService colorFieldsService = mock(ColorFieldsService.class);
@@ -401,6 +397,8 @@ public class KakaduServiceTest {
                     .convertToTiff(testFile, "jpeg");
             verify(imagePreproccessingService, times(1))
                     .convertColorSpaces("RGB", "TrueColor", testFile);
+            // Input file should not be deleted after processing
+            assertTrue(Files.exists(Paths.get(testFile)));
         }
     }
 
