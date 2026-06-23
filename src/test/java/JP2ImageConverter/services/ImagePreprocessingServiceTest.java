@@ -172,7 +172,7 @@ public class ImagePreprocessingServiceTest {
             String outputFile = service.convertToTifWithIm(testFile);
 
             mockedStatic.verify(() -> CommandUtility.executeCommand(
-                    new ArrayList<>(Arrays.asList("convert", "-auto-orient", testFile, outputFile))));
+                    new ArrayList<>(Arrays.asList("convert", "-auto-orient", "-strip", testFile, outputFile))));
         }
     }
 

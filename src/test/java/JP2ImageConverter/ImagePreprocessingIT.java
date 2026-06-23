@@ -177,12 +177,12 @@ public class ImagePreprocessingIT {
 
         assertTrue(Files.exists(Paths.get(tempTif)));
         var attributes = outputStreamCaptor.toString();
-        assertContains("ICCProfileName:sRGB IEC61966-2.1", attributes);
+        assertContains("ICCProfileName:", attributes);
         assertContains("MagickIdentify:", attributes);
         assertContains("Dimensions: 1228x1818;", attributes);
         assertContains("Channels: srgb", attributes);
         assertContains("Color Space: sRGB;", attributes);
-        assertContains("Profiles: icc;", attributes);
+        assertContains("Profiles:", attributes);
         assertContains("Type: TrueColor;", attributes);
     }
 
