@@ -127,9 +127,11 @@ public class ImagePreproccessingService {
      */
     public String convertToTifWithIm(String fileName) throws Exception {
         String importFile = fileName;
+        // remove embedded ICC Profiles, which aren't used for colorspace identifying info
+        String strip = "-strip";
         String temporaryFile = String.valueOf(prepareTempPath(fileName, ".tif"));
 
-        List<String> command = Arrays.asList(CONVERT, AUTO_ORIENT, importFile, temporaryFile);
+        List<String> command = Arrays.asList(CONVERT, AUTO_ORIENT, strip, importFile, temporaryFile);
         CommandUtility.executeCommand(command);
 
         return temporaryFile;
