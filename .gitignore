@@ -13,3 +13,7 @@ buildNumber.properties
 .idea
 *.iml
 .DS_Store
+.classpath
+.project
+.settings/
+.m2/
